@@ -1,5 +1,0 @@
-if(EXISTS "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal[1]_tests.cmake")
-  include("/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal[1]_tests.cmake")
-else()
-  add_test(test_twisted_elgamal_NOT_BUILT test_twisted_elgamal_NOT_BUILT)
-endif()
