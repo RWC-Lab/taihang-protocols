@@ -1,0 +1,47 @@
+{
+  "tests": 7,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "ElGamalTest",
+      "tests": 7,
+      "testsuite": [
+        {
+          "name": "StandardEncryptionDecryption",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_elgamal.cpp",
+          "line": 30
+        },
+        {
+          "name": "ReRandomization",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_elgamal.cpp",
+          "line": 39
+        },
+        {
+          "name": "ExponentialEncryptionDecryption",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_elgamal.cpp",
+          "line": 56
+        },
+        {
+          "name": "HomomorphicAddSub",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_elgamal.cpp",
+          "line": 80
+        },
+        {
+          "name": "HomomorphicScalarMul",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_elgamal.cpp",
+          "line": 103
+        },
+        {
+          "name": "MultiRecipientEncryption",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_elgamal.cpp",
+          "line": 118
+        },
+        {
+          "name": "Serialization",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_elgamal.cpp",
+          "line": 145
+        }
+      ]
+    }
+  ]
+}

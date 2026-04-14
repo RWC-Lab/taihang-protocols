@@ -1,0 +1,1191 @@
+Start testing: Mar 19 17:29 CST
+----------------------------------------------------------
+1/44 Testing: ElGamalTest.StandardEncryptionDecryption
+1/44 Test: ElGamalTest.StandardEncryptionDecryption
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal" "--gtest_filter=ElGamalTest.StandardEncryptionDecryption" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"ElGamalTest.StandardEncryptionDecryption" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = ElGamalTest.StandardEncryptionDecryption
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ElGamalTest
+[ RUN      ] ElGamalTest.StandardEncryptionDecryption
+[       OK ] ElGamalTest.StandardEncryptionDecryption (2 ms)
+[----------] 1 test from ElGamalTest (2 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (2 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"ElGamalTest.StandardEncryptionDecryption" end time: Mar 19 17:29 CST
+"ElGamalTest.StandardEncryptionDecryption" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/44 Testing: ElGamalTest.ReRandomization
+2/44 Test: ElGamalTest.ReRandomization
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal" "--gtest_filter=ElGamalTest.ReRandomization" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"ElGamalTest.ReRandomization" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = ElGamalTest.ReRandomization
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ElGamalTest
+[ RUN      ] ElGamalTest.ReRandomization
+[       OK ] ElGamalTest.ReRandomization (3 ms)
+[----------] 1 test from ElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"ElGamalTest.ReRandomization" end time: Mar 19 17:29 CST
+"ElGamalTest.ReRandomization" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/44 Testing: ElGamalTest.ExponentialEncryptionDecryption
+3/44 Test: ElGamalTest.ExponentialEncryptionDecryption
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal" "--gtest_filter=ElGamalTest.ExponentialEncryptionDecryption" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"ElGamalTest.ExponentialEncryptionDecryption" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = ElGamalTest.ExponentialEncryptionDecryption
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ElGamalTest
+[ RUN      ] ElGamalTest.ExponentialEncryptionDecryption
+[       OK ] ElGamalTest.ExponentialEncryptionDecryption (5 ms)
+[----------] 1 test from ElGamalTest (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"ElGamalTest.ExponentialEncryptionDecryption" end time: Mar 19 17:29 CST
+"ElGamalTest.ExponentialEncryptionDecryption" time elapsed: 00:00:00
+----------------------------------------------------------
+
+4/44 Testing: ElGamalTest.HomomorphicAddSub
+4/44 Test: ElGamalTest.HomomorphicAddSub
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal" "--gtest_filter=ElGamalTest.HomomorphicAddSub" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"ElGamalTest.HomomorphicAddSub" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = ElGamalTest.HomomorphicAddSub
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ElGamalTest
+[ RUN      ] ElGamalTest.HomomorphicAddSub
+[       OK ] ElGamalTest.HomomorphicAddSub (4 ms)
+[----------] 1 test from ElGamalTest (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"ElGamalTest.HomomorphicAddSub" end time: Mar 19 17:29 CST
+"ElGamalTest.HomomorphicAddSub" time elapsed: 00:00:00
+----------------------------------------------------------
+
+5/44 Testing: ElGamalTest.HomomorphicScalarMul
+5/44 Test: ElGamalTest.HomomorphicScalarMul
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal" "--gtest_filter=ElGamalTest.HomomorphicScalarMul" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"ElGamalTest.HomomorphicScalarMul" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = ElGamalTest.HomomorphicScalarMul
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ElGamalTest
+[ RUN      ] ElGamalTest.HomomorphicScalarMul
+[       OK ] ElGamalTest.HomomorphicScalarMul (4 ms)
+[----------] 1 test from ElGamalTest (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"ElGamalTest.HomomorphicScalarMul" end time: Mar 19 17:29 CST
+"ElGamalTest.HomomorphicScalarMul" time elapsed: 00:00:00
+----------------------------------------------------------
+
+6/44 Testing: ElGamalTest.MultiRecipientEncryption
+6/44 Test: ElGamalTest.MultiRecipientEncryption
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal" "--gtest_filter=ElGamalTest.MultiRecipientEncryption" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"ElGamalTest.MultiRecipientEncryption" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = ElGamalTest.MultiRecipientEncryption
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ElGamalTest
+[ RUN      ] ElGamalTest.MultiRecipientEncryption
+[       OK ] ElGamalTest.MultiRecipientEncryption (3 ms)
+[----------] 1 test from ElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"ElGamalTest.MultiRecipientEncryption" end time: Mar 19 17:29 CST
+"ElGamalTest.MultiRecipientEncryption" time elapsed: 00:00:00
+----------------------------------------------------------
+
+7/44 Testing: ElGamalTest.Serialization
+7/44 Test: ElGamalTest.Serialization
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal" "--gtest_filter=ElGamalTest.Serialization" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"ElGamalTest.Serialization" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = ElGamalTest.Serialization
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from ElGamalTest
+[ RUN      ] ElGamalTest.Serialization
+[       OK ] ElGamalTest.Serialization (3 ms)
+[----------] 1 test from ElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.01 sec
+----------------------------------------------------------
+Test Passed.
+"ElGamalTest.Serialization" end time: Mar 19 17:29 CST
+"ElGamalTest.Serialization" time elapsed: 00:00:00
+----------------------------------------------------------
+
+8/44 Testing: TwistedElGamalTest.Setup_Standard_Fields
+8/44 Test: TwistedElGamalTest.Setup_Standard_Fields
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Setup_Standard_Fields" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Setup_Standard_Fields" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Setup_Standard_Fields
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Setup_Standard_Fields
+[       OK ] TwistedElGamalTest.Setup_Standard_Fields (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Setup_Standard_Fields" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Setup_Standard_Fields" time elapsed: 00:00:00
+----------------------------------------------------------
+
+9/44 Testing: TwistedElGamalTest.Setup_Exponential_Fields
+9/44 Test: TwistedElGamalTest.Setup_Exponential_Fields
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Setup_Exponential_Fields" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Setup_Exponential_Fields" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Setup_Exponential_Fields
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Setup_Exponential_Fields
+[       OK ] TwistedElGamalTest.Setup_Exponential_Fields (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Setup_Exponential_Fields" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Setup_Exponential_Fields" time elapsed: 00:00:00
+----------------------------------------------------------
+
+10/44 Testing: TwistedElGamalTest.Setup_SameCurve_SameGenerators
+10/44 Test: TwistedElGamalTest.Setup_SameCurve_SameGenerators
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Setup_SameCurve_SameGenerators" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Setup_SameCurve_SameGenerators" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Setup_SameCurve_SameGenerators
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Setup_SameCurve_SameGenerators
+[       OK ] TwistedElGamalTest.Setup_SameCurve_SameGenerators (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Setup_SameCurve_SameGenerators" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Setup_SameCurve_SameGenerators" time elapsed: 00:00:00
+----------------------------------------------------------
+
+11/44 Testing: TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK
+11/44 Test: TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK
+[       OK ] TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.KeyGen_PublicKeyIsGeneratorPowSK" time elapsed: 00:00:00
+----------------------------------------------------------
+
+12/44 Testing: TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent
+12/44 Test: TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent
+[       OK ] TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.KeyGen_TwoKeyPairsAreDifferent" time elapsed: 00:00:00
+----------------------------------------------------------
+
+13/44 Testing: TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint
+13/44 Test: TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint
+[       OK ] TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Standard_EncryptDecrypt_RandomPoint" time elapsed: 00:00:00
+----------------------------------------------------------
+
+14/44 Testing: TwistedElGamalTest.Standard_EncryptDecrypt_Generator
+14/44 Test: TwistedElGamalTest.Standard_EncryptDecrypt_Generator
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Standard_EncryptDecrypt_Generator" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Standard_EncryptDecrypt_Generator" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Standard_EncryptDecrypt_Generator
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Standard_EncryptDecrypt_Generator
+[       OK ] TwistedElGamalTest.Standard_EncryptDecrypt_Generator (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Standard_EncryptDecrypt_Generator" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Standard_EncryptDecrypt_Generator" time elapsed: 00:00:00
+----------------------------------------------------------
+
+15/44 Testing: TwistedElGamalTest.Standard_EncryptDecrypt_Infinity
+15/44 Test: TwistedElGamalTest.Standard_EncryptDecrypt_Infinity
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Standard_EncryptDecrypt_Infinity" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Standard_EncryptDecrypt_Infinity" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Standard_EncryptDecrypt_Infinity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Standard_EncryptDecrypt_Infinity
+[       OK ] TwistedElGamalTest.Standard_EncryptDecrypt_Infinity (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Standard_EncryptDecrypt_Infinity" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Standard_EncryptDecrypt_Infinity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+16/44 Testing: TwistedElGamalTest.Standard_DeterministicWithFixedRandomness
+16/44 Test: TwistedElGamalTest.Standard_DeterministicWithFixedRandomness
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Standard_DeterministicWithFixedRandomness" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Standard_DeterministicWithFixedRandomness" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Standard_DeterministicWithFixedRandomness
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Standard_DeterministicWithFixedRandomness
+[       OK ] TwistedElGamalTest.Standard_DeterministicWithFixedRandomness (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Standard_DeterministicWithFixedRandomness" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Standard_DeterministicWithFixedRandomness" time elapsed: 00:00:00
+----------------------------------------------------------
+
+17/44 Testing: TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic
+17/44 Test: TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic
+[       OK ] TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Standard_FreshEncryptionsAreProbabilistic" time elapsed: 00:00:00
+----------------------------------------------------------
+
+18/44 Testing: TwistedElGamalTest.Standard_WrongKeyDecryptionFails
+18/44 Test: TwistedElGamalTest.Standard_WrongKeyDecryptionFails
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Standard_WrongKeyDecryptionFails" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Standard_WrongKeyDecryptionFails" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Standard_WrongKeyDecryptionFails
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Standard_WrongKeyDecryptionFails
+[       OK ] TwistedElGamalTest.Standard_WrongKeyDecryptionFails (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Standard_WrongKeyDecryptionFails" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Standard_WrongKeyDecryptionFails" time elapsed: 00:00:00
+----------------------------------------------------------
+
+19/44 Testing: TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages
+19/44 Test: TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages
+[       OK ] TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoAdd_DecryptsToSumOfMessages" time elapsed: 00:00:00
+----------------------------------------------------------
+
+20/44 Testing: TwistedElGamalTest.HomoAdd_OperatorMatchesMethod
+20/44 Test: TwistedElGamalTest.HomoAdd_OperatorMatchesMethod
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoAdd_OperatorMatchesMethod" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoAdd_OperatorMatchesMethod" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoAdd_OperatorMatchesMethod
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoAdd_OperatorMatchesMethod
+[       OK ] TwistedElGamalTest.HomoAdd_OperatorMatchesMethod (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoAdd_OperatorMatchesMethod" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoAdd_OperatorMatchesMethod" time elapsed: 00:00:00
+----------------------------------------------------------
+
+21/44 Testing: TwistedElGamalTest.HomoAdd_Commutativity
+21/44 Test: TwistedElGamalTest.HomoAdd_Commutativity
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoAdd_Commutativity" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoAdd_Commutativity" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoAdd_Commutativity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoAdd_Commutativity
+[       OK ] TwistedElGamalTest.HomoAdd_Commutativity (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoAdd_Commutativity" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoAdd_Commutativity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+22/44 Testing: TwistedElGamalTest.HomoSub_DecryptsToMessageDifference
+22/44 Test: TwistedElGamalTest.HomoSub_DecryptsToMessageDifference
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoSub_DecryptsToMessageDifference" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoSub_DecryptsToMessageDifference" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoSub_DecryptsToMessageDifference
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoSub_DecryptsToMessageDifference
+[       OK ] TwistedElGamalTest.HomoSub_DecryptsToMessageDifference (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoSub_DecryptsToMessageDifference" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoSub_DecryptsToMessageDifference" time elapsed: 00:00:00
+----------------------------------------------------------
+
+23/44 Testing: TwistedElGamalTest.HomoSub_SelfCancelToInfinity
+23/44 Test: TwistedElGamalTest.HomoSub_SelfCancelToInfinity
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoSub_SelfCancelToInfinity" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoSub_SelfCancelToInfinity" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoSub_SelfCancelToInfinity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoSub_SelfCancelToInfinity
+[       OK ] TwistedElGamalTest.HomoSub_SelfCancelToInfinity (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoSub_SelfCancelToInfinity" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoSub_SelfCancelToInfinity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+24/44 Testing: TwistedElGamalTest.HomoSub_OperatorMatchesMethod
+24/44 Test: TwistedElGamalTest.HomoSub_OperatorMatchesMethod
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoSub_OperatorMatchesMethod" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoSub_OperatorMatchesMethod" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoSub_OperatorMatchesMethod
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoSub_OperatorMatchesMethod
+[       OK ] TwistedElGamalTest.HomoSub_OperatorMatchesMethod (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoSub_OperatorMatchesMethod" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoSub_OperatorMatchesMethod" time elapsed: 00:00:00
+----------------------------------------------------------
+
+25/44 Testing: TwistedElGamalTest.HomoMul_DecryptsToScaledMessage
+25/44 Test: TwistedElGamalTest.HomoMul_DecryptsToScaledMessage
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoMul_DecryptsToScaledMessage" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoMul_DecryptsToScaledMessage" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoMul_DecryptsToScaledMessage
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoMul_DecryptsToScaledMessage
+[       OK ] TwistedElGamalTest.HomoMul_DecryptsToScaledMessage (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoMul_DecryptsToScaledMessage" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoMul_DecryptsToScaledMessage" time elapsed: 00:00:00
+----------------------------------------------------------
+
+26/44 Testing: TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity
+26/44 Test: TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity
+[       OK ] TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoMul_ScalarZeroGivesInfinity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+27/44 Testing: TwistedElGamalTest.HomoMul_ScalarOneIsIdentity
+27/44 Test: TwistedElGamalTest.HomoMul_ScalarOneIsIdentity
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoMul_ScalarOneIsIdentity" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoMul_ScalarOneIsIdentity" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoMul_ScalarOneIsIdentity
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoMul_ScalarOneIsIdentity
+[       OK ] TwistedElGamalTest.HomoMul_ScalarOneIsIdentity (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoMul_ScalarOneIsIdentity" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoMul_ScalarOneIsIdentity" time elapsed: 00:00:00
+----------------------------------------------------------
+
+28/44 Testing: TwistedElGamalTest.HomoMul_OperatorMatchesMethod
+28/44 Test: TwistedElGamalTest.HomoMul_OperatorMatchesMethod
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoMul_OperatorMatchesMethod" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoMul_OperatorMatchesMethod" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoMul_OperatorMatchesMethod
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoMul_OperatorMatchesMethod
+[       OK ] TwistedElGamalTest.HomoMul_OperatorMatchesMethod (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoMul_OperatorMatchesMethod" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoMul_OperatorMatchesMethod" time elapsed: 00:00:00
+----------------------------------------------------------
+
+29/44 Testing: TwistedElGamalTest.ReRand_PreservesPlaintext
+29/44 Test: TwistedElGamalTest.ReRand_PreservesPlaintext
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.ReRand_PreservesPlaintext" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.ReRand_PreservesPlaintext" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.ReRand_PreservesPlaintext
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.ReRand_PreservesPlaintext
+[       OK ] TwistedElGamalTest.ReRand_PreservesPlaintext (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.ReRand_PreservesPlaintext" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.ReRand_PreservesPlaintext" time elapsed: 00:00:00
+----------------------------------------------------------
+
+30/44 Testing: TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts
+30/44 Test: TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts
+[       OK ] TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.ReRand_TwiceProducesDifferentCiphertexts" time elapsed: 00:00:00
+----------------------------------------------------------
+
+31/44 Testing: TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly
+31/44 Test: TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly
+[       OK ] TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.ReEnc_NewKeyDecryptsCorrectly" time elapsed: 00:00:00
+----------------------------------------------------------
+
+32/44 Testing: TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt
+32/44 Test: TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt
+[       OK ] TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.ReEnc_OldKeyCannotDecrypt" time elapsed: 00:00:00
+----------------------------------------------------------
+
+33/44 Testing: TwistedElGamalTest.Serialization_Ciphertext_RoundTrip
+33/44 Test: TwistedElGamalTest.Serialization_Ciphertext_RoundTrip
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.Serialization_Ciphertext_RoundTrip" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.Serialization_Ciphertext_RoundTrip" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.Serialization_Ciphertext_RoundTrip
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.Serialization_Ciphertext_RoundTrip
+[       OK ] TwistedElGamalTest.Serialization_Ciphertext_RoundTrip (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.Serialization_Ciphertext_RoundTrip" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.Serialization_Ciphertext_RoundTrip" time elapsed: 00:00:00
+----------------------------------------------------------
+
+34/44 Testing: TwistedElGamalTest.HomoCombined_ScaleAfterAdd
+34/44 Test: TwistedElGamalTest.HomoCombined_ScaleAfterAdd
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoCombined_ScaleAfterAdd" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoCombined_ScaleAfterAdd" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoCombined_ScaleAfterAdd
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoCombined_ScaleAfterAdd
+[       OK ] TwistedElGamalTest.HomoCombined_ScaleAfterAdd (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoCombined_ScaleAfterAdd" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoCombined_ScaleAfterAdd" time elapsed: 00:00:00
+----------------------------------------------------------
+
+35/44 Testing: TwistedElGamalTest.HomoCombined_AddThenSubCancel
+35/44 Test: TwistedElGamalTest.HomoCombined_AddThenSubCancel
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalTest.HomoCombined_AddThenSubCancel" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalTest.HomoCombined_AddThenSubCancel" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalTest.HomoCombined_AddThenSubCancel
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalTest
+[ RUN      ] TwistedElGamalTest.HomoCombined_AddThenSubCancel
+[       OK ] TwistedElGamalTest.HomoCombined_AddThenSubCancel (3 ms)
+[----------] 1 test from TwistedElGamalTest (3 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (3 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalTest.HomoCombined_AddThenSubCancel" end time: Mar 19 17:29 CST
+"TwistedElGamalTest.HomoCombined_AddThenSubCancel" time elapsed: 00:00:00
+----------------------------------------------------------
+
+36/44 Testing: TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero
+36/44 Test: TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalExpTest
+[ RUN      ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero
+[       OK ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero (6 ms)
+[----------] 1 test from TwistedElGamalExpTest (7 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (7 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero" end time: Mar 19 17:29 CST
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_Zero" time elapsed: 00:00:00
+----------------------------------------------------------
+
+37/44 Testing: TwistedElGamalExpTest.Exponential_EncryptDecrypt_One
+37/44 Test: TwistedElGamalExpTest.Exponential_EncryptDecrypt_One
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalExpTest.Exponential_EncryptDecrypt_One" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_One" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalExpTest.Exponential_EncryptDecrypt_One
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalExpTest
+[ RUN      ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_One
+[       OK ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_One (61 ms)
+[----------] 1 test from TwistedElGamalExpTest (61 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (61 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_One" end time: Mar 19 17:29 CST
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_One" time elapsed: 00:00:00
+----------------------------------------------------------
+
+38/44 Testing: TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue
+38/44 Test: TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalExpTest
+[ RUN      ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue
+[       OK ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue (61 ms)
+[----------] 1 test from TwistedElGamalExpTest (61 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (61 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue" end time: Mar 19 17:29 CST
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_MaxValue" time elapsed: 00:00:00
+----------------------------------------------------------
+
+39/44 Testing: TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random
+39/44 Test: TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalExpTest
+[ RUN      ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random
+[       OK ] TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random (61 ms)
+[----------] 1 test from TwistedElGamalExpTest (61 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (61 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random" end time: Mar 19 17:29 CST
+"TwistedElGamalExpTest.Exponential_EncryptDecrypt_Random" time elapsed: 00:00:00
+----------------------------------------------------------
+
+40/44 Testing: TwistedElGamalExpTest.HomoAdd_Exponential
+40/44 Test: TwistedElGamalExpTest.HomoAdd_Exponential
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalExpTest.HomoAdd_Exponential" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalExpTest.HomoAdd_Exponential" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalExpTest.HomoAdd_Exponential
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalExpTest
+[ RUN      ] TwistedElGamalExpTest.HomoAdd_Exponential
+[       OK ] TwistedElGamalExpTest.HomoAdd_Exponential (61 ms)
+[----------] 1 test from TwistedElGamalExpTest (61 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (61 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.07 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalExpTest.HomoAdd_Exponential" end time: Mar 19 17:29 CST
+"TwistedElGamalExpTest.HomoAdd_Exponential" time elapsed: 00:00:00
+----------------------------------------------------------
+
+41/44 Testing: TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly
+41/44 Test: TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalMrTest
+[ RUN      ] TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly
+[       OK ] TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly (5 ms)
+[----------] 1 test from TwistedElGamalMrTest (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly" end time: Mar 19 17:29 CST
+"TwistedElGamalMrTest.MrEncrypt_AllRecipientsDecryptCorrectly" time elapsed: 00:00:00
+----------------------------------------------------------
+
+42/44 Testing: TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult
+42/44 Test: TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalMrTest
+[ RUN      ] TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult
+[       OK ] TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult (4 ms)
+[----------] 1 test from TwistedElGamalMrTest (4 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (4 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult" end time: Mar 19 17:29 CST
+"TwistedElGamalMrTest.MrEncrypt_WrongIndexGivesWrongResult" time elapsed: 00:00:00
+----------------------------------------------------------
+
+43/44 Testing: TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR
+43/44 Test: TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalMrTest
+[ RUN      ] TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR
+[       OK ] TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR (5 ms)
+[----------] 1 test from TwistedElGamalMrTest (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR" end time: Mar 19 17:29 CST
+"TwistedElGamalMrTest.MrEncrypt_DeterministicWithFixedR" time elapsed: 00:00:00
+----------------------------------------------------------
+
+44/44 Testing: TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip
+44/44 Test: TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip
+Command: "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_twisted_elgamal" "--gtest_filter=TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip" "--gtest_also_run_disabled_tests"
+Directory: /Users/yuchen/Documents/Coding/Taihang-Protocols/build
+"TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip" start time: Mar 19 17:29 CST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4990-9ldiyw/googletest-1.17.0/googletest/src/gtest_main.cc
+Note: Google Test filter = TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip
+[==========] Running 1 test from 1 test suite.
+[----------] Global test environment set-up.
+[----------] 1 test from TwistedElGamalMrTest
+[ RUN      ] TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip
+[       OK ] TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip (5 ms)
+[----------] 1 test from TwistedElGamalMrTest (5 ms total)
+
+[----------] Global test environment tear-down
+[==========] 1 test from 1 test suite ran. (5 ms total)
+[  PASSED  ] 1 test.
+<end of output>
+Test time =   0.02 sec
+----------------------------------------------------------
+Test Passed.
+"TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip" end time: Mar 19 17:29 CST
+"TwistedElGamalMrTest.Serialization_MrCiphertext_RoundTrip" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Mar 19 17:29 CST

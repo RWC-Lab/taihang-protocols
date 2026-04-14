@@ -1,0 +1,5 @@
+if(EXISTS "/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal[1]_tests.cmake")
+  include("/Users/yuchen/Documents/Coding/Taihang-Protocols/build/test_elgamal[1]_tests.cmake")
+else()
+  add_test(test_elgamal_NOT_BUILT test_elgamal_NOT_BUILT)
+endif()

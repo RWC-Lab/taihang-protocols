@@ -1,0 +1,209 @@
+{
+  "tests": 37,
+  "name": "AllTests",
+  "testsuites": [
+    {
+      "name": "TwistedElGamalTest",
+      "tests": 28,
+      "testsuite": [
+        {
+          "name": "Setup_Standard_Fields",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 104
+        },
+        {
+          "name": "Setup_Exponential_Fields",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 114
+        },
+        {
+          "name": "Setup_SameCurve_SameGenerators",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 123
+        },
+        {
+          "name": "KeyGen_PublicKeyIsGeneratorPowSK",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 134
+        },
+        {
+          "name": "KeyGen_TwoKeyPairsAreDifferent",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 138
+        },
+        {
+          "name": "Standard_EncryptDecrypt_RandomPoint",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 146
+        },
+        {
+          "name": "Standard_EncryptDecrypt_Generator",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 151
+        },
+        {
+          "name": "Standard_EncryptDecrypt_Infinity",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 155
+        },
+        {
+          "name": "Standard_DeterministicWithFixedRandomness",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 160
+        },
+        {
+          "name": "Standard_FreshEncryptionsAreProbabilistic",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 166
+        },
+        {
+          "name": "Standard_WrongKeyDecryptionFails",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 171
+        },
+        {
+          "name": "HomoAdd_DecryptsToSumOfMessages",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 215
+        },
+        {
+          "name": "HomoAdd_OperatorMatchesMethod",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 222
+        },
+        {
+          "name": "HomoAdd_Commutativity",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 230
+        },
+        {
+          "name": "HomoSub_DecryptsToMessageDifference",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 257
+        },
+        {
+          "name": "HomoSub_SelfCancelToInfinity",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 264
+        },
+        {
+          "name": "HomoSub_OperatorMatchesMethod",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 270
+        },
+        {
+          "name": "HomoMul_DecryptsToScaledMessage",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 282
+        },
+        {
+          "name": "HomoMul_ScalarZeroGivesInfinity",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 288
+        },
+        {
+          "name": "HomoMul_ScalarOneIsIdentity",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 294
+        },
+        {
+          "name": "HomoMul_OperatorMatchesMethod",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 300
+        },
+        {
+          "name": "ReRand_PreservesPlaintext",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 311
+        },
+        {
+          "name": "ReRand_TwiceProducesDifferentCiphertexts",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 319
+        },
+        {
+          "name": "ReEnc_NewKeyDecryptsCorrectly",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 329
+        },
+        {
+          "name": "ReEnc_OldKeyCannotDecrypt",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 336
+        },
+        {
+          "name": "Serialization_Ciphertext_RoundTrip",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 391
+        },
+        {
+          "name": "HomoCombined_ScaleAfterAdd",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 428
+        },
+        {
+          "name": "HomoCombined_AddThenSubCancel",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 437
+        }
+      ]
+    },
+    {
+      "name": "TwistedElGamalExpTest",
+      "tests": 5,
+      "testsuite": [
+        {
+          "name": "Exponential_EncryptDecrypt_Zero",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 180
+        },
+        {
+          "name": "Exponential_EncryptDecrypt_One",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 187
+        },
+        {
+          "name": "Exponential_EncryptDecrypt_MaxValue",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 194
+        },
+        {
+          "name": "Exponential_EncryptDecrypt_Random",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 201
+        },
+        {
+          "name": "HomoAdd_Exponential",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 238
+        }
+      ]
+    },
+    {
+      "name": "TwistedElGamalMrTest",
+      "tests": 4,
+      "testsuite": [
+        {
+          "name": "MrEncrypt_AllRecipientsDecryptCorrectly",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 364
+        },
+        {
+          "name": "MrEncrypt_WrongIndexGivesWrongResult",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 375
+        },
+        {
+          "name": "MrEncrypt_DeterministicWithFixedR",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 381
+        },
+        {
+          "name": "Serialization_MrCiphertext_RoundTrip",
+          "file": "\/Users\/yuchen\/Documents\/Coding\/Taihang-Protocols\/tests\/test_twisted_elgamal.cpp",
+          "line": 408
+        }
+      ]
+    }
+  ]
+}

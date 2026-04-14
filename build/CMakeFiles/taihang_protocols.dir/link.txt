@@ -1,0 +1,2 @@
+/usr/bin/ar qc libtaihang_protocols.a CMakeFiles/taihang_protocols.dir/source/pke/elgamal.cpp.o CMakeFiles/taihang_protocols.dir/source/pke/twisted_elgamal.cpp.o
+/usr/bin/ranlib libtaihang_protocols.a

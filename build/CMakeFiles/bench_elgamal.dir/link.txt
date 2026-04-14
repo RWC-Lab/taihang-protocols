@@ -1,0 +1,1 @@
+/usr/bin/c++ -Wl,-search_paths_first -Wl,-headerpad_max_install_names CMakeFiles/bench_elgamal.dir/benchmarks/bench_elgamal.cpp.o -o bench_elgamal  -Wl,-rpath,/usr/local/lib libtaihang_protocols.a taihang_core_build/libtaihang.a /usr/local/lib/libcrypto.a /usr/local/lib/libxxhash.0.8.3.dylib /usr/local/lib/libomp.dylib
