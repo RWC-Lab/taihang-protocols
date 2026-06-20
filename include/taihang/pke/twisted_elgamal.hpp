@@ -43,7 +43,7 @@ struct PublicParameters {
     // PublicParameters(PublicParameters&&) noexcept = default;
     // PublicParameters& operator=(PublicParameters&&) noexcept = default;
 
-    void print(std::string_view label = "", std::ostream& os = std::cout) const;
+    std::string format() const;
 
     // Serialization
     friend std::ostream& operator<<(std::ostream& os, const PublicParameters& pp);
@@ -77,7 +77,7 @@ struct Ciphertext {
     friend std::ostream& operator<<(std::ostream& os, const Ciphertext& ct);
     friend std::istream& operator>>(std::istream& is, Ciphertext& ct);
 
-    void print(std::string_view label = "", std::ostream& os = std::cout) const;
+    std::string format() const;
 
 };
 
@@ -97,7 +97,7 @@ struct MrCiphertext {
     bool operator==(const MrCiphertext& other) const;
     bool operator!=(const MrCiphertext& other) const { return !(*this == other); }
 
-    void print(std::string_view label = "", std::ostream& os = std::cout) const;
+    std::string format() const;
 };
 
 // --- Core API ---
@@ -135,5 +135,6 @@ Ciphertext re_rand(const PublicParameters& pp, const PublicKey& pk, const Cipher
 
 
 } // namespace taihang::pke::elgamal
+
 
 #endif

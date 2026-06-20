@@ -10,11 +10,13 @@
 namespace taihang::pke::elgamal {
 
 // --- PublicParameters ---
-void PublicParameters::print(std::string_view label, std::ostream& os) const {
-    os << "[ElGamal PublicParameters] " << label << "\n";
-    os << "Curve ID: " << curve_id << "\n";
-    os << "Mode: " << (msg_len_bits == 0 ? "Standard" : "Exponential") << "\n";
-    g.print("Base Point g = ", os);
+std::string PublicParameters::format() const {
+    std::ostringstream oss; 
+    oss << "[ElGamal PublicParameters] \n";
+    oss << "Curve ID: " << curve_id << "\n";
+    oss << "Mode: " << (msg_len_bits == 0 ? "Standard" : "Exponential") << "\n";
+    oss << "Base Point g = " << g.to_string() << "\n";
+    return oss.str(); 
 }
 
 std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
@@ -43,10 +45,12 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
 
 // --- Ciphertext ---
 
-void Ciphertext::print(std::string_view label, std::ostream& os) const {
-    os << "[ElGamal Ciphertext] " << label << "\n";
-    c1.print("c1 = ", os);
-    c2.print("c2 = ", os);
+std::string Ciphertext::format() const {
+    std::ostringstream oss; 
+    oss << "[ElGamal Ciphertext] \n"
+        << "c1 = " << c1.to_string() << "\n"
+        << "c2 = " << c2.to_string() << "\n";
+    return oss.str(); 
 }
 
 Ciphertext Ciphertext::homo_add(const Ciphertext& other) const{
@@ -88,19 +92,21 @@ std::istream& operator>>(std::istream& is, Ciphertext& ct) {
 }
 
 // --- MrCiphertext ---
-void MrCiphertext::print(std::string_view label, std::ostream& os) const {
-    os << "[ElGamal Multi-Recipient Ciphertext] " << label << "\n";
-    c1.print("c1 (Common) = ", os);
+std::string MrCiphertext::format() const {
+    std::ostringstream oss;
+    oss << "[ElGamal Multi-Recipient Ciphertext] \n";
+    oss << "c1 (Common) = " << c1.to_string() << "\n";
     for (size_t i = 0; i < vec_c2.size(); ++i) {
-        vec_c2[i].print("c2[" + std::to_string(i) + "] = ", os);
+        oss << "c2[" + std::to_string(i) + "] = " << vec_c2[i].to_string() << "\n";
     }
+    return oss.str();
 }
 
 // --- Algorithms ---
 
-PublicParameters setup(int input_curve_id, size_t msg_len_bits) {
+PublicParameters setup(int curve_id, size_t msg_len_bits) {
     PublicParameters pp;
-    pp.curve_id = input_curve_id;
+    pp.curve_id = curve_id;
 
     // Allocate contexts with stable addresses
     pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
