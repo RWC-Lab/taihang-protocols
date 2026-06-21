@@ -76,7 +76,6 @@ foreach(test_source ${TEST_FILES})
     # Link GTest main explicitly
     target_link_libraries(${test_name} PRIVATE 
         taihang_protocols 
-        GTest::gtest 
         GTest::gtest_main
     )
     

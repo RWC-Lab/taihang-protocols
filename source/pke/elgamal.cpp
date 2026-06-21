@@ -27,7 +27,8 @@ std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
 
 std::istream& operator>>(std::istream& is, PublicParameters& pp) {
     if (!(is >> pp.curve_id >> pp.msg_len_bits)) return is;
-    
+
+    pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
     pp.g = ECPoint(pp.group_ctx);
     is >> pp.g; // Binary read for ECPoint (Octets)
 
