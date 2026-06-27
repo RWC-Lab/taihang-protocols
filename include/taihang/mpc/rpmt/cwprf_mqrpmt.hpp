@@ -11,13 +11,32 @@
 #include <taihang/common/check.hpp>
 #include <taihang/crypto/block.hpp>
 #include <taihang/crypto/ec_group.hpp>
+#include <taihang/crypto/ec25519_point.hpp>
 #include <taihang/net/net_io.hpp>
 #include <taihang/structure/bloom_filter.hpp>
 #include <vector>
 #include <string>
 #include <iostream>
+#include <optional>
 
 namespace taihang::mpc::cwprf_mqrpmt {
+
+/**
+ * @enum FilterMode
+ * @brief Selects the membership-test structure used in the final round.
+ *
+ *  BloomFilter – Client sends a compact probabilistic filter (FPR ~ 2^-ssp).
+ *                Communication is O(n) bits; a small false-positive rate is
+ *                accepted in exchange for reduced bandwidth.
+ *
+ *  PlainSet    – Client sends the full, randomly-permuted set of PRF values.
+ *                No false positives; communication is O(n * point_byte_len).
+ *                statistical_security_parameter is ignored in this mode.
+ */
+enum class FilterMode {
+    BloomFilter,
+    PlainSet
+};
 
 /**
  * @struct PublicParameters
@@ -28,21 +47,33 @@ struct PublicParameters {
     std::shared_ptr<ECGroup> group_ctx;            // The ECC group context
     std::shared_ptr<Zn> field_ctx;                 // the SK space
 
-    size_t statistical_security_parameter = 40;    // Default k = 40 (FPR ~ 2^-40)
     size_t log_server_len = 0;
     size_t log_client_len = 0;
+
+    FilterMode filter_mode = FilterMode::BloomFilter; // membership-test backend
+    size_t statistical_security_parameter = 40;    // default k = 40 → FPR ~ 2^-40 (BloomFilter mode only)
 
     std::string format() const;
 
     // Stream serialization operators matching Taihang's style
     friend std::ostream& operator<<(std::ostream& os, const PublicParameters& pp);
-    friend std::istream& operator>>(std::istream& is, PublicParameters& pp);
+    friend std::istream& operator>>(std::istream& is,       PublicParameters& pp);
 };
 
 /**
- * @brief Global parameter configuration setup utility.
+ * @brief Constructs a fully-initialised PublicParameters object.
+ *
+ * @param curve_id                  OpenSSL NID identifying the elliptic curve.
+ * @param log_server_len            log2 of the server set size.
+ * @param log_client_len            log2 of the client set size.
+ * @param mode                      FilterMode::BloomFilter (default) or FilterMode::PlainSet.
+ * @param statistical_security_param  Bits of statistical security for the Bloom Filter (ignored when mode == PlainSet).
  */
-PublicParameters setup(int curve_id, size_t statistical_security_param, size_t log_server_len, size_t log_client_len);
+PublicParameters setup(int    curve_id,
+                       size_t log_server_len,
+                       size_t log_client_len,
+                       FilterMode mode = FilterMode::BloomFilter,
+                       std::optional<size_t> statistical_security_parameter = std::nullopt);
 
 /**
  * @brief Executes the Server-side context of the mqRPMT protocol.
