@@ -3,10 +3,12 @@
  * @brief     Performance benchmark suite for cwPRF-based mqRPMT protocol.
  *
  * Benchmarked configurations
- *   - Secp256r1 + BloomFilter
- *   - Secp256r1 + PlainSet
- *   - X25519    + BloomFilter
- *   - X25519    + PlainSet
+ *   - Secp256r1 (compressed,   33 B/pt) + BloomFilter
+ *   - Secp256r1 (compressed,   33 B/pt) + PlainSet
+ *   - Secp256r1 (uncompressed, 65 B/pt) + BloomFilter
+ *   - Secp256r1 (uncompressed, 65 B/pt) + PlainSet
+ *   - X25519    (always 32 B/pt)        + BloomFilter
+ *   - X25519    (always 32 B/pt)        + PlainSet
  *
  * Dataset
  *   Server : 2^20 elements
@@ -17,6 +19,7 @@
  ****************************************************************************/
 
 #include <taihang/mpc/rpmt/cwprf_mqrpmt.hpp>
+#include <taihang/common/config.hpp>
 #include <taihang/common/logger.hpp>
 #include <taihang/crypto/prg.hpp>
 
@@ -64,32 +67,14 @@ static Dataset make_dataset(size_t server_len,
 
     ds.intersection_len = client_len / 2;
 
-    //----------------------------------------------------------------------
-    // Generate server set
-    //----------------------------------------------------------------------
-
-    prg::gen_random_blocks(seed,
-                           ds.vec_y.data(),
-                           server_len);
-
-    //----------------------------------------------------------------------
-    // Client set:
-    //   first half  -> intersection
-    //   second half -> disjoint
-    //----------------------------------------------------------------------
+    prg::gen_random_blocks(seed, ds.vec_y.data(), server_len);
 
     for (size_t i = 0; i < client_len; ++i)
     {
         if (i < ds.intersection_len)
-        {
             ds.vec_x[i] = ds.vec_y[i];
-        }
         else
-        {
-            ds.vec_x[i] =
-                make_block(i,
-                           0xDEADBEEFADDEULL);
-        }
+            ds.vec_x[i] = make_block(i, 0xDEADBEEFADDEULL);
     }
 
     return ds;
@@ -105,7 +90,6 @@ struct BenchResult
     double server_ms;
     double client_ms;
     double wall_ms;
-
     size_t matches;
 };
 
@@ -122,341 +106,140 @@ static BenchResult run_once(const PublicParameters& pp,
 
     auto wall_begin = Clock::now();
 
-    //----------------------------------------------------------------------
-    // Server
-    //----------------------------------------------------------------------
-
     auto server_future =
-        std::async(std::launch::async,
-                   [&]()
-                   {
-                       net::NetIO io("server",
-                                     address,
-                                     port);
-
-                       auto t0 = Clock::now();
-
-                       auto bits =
-                           server(io,
-                                  pp,
-                                  ds.vec_y);
-
-                       double elapsed =
-                           Ms(Clock::now() - t0).count();
-
-                       return std::make_pair(std::move(bits),
-                                             elapsed);
-                   });
-
-    //----------------------------------------------------------------------
-    // Client
-    //----------------------------------------------------------------------
+        std::async(std::launch::async, [&]() {
+            net::NetIO io("server", address, port);
+            auto t0   = Clock::now();
+            auto bits = server(io, pp, ds.vec_y);
+            double ms = Ms(Clock::now() - t0).count();
+            return std::make_pair(std::move(bits), ms);
+        });
 
     auto client_future =
-        std::async(std::launch::async,
-                   [&]()
-                   {
-                       net::NetIO io("client",
-                                     address,
-                                     port);
+        std::async(std::launch::async, [&]() {
+            net::NetIO io("client", address, port);
+            auto t0 = Clock::now();
+            client(io, pp, ds.vec_x);
+            return Ms(Clock::now() - t0).count();
+        });
 
-                       auto t0 = Clock::now();
-
-                       client(io,
-                              pp,
-                              ds.vec_x);
-
-                       return Ms(Clock::now() - t0).count();
-                   });
-
-    //----------------------------------------------------------------------
-    // Wait
-    //----------------------------------------------------------------------
-
-    double client_ms = client_future.get();
-
-    auto [bits, server_ms] =
-        server_future.get();
-
-    double wall_ms =
-        Ms(Clock::now() - wall_begin).count();
-
-    //----------------------------------------------------------------------
-    // Count intersection
-    //----------------------------------------------------------------------
+    double client_ms           = client_future.get();
+    auto [bits, server_ms]     = server_future.get();
+    double wall_ms             = Ms(Clock::now() - wall_begin).count();
 
     size_t matches = 0;
+    for (auto b : bits) matches += b;
 
-    for (auto b : bits)
-        matches += b;
-
-    return {
-        server_ms,
-        client_ms,
-        wall_ms,
-        matches
-    };
+    return { server_ms, client_ms, wall_ms, matches };
 }
+
 
 //==============================================================================
 // Pretty Printing
 //==============================================================================
 
-// static std::string format_time_sec(double ms)
-// {
-//     std::ostringstream oss;
-
-//     oss << std::fixed
-//         << std::setprecision(2)
-//         << (ms / 1000.0);
-
-//     return oss.str();
-// }
-
-
-static double throughput_kelem_per_sec(size_t num_elements,
-                                       double elapsed_ms)
+static double throughput_kelem_per_sec(size_t n, double ms)
 {
-    return num_elements / (elapsed_ms / 1000.0) / 1000.0;
+    return n / (ms / 1000.0) / 1000.0;
 }
-
-
-//==============================================================================
-// Experiment Header
-//==============================================================================
 
 static void print_header(const std::string& label,
-                         size_t server_len,
-                         size_t client_len,
-                         size_t log_server,
-                         size_t log_client)
+                         size_t server_len, size_t client_len,
+                         size_t log_server, size_t log_client)
 {
-    std::cout << "\n";
-
-    std::cout
-        << "================================================================================\n";
-
-    std::cout
-        << label
-        << "\n";
-
-    std::cout
-        << "--------------------------------------------------------------------------------\n";
-
-    std::cout
-        << "Server Set : 2^"
-        << log_server
-        << " = "
-        << server_len
-        << "\n";
-
-    std::cout
-        << "Client Set : 2^"
-        << log_client
-        << " = "
-        << client_len
-        << "\n";
-
-    std::cout
-        << "Intersection Ratio : 50%\n";
-
-    std::cout
+    std::cout << "\n"
+        << "================================================================================\n"
+        << label << "\n"
+        << "--------------------------------------------------------------------------------\n"
+        << "Server Set         : 2^" << log_server << " = " << server_len << "\n"
+        << "Client Set         : 2^" << log_client << " = " << client_len << "\n"
+        << "Intersection Ratio : 50%\n"
         << "================================================================================\n";
 }
-
-
-//==============================================================================
-// Per-run Result
-//==============================================================================
 
 static void print_result(const BenchResult& r,
-                         size_t server_len,
-                         size_t client_len,
+                         size_t server_len, size_t client_len,
                          size_t expected_intersection)
 {
-    double server_tp =
-        throughput_kelem_per_sec(server_len,
-                                 r.server_ms);
+    double server_tp = throughput_kelem_per_sec(server_len, r.server_ms);
+    double client_tp = throughput_kelem_per_sec(client_len, r.client_ms);
 
-    double client_tp =
-        throughput_kelem_per_sec(client_len,
-                                 r.client_ms);
-
-    std::cout
-        << std::fixed
-        << std::setprecision(2);
-
-    std::cout
-        << "Wall Time      : "
-        << r.wall_ms / 1000.0
-        << " s\n";
-
-    std::cout
-        << "Server Time    : "
-        << r.server_ms / 1000.0
-        << " s"
-        << "    ("
-        << server_tp
-        << " Kelem/s)\n";
-
-    std::cout
-        << "Client Time    : "
-        << r.client_ms / 1000.0
-        << " s"
-        << "    ("
-        << client_tp
-        << " Kelem/s)\n";
-
-    std::cout
-        << "Intersection   : "
-        << r.matches
-        << " / "
-        << expected_intersection;
-
-    if (r.matches >= expected_intersection)
-    {
-        std::cout << "  [PASS]";
-    }
-    else
-    {
-        std::cout << "  [FAIL]";
-    }
-
-    std::cout << "\n";
+    std::cout << std::fixed << std::setprecision(2)
+        << "Wall Time      : " << r.wall_ms   / 1000.0 << " s\n"
+        << "Server Time    : " << r.server_ms / 1000.0 << " s    (" << server_tp << " Kelem/s)\n"
+        << "Client Time    : " << r.client_ms / 1000.0 << " s    (" << client_tp << " Kelem/s)\n"
+        << "Intersection   : " << r.matches << " / " << expected_intersection
+        << (r.matches >= expected_intersection ? "  [PASS]" : "  [FAIL]") << "\n";
 }
-
-
-//==============================================================================
-// Benchmark Summary
-//==============================================================================
 
 static void print_summary(
     const std::vector<std::pair<std::string, BenchResult>>& results,
-    size_t server_len,
-    size_t client_len,
-    size_t log_server,
-    size_t log_client)
+    size_t server_len, size_t client_len,
+    size_t log_server, size_t log_client)
 {
-    constexpr int LABEL_W = 32;
+    constexpr int LABEL_W = 38;
 
-    std::cout << "\n\n";
-
-    std::cout
-        << "========================================================================================================\n";
-
-    std::cout
-        << "                                  Taihang cwPRF-mqRPMT Benchmark\n";
-
-    std::cout
-        << "========================================================================================================\n";
-
-    std::cout
-        << "Dataset : "
-        << "2^" << log_server
-        << " (" << server_len << ") server elements"
-        << "    "
-        << "2^" << log_client
-        << " (" << client_len << ") client elements"
-        << "    "
-        << "50% intersection\n";
-
-    std::cout
+    std::cout << "\n\n"
+        << "========================================================================================================\n"
+        << "                                  Taihang cwPRF-mqRPMT Benchmark\n"
+        << "========================================================================================================\n"
+        << "Dataset : 2^" << log_server << " (" << server_len << ") server elements"
+        << "    2^" << log_client << " (" << client_len << ") client elements"
+        << "    50% intersection"
+        << "    Threads: " << config::thread_num << "\n"
+        << "--------------------------------------------------------------------------------------------------------\n"
+        << std::left  << std::setw(LABEL_W) << "Configuration"
+        << std::right << std::setw(12) << "Server(s)"
+                      << std::setw(12) << "Client(s)"
+                      << std::setw(12) << "Wall(s)"
+                      << std::setw(14) << "Kelem/s"
+        << "\n"
         << "--------------------------------------------------------------------------------------------------------\n";
-
-    //----------------------------------------------------------------------
-    // Table Header
-    //----------------------------------------------------------------------
-
-    std::cout
-        << std::left
-        << std::setw(LABEL_W)
-        << "Configuration"
-
-        << std::right
-        << std::setw(12)
-        << "Server(s)"
-
-        << std::setw(12)
-        << "Client(s)"
-
-        << std::setw(12)
-        << "Wall(s)"
-
-        << std::setw(16)
-        << "Kelem/s"
-
-        << "\n";
-
-    std::cout
-        << "--------------------------------------------------------------------------------------------------------\n";
-
-    //----------------------------------------------------------------------
-    // Table Rows
-    //----------------------------------------------------------------------
 
     for (const auto& [label, r] : results)
     {
-        double tp =
-            throughput_kelem_per_sec(server_len,
-                                     r.server_ms);
-
+        double tp = throughput_kelem_per_sec(server_len, r.server_ms);
         std::cout
-            << std::left
-            << std::setw(LABEL_W)
-            << label
-
-            << std::right
-            << std::fixed
-            << std::setprecision(2)
-
-            << std::setw(12)
-            << r.server_ms / 1000.0
-
-            << std::setw(12)
-            << r.client_ms / 1000.0
-
-            << std::setw(12)
-            << r.wall_ms / 1000.0
-
-            << std::setw(16)
-            << tp
-
+            << std::left  << std::setw(LABEL_W) << label
+            << std::right << std::fixed << std::setprecision(2)
+            << std::setw(12) << r.server_ms / 1000.0
+            << std::setw(12) << r.client_ms / 1000.0
+            << std::setw(12) << r.wall_ms   / 1000.0
+            << std::setw(14) << tp
             << "\n";
     }
 
-    //----------------------------------------------------------------------
-    // Speedup Analysis
-    //----------------------------------------------------------------------
-
-    if (results.size() == 4)
+    // ── Compression speedup analysis (only for Secp256r1 rows) ──────────────
+    // rows 0,1 = compressed (bloom, plain)
+    // rows 2,3 = uncompressed (bloom, plain)
+    if (results.size() >= 4)
     {
-        double secp_speedup =
-            results[1].second.server_ms /
-            results[0].second.server_ms;
-
-        double x25519_speedup =
-            results[3].second.server_ms /
-            results[2].second.server_ms;
+        double comp_bloom_s   = results[0].second.server_ms;
+        double comp_plain_s   = results[1].second.server_ms;
+        double uncomp_bloom_s = results[2].second.server_ms;
+        double uncomp_plain_s = results[3].second.server_ms;
 
         std::cout
-            << "--------------------------------------------------------------------------------------------------------\n";
+            << "--------------------------------------------------------------------------------------------------------\n"
+            << std::fixed << std::setprecision(2)
+            << "Secp256r1 Compression Speedup (compressed vs uncompressed)\n"
+            << "  BloomFilter : " << uncomp_bloom_s / comp_bloom_s << "x\n"
+            << "  PlainSet    : " << uncomp_plain_s / comp_plain_s << "x\n";
+    }
+
+    // ── BloomFilter vs PlainSet speedup ─────────────────────────────────────
+    if (results.size() >= 6)
+    {
+        double secp_comp_speedup   = results[1].second.server_ms / results[0].second.server_ms;
+        double secp_uncomp_speedup = results[3].second.server_ms / results[2].second.server_ms;
+        double x25519_speedup      = results[5].second.server_ms / results[4].second.server_ms;
 
         std::cout
-            << std::fixed
-            << std::setprecision(2);
-
-        std::cout
-            << "BloomFilter Speedup over PlainSet\n";
-
-        std::cout
-            << "  Secp256r1 : "
-            << secp_speedup
-            << "x\n";
-
-        std::cout
-            << "  X25519    : "
-            << x25519_speedup
-            << "x\n";
+            << "--------------------------------------------------------------------------------------------------------\n"
+            << "BloomFilter Speedup over PlainSet\n"
+            << "  Secp256r1 (compressed)   : " << secp_comp_speedup   << "x\n"
+            << "  Secp256r1 (uncompressed) : " << secp_uncomp_speedup << "x\n"
+            << "  X25519                   : " << x25519_speedup       << "x\n";
     }
 
     std::cout
@@ -473,185 +256,125 @@ int main()
     constexpr size_t kLogServerLen = 20;
     constexpr size_t kLogClientLen = 20;
 
-    constexpr uint16_t kPortSecpBloom = 12350;
-    constexpr uint16_t kPortSecpPlain = 12351;
-    constexpr uint16_t kPortX25519Bloom = 12352;
-    constexpr uint16_t kPortX25519Plain = 12353;
+    // Six configurations — each needs a distinct port
+    constexpr uint16_t kPortSecpCompBloom   = 12350;
+    constexpr uint16_t kPortSecpCompPlain   = 12351;
+    constexpr uint16_t kPortSecpUncompBloom = 12352;
+    constexpr uint16_t kPortSecpUncompPlain = 12353;
+    constexpr uint16_t kPortX25519Bloom     = 12354;
+    constexpr uint16_t kPortX25519Plain     = 12355;
 
     const size_t server_len = 1ULL << kLogServerLen;
     const size_t client_len = 1ULL << kLogClientLen;
 
     //----------------------------------------------------------------------
-    // Generate dataset
+    // Generate dataset (once, shared across all runs)
     //----------------------------------------------------------------------
 
-    std::cout
-        << "Generating benchmark dataset ...\n";
-
-    auto dataset_begin = Clock::now();
-
-    Dataset ds = make_dataset(server_len,
-                              client_len);
-
-    double dataset_ms =
-        Ms(Clock::now() - dataset_begin).count();
-
-    std::cout
-        << "Dataset generation completed in "
-        << std::fixed
-        << std::setprecision(2)
-        << dataset_ms
-        << " ms\n";
-
-    //----------------------------------------------------------------------
-    // Benchmark summary
-    //----------------------------------------------------------------------
+    std::cout << "Generating benchmark dataset ...\n";
+    auto t0 = Clock::now();
+    Dataset ds = make_dataset(server_len, client_len);
+    std::cout << "Dataset ready in "
+              << std::fixed << std::setprecision(2)
+              << Ms(Clock::now() - t0).count() << " ms\n"
+              << "Threads         : " << config::thread_num << "\n";
 
     std::vector<std::pair<std::string, BenchResult>> summary;
 
     //======================================================================
-    // Secp256r1 + BloomFilter
+    // Secp256r1 + Compressed (33 B/point) + BloomFilter
     //======================================================================
-
     {
-        print_header(
-            "Benchmark: Secp256r1 + BloomFilter",
-            server_len,
-            client_len,
-            kLogServerLen,
-            kLogClientLen);
+        config::use_point_compression = true;   // ← 33 bytes/point
 
-        auto pp =
-            setup(415,
-                  kLogServerLen,
-                  kLogClientLen,
-                  FilterMode::BloomFilter,
-                  40);
+        print_header("Benchmark: Secp256r1 [compressed, 33 B/pt] + BloomFilter",
+                     server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto result =
-            run_once(pp,
-                     ds,
-                     kPortSecpBloom);
-
-        print_result(result,
-                     server_len,
-                     client_len,
-                     ds.intersection_len);
-
-        summary.emplace_back(
-            "Secp256r1 + BloomFilter",
-            result);
+        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::BloomFilter, 40);
+        auto r  = run_once(pp, ds, kPortSecpCompBloom);
+        print_result(r, server_len, client_len, ds.intersection_len);
+        summary.emplace_back("Secp256r1 [comp]   + BloomFilter", r);
     }
 
     //======================================================================
-    // Secp256r1 + PlainSet
+    // Secp256r1 + Compressed (33 B/point) + PlainSet
     //======================================================================
-
     {
-        print_header(
-            "Benchmark: Secp256r1 + PlainSet",
-            server_len,
-            client_len,
-            kLogServerLen,
-            kLogClientLen);
+        config::use_point_compression = true;
 
-        auto pp =
-            setup(415,
-                  kLogServerLen,
-                  kLogClientLen,
-                  FilterMode::PlainSet);
+        print_header("Benchmark: Secp256r1 [compressed, 33 B/pt] + PlainSet",
+                     server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto result =
-            run_once(pp,
-                     ds,
-                     kPortSecpPlain);
-
-        print_result(result,
-                     server_len,
-                     client_len,
-                     ds.intersection_len);
-
-        summary.emplace_back(
-            "Secp256r1 + PlainSet",
-            result);
+        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::PlainSet);
+        auto r  = run_once(pp, ds, kPortSecpCompPlain);
+        print_result(r, server_len, client_len, ds.intersection_len);
+        summary.emplace_back("Secp256r1 [comp]   + PlainSet   ", r);
     }
 
     //======================================================================
-    // X25519 + BloomFilter
+    // Secp256r1 + Uncompressed (65 B/point) + BloomFilter
     //======================================================================
-
     {
-        print_header(
-            "Benchmark: X25519 + BloomFilter",
-            server_len,
-            client_len,
-            kLogServerLen,
-            kLogClientLen);
+        config::use_point_compression = false;  // ← 65 bytes/point
 
-        auto pp =
-            setup(NID_X25519,
-                  kLogServerLen,
-                  kLogClientLen,
-                  FilterMode::BloomFilter,
-                  40);
+        print_header("Benchmark: Secp256r1 [uncompressed, 65 B/pt] + BloomFilter",
+                     server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto result =
-            run_once(pp,
-                     ds,
-                     kPortX25519Bloom);
+        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::BloomFilter, 40);
+        auto r  = run_once(pp, ds, kPortSecpUncompBloom);
+        print_result(r, server_len, client_len, ds.intersection_len);
+        summary.emplace_back("Secp256r1 [uncomp] + BloomFilter", r);
+    }
 
-        print_result(result,
-                     server_len,
-                     client_len,
-                     ds.intersection_len);
+    //======================================================================
+    // Secp256r1 + Uncompressed (65 B/point) + PlainSet
+    //======================================================================
+    {
+        config::use_point_compression = false;
 
-        summary.emplace_back(
-            "X25519 + BloomFilter",
-            result);
+        print_header("Benchmark: Secp256r1 [uncompressed, 65 B/pt] + PlainSet",
+                     server_len, client_len, kLogServerLen, kLogClientLen);
+
+        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::PlainSet);
+        auto r  = run_once(pp, ds, kPortSecpUncompPlain);
+        print_result(r, server_len, client_len, ds.intersection_len);
+        summary.emplace_back("Secp256r1 [uncomp] + PlainSet   ", r);
+    }
+
+    // Restore default for X25519 runs (irrelevant but tidy)
+    config::use_point_compression = true;
+
+    //======================================================================
+    // X25519 + BloomFilter  (always 32 B/point, no compression switch)
+    //======================================================================
+    {
+        print_header("Benchmark: X25519 [32 B/pt] + BloomFilter",
+                     server_len, client_len, kLogServerLen, kLogClientLen);
+
+        auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, FilterMode::BloomFilter, 40);
+        auto r  = run_once(pp, ds, kPortX25519Bloom);
+        print_result(r, server_len, client_len, ds.intersection_len);
+        summary.emplace_back("X25519             + BloomFilter", r);
     }
 
     //======================================================================
     // X25519 + PlainSet
     //======================================================================
-
     {
-        print_header(
-            "Benchmark: X25519 + PlainSet",
-            server_len,
-            client_len,
-            kLogServerLen,
-            kLogClientLen);
+        print_header("Benchmark: X25519 [32 B/pt] + PlainSet",
+                     server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto pp =
-            setup(NID_X25519,
-                  kLogServerLen,
-                  kLogClientLen,
-                  FilterMode::PlainSet);
-
-        auto result =
-            run_once(pp,
-                     ds,
-                     kPortX25519Plain);
-
-        print_result(result,
-                     server_len,
-                     client_len,
-                     ds.intersection_len);
-
-        summary.emplace_back(
-            "X25519 + PlainSet",
-            result);
+        auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, FilterMode::PlainSet);
+        auto r  = run_once(pp, ds, kPortX25519Plain);
+        print_result(r, server_len, client_len, ds.intersection_len);
+        summary.emplace_back("X25519             + PlainSet   ", r);
     }
 
     //----------------------------------------------------------------------
-    // Final summary
+    // Final summary table
     //----------------------------------------------------------------------
 
-    print_summary(summary,
-                  server_len,
-                  client_len,
-                  kLogServerLen,
-                  kLogClientLen);
+    print_summary(summary, server_len, client_len, kLogServerLen, kLogClientLen);
 
     return 0;
 }
