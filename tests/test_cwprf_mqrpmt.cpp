@@ -109,7 +109,7 @@ protected:
     // For PlainSet mode:    exact match required (no false positives either).
     static void validate(const std::vector<uint8_t>& bits,
                          const Dataset&               ds,
-                         FilterMode                   mode,
+                         MembershipMode               mode,
                          const std::string&           label)
     {
         const size_t n = ds.vec_x.size();
@@ -132,7 +132,7 @@ protected:
         // False negatives are always a hard failure in both modes
         EXPECT_EQ(fn, 0u) << label << ": false negatives detected.";
 
-        if (mode == FilterMode::PlainSet) {
+        if (mode == MembershipMode::PlainSet) {
             // PlainSet is exact — false positives are also forbidden
             EXPECT_EQ(fp, 0u) << label << ": false positives in PlainSet mode.";
         }
@@ -148,55 +148,50 @@ protected:
 TEST_F(CwPRFMqRPMTTest, NormalCurve_BloomFilter) {
     constexpr int curve_id = 415; // Secp256r1
 
-    auto pp = setup(curve_id, kLogServerLen, kLogClientLen,
-                    FilterMode::BloomFilter, kSSP);
+    auto pp = setup(curve_id, kLogServerLen, kLogClientLen, MembershipMode::BloomFilter, kSSP);
     auto ds = make_dataset(static_cast<size_t>(std::pow(2, kLogServerLen)),
                            static_cast<size_t>(std::pow(2, kLogClientLen)));
 
     auto bits = run_protocol(pp, ds, kPortNormalBloom);
-    validate(bits, ds, FilterMode::BloomFilter, "NormalCurve/BloomFilter");
+    validate(bits, ds, MembershipMode::BloomFilter, "NormalCurve/BloomFilter");
 }
 
 // 2. Normal curve + PlainSet
 TEST_F(CwPRFMqRPMTTest, NormalCurve_PlainSet) {
     constexpr int curve_id = 415;
 
-    auto pp = setup(curve_id, kLogServerLen, kLogClientLen,
-                    FilterMode::PlainSet);
+    auto pp = setup(curve_id, kLogServerLen, kLogClientLen, MembershipMode::PlainSet);
     auto ds = make_dataset(static_cast<size_t>(std::pow(2, kLogServerLen)),
                            static_cast<size_t>(std::pow(2, kLogClientLen)));
 
     auto bits = run_protocol(pp, ds, kPortNormalPlain);
-    validate(bits, ds, FilterMode::PlainSet, "NormalCurve/PlainSet");
+    validate(bits, ds, MembershipMode::PlainSet, "NormalCurve/PlainSet");
 }
 
 // 3. X25519 + BloomFilter
 TEST_F(CwPRFMqRPMTTest, X25519_BloomFilter) {
-    auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen,
-                    FilterMode::BloomFilter, kSSP);
+    auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, MembershipMode::BloomFilter, kSSP);
     auto ds = make_dataset(static_cast<size_t>(std::pow(2, kLogServerLen)),
                            static_cast<size_t>(std::pow(2, kLogClientLen)));
 
     auto bits = run_protocol(pp, ds, kPortX25519Bloom);
-    validate(bits, ds, FilterMode::BloomFilter, "X25519/BloomFilter");
+    validate(bits, ds, MembershipMode::BloomFilter, "X25519/BloomFilter");
 }
 
 // 4. X25519 + PlainSet
 TEST_F(CwPRFMqRPMTTest, X25519_PlainSet) {
-    auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen,
-                    FilterMode::PlainSet);
+    auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, MembershipMode::PlainSet);
     auto ds = make_dataset(static_cast<size_t>(std::pow(2, kLogServerLen)),
                            static_cast<size_t>(std::pow(2, kLogClientLen)));
 
     auto bits = run_protocol(pp, ds, kPortX25519Plain);
-    validate(bits, ds, FilterMode::PlainSet, "X25519/PlainSet");
+    validate(bits, ds, MembershipMode::PlainSet, "X25519/PlainSet");
 }
 
 // ── PublicParameters serialisation round-trip ─────────────────────────────────
 
 TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_NormalCurve) {
-    auto pp = setup(415, kLogServerLen, kLogClientLen,
-                    FilterMode::BloomFilter, kSSP);
+    auto pp = setup(415, kLogServerLen, kLogClientLen, MembershipMode::BloomFilter, kSSP);
 
     std::ostringstream oss;
     oss << pp;
@@ -208,15 +203,14 @@ TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_NormalCurve) {
     EXPECT_EQ(pp.curve_id,                       pp2.curve_id);
     EXPECT_EQ(pp.log_server_len,                  pp2.log_server_len);
     EXPECT_EQ(pp.log_client_len,                  pp2.log_client_len);
-    EXPECT_EQ(pp.filter_mode,                     pp2.filter_mode);
+    EXPECT_EQ(pp.membership_mode,                     pp2.membership_mode);
     EXPECT_EQ(pp.statistical_security_parameter,  pp2.statistical_security_parameter);
     EXPECT_NE(pp2.group_ctx, nullptr);
     EXPECT_NE(pp2.field_ctx, nullptr);
 }
 
 TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_X25519) {
-    auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen,
-                    FilterMode::PlainSet);
+    auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, MembershipMode::PlainSet);
 
     std::ostringstream oss;
     oss << pp;
@@ -228,7 +222,7 @@ TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_X25519) {
     EXPECT_EQ(pp.curve_id,      pp2.curve_id);
     EXPECT_EQ(pp.log_server_len, pp2.log_server_len);
     EXPECT_EQ(pp.log_client_len, pp2.log_client_len);
-    EXPECT_EQ(pp.filter_mode,    pp2.filter_mode);
+    EXPECT_EQ(pp.membership_mode,    pp2.membership_mode);
     // X25519 mode: contexts must remain null after deserialisation
     EXPECT_EQ(pp2.group_ctx, nullptr);
     EXPECT_EQ(pp2.field_ctx, nullptr);
@@ -239,7 +233,7 @@ TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_X25519) {
 TEST_F(CwPRFMqRPMTTest, Setup_BloomFilter_MissingSSP_Asserts) {
     // TAIHANG_ASSERT terminates on failure; use EXPECT_DEATH to catch it.
     EXPECT_DEATH(
-        setup(415, kLogServerLen, kLogClientLen, FilterMode::BloomFilter),
+        setup(415, kLogServerLen, kLogClientLen, MembershipMode::BloomFilter),
         ".*"   // any termination message
     );
 }

@@ -21,16 +21,17 @@
 #include <taihang/mpc/rpmt/cwprf_mqrpmt.hpp>
 #include <taihang/common/config.hpp>
 #include <taihang/common/logger.hpp>
+#include <taihang/common/bench_setting.hpp>
 #include <taihang/crypto/prg.hpp>
-
+#include <taihang/system/cpu.hpp>
 #include <openssl/obj_mac.h>
-
 #include <chrono>
 #include <future>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <thread>
 #include <vector>
 
 using namespace taihang;
@@ -38,7 +39,6 @@ using namespace taihang::mpc::cwprf_mqrpmt;
 
 using Clock = std::chrono::high_resolution_clock;
 using Ms    = std::chrono::duration<double, std::milli>;
-
 
 //==============================================================================
 // Dataset
@@ -185,8 +185,9 @@ static void print_summary(
         << "========================================================================================================\n"
         << "Dataset : 2^" << log_server << " (" << server_len << ") server elements"
         << "    2^" << log_client << " (" << client_len << ") client elements"
-        << "    50% intersection"
-        << "    Threads: " << config::thread_num << "\n"
+        << "    50% intersection\n"
+        << "Threads : " << config::thread_num << " per party  ("
+        << config::thread_num * 2 << " concurrent total, single-machine loopback)\n"
         << "--------------------------------------------------------------------------------------------------------\n"
         << std::left  << std::setw(LABEL_W) << "Configuration"
         << std::right << std::setw(12) << "Server(s)"
@@ -276,8 +277,16 @@ int main()
     Dataset ds = make_dataset(server_len, client_len);
     std::cout << "Dataset ready in "
               << std::fixed << std::setprecision(2)
-              << Ms(Clock::now() - t0).count() << " ms\n"
-              << "Threads         : " << config::thread_num << "\n";
+              << Ms(Clock::now() - t0).count() << " ms\n";
+
+
+
+    //==============================================================================
+    // Thread configuration
+    //==============================================================================
+
+    constexpr BenchmarkMode kBenchmarkMode = BenchmarkMode::SingleMachine; 
+    thread_configuration(kBenchmarkMode); 
 
     std::vector<std::pair<std::string, BenchResult>> summary;
 
@@ -287,10 +296,10 @@ int main()
     {
         config::use_point_compression = true;   // ← 33 bytes/point
 
-        print_header("Benchmark: Secp256r1 [compressed, 33 B/pt] + BloomFilter",
+        print_header("Benchmark: Secp256r1 [compressed, 33 bytes/point] + BloomFilter",
                      server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::BloomFilter, 40);
+        auto pp = setup(415, kLogServerLen, kLogClientLen, MembershipMode::BloomFilter, 40);
         auto r  = run_once(pp, ds, kPortSecpCompBloom);
         print_result(r, server_len, client_len, ds.intersection_len);
         summary.emplace_back("Secp256r1 [comp]   + BloomFilter", r);
@@ -302,10 +311,10 @@ int main()
     {
         config::use_point_compression = true;
 
-        print_header("Benchmark: Secp256r1 [compressed, 33 B/pt] + PlainSet",
+        print_header("Benchmark: Secp256r1 [compressed, 33 bytes/point] + PlainSet",
                      server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::PlainSet);
+        auto pp = setup(415, kLogServerLen, kLogClientLen, MembershipMode::PlainSet);
         auto r  = run_once(pp, ds, kPortSecpCompPlain);
         print_result(r, server_len, client_len, ds.intersection_len);
         summary.emplace_back("Secp256r1 [comp]   + PlainSet   ", r);
@@ -317,10 +326,10 @@ int main()
     {
         config::use_point_compression = false;  // ← 65 bytes/point
 
-        print_header("Benchmark: Secp256r1 [uncompressed, 65 B/pt] + BloomFilter",
+        print_header("Benchmark: Secp256r1 [uncompressed, 65 bytes/point] + BloomFilter",
                      server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::BloomFilter, 40);
+        auto pp = setup(415, kLogServerLen, kLogClientLen, MembershipMode::BloomFilter, 40);
         auto r  = run_once(pp, ds, kPortSecpUncompBloom);
         print_result(r, server_len, client_len, ds.intersection_len);
         summary.emplace_back("Secp256r1 [uncomp] + BloomFilter", r);
@@ -332,10 +341,10 @@ int main()
     {
         config::use_point_compression = false;
 
-        print_header("Benchmark: Secp256r1 [uncompressed, 65 B/pt] + PlainSet",
+        print_header("Benchmark: Secp256r1 [uncompressed, 65 bytes/point] + PlainSet",
                      server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto pp = setup(415, kLogServerLen, kLogClientLen, FilterMode::PlainSet);
+        auto pp = setup(415, kLogServerLen, kLogClientLen, MembershipMode::PlainSet);
         auto r  = run_once(pp, ds, kPortSecpUncompPlain);
         print_result(r, server_len, client_len, ds.intersection_len);
         summary.emplace_back("Secp256r1 [uncomp] + PlainSet   ", r);
@@ -348,10 +357,10 @@ int main()
     // X25519 + BloomFilter  (always 32 B/point, no compression switch)
     //======================================================================
     {
-        print_header("Benchmark: X25519 [32 B/pt] + BloomFilter",
+        print_header("Benchmark: X25519 [32 bytes/point] + BloomFilter",
                      server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, FilterMode::BloomFilter, 40);
+        auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, MembershipMode::BloomFilter, 40);
         auto r  = run_once(pp, ds, kPortX25519Bloom);
         print_result(r, server_len, client_len, ds.intersection_len);
         summary.emplace_back("X25519             + BloomFilter", r);
@@ -361,10 +370,10 @@ int main()
     // X25519 + PlainSet
     //======================================================================
     {
-        print_header("Benchmark: X25519 [32 B/pt] + PlainSet",
+        print_header("Benchmark: X25519 [32 bytes/point] + PlainSet",
                      server_len, client_len, kLogServerLen, kLogClientLen);
 
-        auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, FilterMode::PlainSet);
+        auto pp = setup(NID_X25519, kLogServerLen, kLogClientLen, MembershipMode::PlainSet);
         auto r  = run_once(pp, ds, kPortX25519Plain);
         print_result(r, server_len, client_len, ds.intersection_len);
         summary.emplace_back("X25519             + PlainSet   ", r);

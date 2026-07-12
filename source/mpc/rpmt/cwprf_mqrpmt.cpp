@@ -25,25 +25,25 @@ namespace taihang::mpc::cwprf_mqrpmt {
 std::string PublicParameters::format() const {
     std::ostringstream oss;
     oss << "[cwPRF-based mqRPMT PublicParameters]\n";
-    oss << "  Curve ID                      : " << curve_id << "\n";
-    oss << "  log2(server set size)         : " << log_server_len << "\n";
-    oss << "  log2(client set size)         : " << log_client_len << "\n";
-    oss << "  Filter mode                   : "
-        << (filter_mode == FilterMode::BloomFilter ? "BloomFilter" : "PlainSet") << "\n";
-    if (filter_mode == FilterMode::BloomFilter) {
+    oss << "Curve ID               :" << curve_id << "\n";
+    oss << "log2(server set size)  :" << log_server_len << "\n";
+    oss << "log2(client set size)  :" << log_client_len << "\n";
+    oss << "Membership mode        :"
+        << (membership_mode == MembershipMode::BloomFilter ? "BloomFilter" : "PlainSet") << "\n";
+    if (membership_mode == MembershipMode::BloomFilter) {
         oss << "  Statistical security parameter : " << statistical_security_parameter << "\n";
     }
     return oss.str();
 }
 
 // Serialisation format:
-// curve_id  log_server_len  log_client_len  filter_mode ssp 
-// filter_mode is stored as its underlying integer (0 = BloomFilter, 1 = PlainSet).
+// curve_id  log_server_len  log_client_len  membership_mode ssp 
+// membership_mode is stored as its underlying integer (0 = BloomFilter, 1 = PlainSet).
 std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
     os << pp.curve_id                        << " "
        << pp.log_server_len                  << " "
        << pp.log_client_len                  << " "
-       << static_cast<int>(pp.filter_mode)   << " "
+       << static_cast<int>(pp.membership_mode)   << " "
        << pp.statistical_security_parameter; 
 
     return os;
@@ -57,7 +57,7 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
        >> mode_int 
        >> pp.statistical_security_parameter;
 
-    pp.filter_mode = static_cast<FilterMode>(mode_int);
+    pp.membership_mode = static_cast<MembershipMode>(mode_int);
 
     // Reconstruct contexts with stable heap addresses
     if(pp.curve_id != NID_X25519){
@@ -78,7 +78,7 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
 PublicParameters setup(int curve_id, 
                        size_t log_server_len, 
                        size_t log_client_len, 
-                       FilterMode mode, 
+                       MembershipMode mode, 
                        std::optional<size_t> statistical_security_parameter) {
     PublicParameters pp;
     pp.curve_id = curve_id;
@@ -94,12 +94,13 @@ PublicParameters setup(int curve_id,
     pp.log_server_len = log_server_len;
     pp.log_client_len = log_client_len;
 
-    pp.filter_mode    = mode; 
+    pp.membership_mode    = mode; 
 
-    if (mode == FilterMode::BloomFilter) {
+    if (mode == MembershipMode::BloomFilter) {
         TAIHANG_ASSERT(statistical_security_parameter.has_value(), "BloomFilter mode requires statistical_security_parameter.");
         pp.statistical_security_parameter = statistical_security_parameter.value();
-    } else {
+    } 
+    else {
         pp.statistical_security_parameter = 0; // plain_set mode
     }
 
@@ -147,7 +148,7 @@ std::vector<uint8_t> server(net::NetIO& io, const PublicParameters& pp, const st
         }
 
         // Step 2: membership test (mode-dependent)
-        if (pp.filter_mode == FilterMode::BloomFilter) {
+        if (pp.membership_mode == MembershipMode::BloomFilter) {
             TAIHANG_LOG("cwPRF mqRPMT [step 2]:", "Server receives bloom filter from Client...");
             // Receive Bloom Filter payload metadata and mapping from client
             size_t filter_size = 0;
@@ -221,7 +222,7 @@ std::vector<uint8_t> server(net::NetIO& io, const PublicParameters& pp, const st
         }
 
         // Step 2: membership test (mode-dependent)
-        if (pp.filter_mode == FilterMode::BloomFilter) {
+        if (pp.membership_mode == MembershipMode::BloomFilter) {
             TAIHANG_LOG("cwPRF mqRPMT [step 2]:", "Server receives bloom filter from Client...");
             // Receive Bloom Filter payload metadata and mapping from client
             size_t filter_size = 0;
@@ -308,7 +309,7 @@ void client(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
         }
 
         // send membership structure (mode-dependent)
-        if (pp.filter_mode == FilterMode::BloomFilter) {
+        if (pp.membership_mode == MembershipMode::BloomFilter) {
             TAIHANG_LOG("cwPRF mqRPMT [step 3]:", "Client builds and sends Bloom Filter");
             // Step 3: Initialize and populate Bloom Filter structure with F_k2k1(y_i)
             BloomFilter filter(vec_fk2k1_y.size(), pp.statistical_security_parameter);
@@ -372,7 +373,7 @@ void client(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
         }
 
         // send membership structure (mode-dependent)
-        if (pp.filter_mode == FilterMode::BloomFilter) {
+        if (pp.membership_mode == MembershipMode::BloomFilter) {
             TAIHANG_LOG("cwPRF mqRPMT [step 3]:", "Client builds and sends Bloom Filter");
             // Step 3: Initialize and populate Bloom Filter structure with F_k2k1(y_i)
             BloomFilter filter(vec_fk2k1_y.size(), pp.statistical_security_parameter);

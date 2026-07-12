@@ -54,7 +54,7 @@ int main() {
         net::NetIO io_sender("server", ADDRESS, PORT);
         
         auto start = std::chrono::high_resolution_clock::now();
-        send(io_sender, pp, vec_m0, vec_m1, BENCH_OT_LEN);
+        sender(io_sender, pp, vec_m0, vec_m1, BENCH_OT_LEN);
         auto end = std::chrono::high_resolution_clock::now();
         
         duration_sender_ms = std::chrono::duration<double, std::milli>(end - start).count();
@@ -64,7 +64,7 @@ int main() {
         net::NetIO io_receiver("client", ADDRESS, PORT);
         
         auto start = std::chrono::high_resolution_clock::now();
-        vec_result = receive(io_receiver, pp, vec_selection_bit, BENCH_OT_LEN);
+        vec_result = receiver(io_receiver, pp, vec_selection_bit, BENCH_OT_LEN);
         auto end = std::chrono::high_resolution_clock::now();
         
         duration_receiver_ms = std::chrono::duration<double, std::milli>(end - start).count();

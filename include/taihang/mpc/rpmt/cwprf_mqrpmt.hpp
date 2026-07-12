@@ -22,7 +22,7 @@
 namespace taihang::mpc::cwprf_mqrpmt {
 
 /**
- * @enum FilterMode
+ * @enum MembershipMode
  * @brief Selects the membership-test structure used in the final round.
  *
  *  BloomFilter – Client sends a compact probabilistic filter (FPR ~ 2^-ssp).
@@ -33,7 +33,7 @@ namespace taihang::mpc::cwprf_mqrpmt {
  *                No false positives; communication is O(n * point_byte_len).
  *                statistical_security_parameter is ignored in this mode.
  */
-enum class FilterMode {
+enum class MembershipMode {
     BloomFilter,
     PlainSet
 };
@@ -50,7 +50,7 @@ struct PublicParameters {
     size_t log_server_len = 0;
     size_t log_client_len = 0;
 
-    FilterMode filter_mode = FilterMode::BloomFilter; // membership-test backend
+    MembershipMode membership_mode = MembershipMode::BloomFilter; // membership-test backend
     size_t statistical_security_parameter = 40;    // default k = 40 → FPR ~ 2^-40 (BloomFilter mode only)
 
     std::string format() const;
@@ -66,13 +66,13 @@ struct PublicParameters {
  * @param curve_id                  OpenSSL NID identifying the elliptic curve.
  * @param log_server_len            log2 of the server set size.
  * @param log_client_len            log2 of the client set size.
- * @param mode                      FilterMode::BloomFilter (default) or FilterMode::PlainSet.
+ * @param mode                      MembershipMode::BloomFilter (default) or MembershipMode::PlainSet.
  * @param statistical_security_param  Bits of statistical security for the Bloom Filter (ignored when mode == PlainSet).
  */
 PublicParameters setup(int    curve_id,
                        size_t log_server_len,
                        size_t log_client_len,
-                       FilterMode mode = FilterMode::BloomFilter,
+                       MembershipMode mode = MembershipMode::BloomFilter,
                        std::optional<size_t> statistical_security_parameter = std::nullopt);
 
 /**

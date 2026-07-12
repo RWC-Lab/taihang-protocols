@@ -80,39 +80,39 @@ PublicParameters setup(int curve_id, size_t base_len = kBaseLen);
 
 // --- OT Extension Routines ---
 
-std::pair<std::vector<Block>, std::vector<Block>> random_send(net::NetIO& io, 
+std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetIO& io, 
                                                               const PublicParameters& pp, 
                                                               size_t extend_len);
 
-std::vector<Block> random_recv(net::NetIO& io, 
-                               const PublicParameters& pp, 
-                               std::vector<uint8_t>& vec_receiver_selection_bit, 
-                               size_t extend_len);
+std::vector<Block> random_receiver(net::NetIO& io, 
+                                   const PublicParameters& pp, 
+                                   std::vector<uint8_t>& vec_receiver_selection_bit, 
+                                   size_t extend_len);
 
 template <typename Policy>
-void send(net::NetIO& io, 
-          const PublicParameters& pp, 
-          const std::vector<typename Policy::Message>& vec_m0, 
-          const std::vector<typename Policy::Message>& vec_m1, 
-          size_t extend_len);
+void sender(net::NetIO& io, 
+            const PublicParameters& pp, 
+            const std::vector<typename Policy::Message>& vec_m0, 
+            const std::vector<typename Policy::Message>& vec_m1, 
+            size_t extend_len);
 
 template <typename Policy>
-std::vector<typename Policy::Message> recv(net::NetIO& io, 
-                                           const PublicParameters& pp, 
-                                           const std::vector<uint8_t>& vec_receiver_selection_bit, 
-                                           size_t extend_len);
+std::vector<typename Policy::Message> receiver(net::NetIO& io, 
+                                               const PublicParameters& pp, 
+                                               const std::vector<uint8_t>& vec_receiver_selection_bit, 
+                                               size_t extend_len);
 
 template <typename Policy>                                       
-void onesided_send(net::NetIO& io, 
-                   const PublicParameters& pp, 
-                   const std::vector<typename Policy::Message>& vec_m, 
-                   size_t extend_len);
+void onesided_sender(net::NetIO& io, 
+                     const PublicParameters& pp, 
+                     const std::vector<typename Policy::Message>& vec_m, 
+                     size_t extend_len);
 
 template <typename Policy>  
-std::vector<typename Policy::Message> onesided_recv(net::NetIO& io, 
-                                                    const PublicParameters& pp, 
-                                                    const std::vector<uint8_t>& vec_receiver_selection_bit, 
-                                                    size_t extend_len);
+std::vector<typename Policy::Message> onesided_receiver(net::NetIO& io, 
+                                                        const PublicParameters& pp, 
+                                                        const std::vector<uint8_t>& vec_receiver_selection_bit, 
+                                                        size_t extend_len);
 
 
 } // namespace kunlun::mpc::alsz_ote

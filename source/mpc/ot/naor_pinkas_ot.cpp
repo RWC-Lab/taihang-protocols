@@ -55,7 +55,7 @@ PublicParameters setup(int curve_id) {
     return pp;
 }
 
-void send(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>& vec_m0, const std::vector<Block>& vec_m1, size_t len) {
+void sender(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>& vec_m0, const std::vector<Block>& vec_m1, size_t len) {
     
     TAIHANG_ASSERT(vec_m0.size() == len && vec_m1.size() == len, "Message vectors size mismatch");
     
@@ -121,7 +121,7 @@ void send(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>& 
     TAIHANG_LOG("Naor-Pinkas OT:", "Sender execution completed >>>");
 }
 
-std::vector<Block> receive(net::NetIO& io, const PublicParameters& pp, const std::vector<uint8_t>& vec_selection_bit, size_t len) {
+std::vector<Block> receiver(net::NetIO& io, const PublicParameters& pp, const std::vector<uint8_t>& vec_selection_bit, size_t len) {
     
     TAIHANG_ASSERT(vec_selection_bit.size() == len, "Selection bit vector size mismatch");
     [[maybe_unused]] size_t fixed_point_len = pp.group_ctx->get_point_byte_len(); 

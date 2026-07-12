@@ -47,7 +47,7 @@ PublicParameters setup(int curve_id, size_t base_len) {
 
 
 // sender obtains extend_len number of key pairs
-inline std::pair<std::vector<Block>, std::vector<Block>> random_send(net::NetIO& io, 
+inline std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetIO& io, 
                                                                      const PublicParameters& pp, 
                                                                      size_t extend_len) 
 {
@@ -70,7 +70,7 @@ inline std::pair<std::vector<Block>, std::vector<Block>> random_send(net::NetIO&
     std::vector<uint8_t> vec_sender_selection_bit = prg::gen_random_bits(seed, column_num); 
 
     // first receive 1-out-2 keys (acturally seeds) from the receiver 
-    auto vec_q_seed = taihang::mpc::np_ot::receive(io, pp.base_ot_pp, vec_sender_selection_bit, column_num);
+    auto vec_q_seed = taihang::mpc::np_ot::receiver(io, pp.base_ot_pp, vec_sender_selection_bit, column_num);
 
     TAIHANG_LOG("ALSZ OTE [step 1]:", std::format("Sender obliviously gets {} keys from Receiver via base OT", pp.base_len));
 
@@ -126,7 +126,7 @@ inline std::pair<std::vector<Block>, std::vector<Block>> random_send(net::NetIO&
 // implement random receive: note this random ot is slightly different from Beaver's ROT
 // cause receiver can choose selection bit itself
 // receiver only obtains extend_len number of 1-out-of-2 keys
-std::vector<Block> random_recv(net::NetIO& io, 
+std::vector<Block> random_receiver(net::NetIO& io, 
                                const PublicParameters& pp, 
                                const std::vector<uint8_t>& vec_receiver_selection_bit, 
                                size_t extend_len) 
@@ -141,7 +141,7 @@ std::vector<Block> random_recv(net::NetIO& io,
     std::vector<Block> vec_t_seed = prg::gen_random_blocks(seed, column_num);
     std::vector<Block> vec_u_seed = prg::gen_random_blocks(seed, column_num);
 
-    taihang::mpc::np_ot::send(io, pp.base_ot_pp, vec_t_seed, vec_u_seed, column_num); 
+    taihang::mpc::np_ot::sender(io, pp.base_ot_pp, vec_t_seed, vec_u_seed, column_num); 
 
     TAIHANG_LOG("ALSZ OTE [step 1]:", std::format("Receiver transmits {} seeds to Sender via base OT", column_num));
     
@@ -190,7 +190,7 @@ std::vector<Block> random_recv(net::NetIO& io,
 }
 
 template <typename Policy>
-void send(net::NetIO& io, 
+void sender(net::NetIO& io, 
           const PublicParameters& pp, 
           const std::vector<typename Policy::Message>& vec_m0, 
           const std::vector<typename Policy::Message>& vec_m1, 
@@ -200,7 +200,7 @@ void send(net::NetIO& io,
     
     // obtain two vector<Block> of length extend_len
     std::vector<Block> vec_k0, vec_k1;
-    std::tie(vec_k0, vec_k1) = random_send(io, pp, extend_len);  
+    std::tie(vec_k0, vec_k1) = random_sender(io, pp, extend_len);  
 
     std::vector<typename Policy::Ciphertext> vec_outer_c0(extend_len), vec_outer_c1(extend_len); 
 
@@ -220,7 +220,7 @@ void send(net::NetIO& io,
 }
 
 template <typename Policy>
-std::vector<typename Policy::Message> recv(net::NetIO& io, 
+std::vector<typename Policy::Message> receiver(net::NetIO& io, 
                                            const PublicParameters& pp, 
                                            const std::vector<uint8_t>& vec_receiver_selection_bit, 
                                            size_t extend_len) 
@@ -228,7 +228,7 @@ std::vector<typename Policy::Message> recv(net::NetIO& io,
     TAIHANG_TIMER("ALSZ OTE:", "Receiver total time");
 
     // receive extend_len number of key
-    std::vector<Block> vec_k = random_recv(io, pp, vec_receiver_selection_bit, extend_len); 
+    std::vector<Block> vec_k = random_receiver(io, pp, vec_receiver_selection_bit, extend_len); 
 
     std::vector<typename Policy::Ciphertext> vec_outer_c0(extend_len), vec_outer_c1(extend_len); 
 
@@ -252,7 +252,7 @@ std::vector<typename Policy::Message> recv(net::NetIO& io,
 
 // one message is dummy
 template <typename Policy>
-void onesided_send(net::NetIO& io, 
+void onesided_sender(net::NetIO& io, 
                    const PublicParameters& pp, 
                    const std::vector<typename Policy::Message>& vec_m, 
                    size_t extend_len) 
@@ -261,7 +261,7 @@ void onesided_send(net::NetIO& io,
  
     // obtain extend_len number of two keys 
     std::vector<Block> vec_k0, vec_k1;
-    std::tie(vec_k0, vec_k1) = random_send(io, pp, extend_len);   
+    std::tie(vec_k0, vec_k1) = random_sender(io, pp, extend_len);   
 
     std::vector<typename Policy::Ciphertext> vec_outer_c(extend_len);
 
@@ -278,7 +278,7 @@ void onesided_send(net::NetIO& io,
 }
 
 template <typename Policy>
-std::vector<typename Policy::Message> onesided_recv(net::NetIO& io, 
+std::vector<typename Policy::Message> onesided_receiver(net::NetIO& io, 
                                                     const PublicParameters& pp, 
                                                     const std::vector<uint8_t>& vec_receiver_selection_bit, 
                                                     size_t extend_len) 
@@ -286,7 +286,7 @@ std::vector<typename Policy::Message> onesided_recv(net::NetIO& io,
     TAIHANG_TIMER("ALSZ OTE:", "Receiver total time");
  
     // obtain extend_len number of keys
-    std::vector<Block> vec_k = random_recv(io, pp, vec_receiver_selection_bit, extend_len);
+    std::vector<Block> vec_k = random_receiver(io, pp, vec_receiver_selection_bit, extend_len);
 
     std::vector<typename Policy::Ciphertext> vec_outer_c(extend_len); 
     io.recv(vec_outer_c);
@@ -311,31 +311,42 @@ std::vector<typename Policy::Message> onesided_recv(net::NetIO& io,
 namespace taihang::mpc::alsz_ote {
 
 // Explicit instantiations for BlockPolicy
-template void send<BlockPolicy>(
+template void sender<BlockPolicy>(
     net::NetIO& io, 
     const PublicParameters& pp, 
     const std::vector<typename BlockPolicy::Message>& vec_m0, 
     const std::vector<typename BlockPolicy::Message>& vec_m1, 
     size_t extend_len);
 
-template std::vector<typename BlockPolicy::Message> recv<BlockPolicy>(
+template std::vector<typename BlockPolicy::Message> receiver<BlockPolicy>(
     net::NetIO& io, 
     const PublicParameters& pp, 
     const std::vector<uint8_t>& vec_receiver_selection_bit, 
     size_t extend_len);
 
 // Explicit instantiations for BytesPolicy (To prevent similar issues later)
-template void send<BytesPolicy>(
+template void sender<BytesPolicy>(
     net::NetIO& io, 
     const PublicParameters& pp, 
     const std::vector<typename BytesPolicy::Message>& vec_m0, 
     const std::vector<typename BytesPolicy::Message>& vec_m1, 
     size_t extend_len);
 
-template std::vector<typename BytesPolicy::Message> recv<BytesPolicy>(
+template std::vector<typename BytesPolicy::Message> receiver<BytesPolicy>(
     net::NetIO& io, 
     const PublicParameters& pp, 
     const std::vector<uint8_t>& vec_receiver_selection_bit, 
     size_t extend_len);
+
+
+// at the bottom of alsz_ote.cpp
+template void alsz_ote::onesided_sender<alsz_ote::BlockPolicy>(
+    net::NetIO&, const PublicParameters&,
+    const std::vector<BlockPolicy::Message>&, size_t);
+
+template std::vector<BlockPolicy::Message>
+alsz_ote::onesided_receiver<alsz_ote::BlockPolicy>(
+    net::NetIO&, const PublicParameters&,
+    const std::vector<uint8_t>&, size_t);
 
 } // namespace taihang::mpc::alsz_ote

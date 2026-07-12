@@ -73,13 +73,13 @@ TEST_F(ALSZOteTest, Execute_Standard_Protocol_Roundtrip) {
     // Run Sender instance inside an isolated worker background context ("server")
     std::thread sender_worker([&]() {
         net::NetIO io_sender("server", kAddress, kPort);
-        send<BlockPolicy>(io_sender, pp, vec_m0, vec_m1, kExtendLen);
+        sender<BlockPolicy>(io_sender, pp, vec_m0, vec_m1, kExtendLen);
     });
 
     // Run Receiver instance on the execution primary loop context ("client")
     std::thread receiver_worker([&]() {
         net::NetIO io_receiver("client", kAddress, kPort);
-        vec_result = recv<BlockPolicy>(io_receiver, pp, vec_selection_bit, kExtendLen);
+        vec_result = receiver<BlockPolicy>(io_receiver, pp, vec_selection_bit, kExtendLen);
     });
 
     sender_worker.join();

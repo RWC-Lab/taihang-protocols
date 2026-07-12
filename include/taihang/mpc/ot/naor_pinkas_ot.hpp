@@ -47,7 +47,7 @@ PublicParameters setup(int curve_id);
  * @param vec_m1 Vector of blocks corresponding to bit 1.
  * @param len Number of OT instances to execute.
  */
-void send(NetIO& io, const PublicParameters& pp, const std::vector<Block>& vec_m0, const std::vector<Block>& vec_m1, size_t len);
+void sender(NetIO& io, const PublicParameters& pp, const std::vector<Block>& vec_m0, const std::vector<Block>& vec_m1, size_t len);
 
 /**
  * @brief Receiver function for Naor-Pinkas OT.
@@ -57,7 +57,7 @@ void send(NetIO& io, const PublicParameters& pp, const std::vector<Block>& vec_m
  * @param len Number of OT instances to execute.
  * @return Vector of received blocks corresponding to the selection bits.
  */
-std::vector<Block> receive(NetIO& io, const PublicParameters& pp, const std::vector<uint8_t>& vec_selection_bit, size_t len);
+std::vector<Block> receiver(NetIO& io, const PublicParameters& pp, const std::vector<uint8_t>& vec_selection_bit, size_t len);
 
 } // namespace taihang::mpc::np_ot
 

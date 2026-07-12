@@ -71,13 +71,13 @@ TEST_F(NaorPinkasOTTest, Execute_Standard_Protocol_Roundtrip) {
     // Run Sender instance inside an isolated worker background context ("server")
     std::thread sender_worker([&]() {
         net::NetIO io_sender("server", kAddress, kPort);
-        send(io_sender, pp, vec_m0, vec_m1, kOtLen);
+        sender(io_sender, pp, vec_m0, vec_m1, kOtLen);
     });
 
     // Run Receiver instance on the execution primary loop context ("client")
     std::thread receiver_worker([&]() {
         net::NetIO io_receiver("client", kAddress, kPort);
-        vec_result = receive(io_receiver, pp, vec_selection_bit, kOtLen);
+        vec_result = receiver(io_receiver, pp, vec_selection_bit, kOtLen);
     });
 
     sender_worker.join();
