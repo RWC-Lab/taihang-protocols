@@ -67,7 +67,7 @@ int main() {
     // Prepare Standard Messages (Random Points)
     for(size_t i = 0; i < TEST_NUM; ++i) {
         msgs_pt[i] = pp.group_ctx->gen_random();
-        scalars[i] = pp.field_ctx->gen_random();
+        scalars[i] = pp.ring_ctx->gen_random();
     }
 
     // --- Benchmark: Encryption (Standard) ---
@@ -134,7 +134,7 @@ int main() {
     for(size_t i = 0; i < TEST_NUM; ++i) {
         // Pick a message randomly from the supported range [0, 2^BSGS_RANGE_BITS)
         msgs_raw[i] = gen_random_bigint_less_than(max_m);
-        cts_exp[i] = encrypt(pp, pks[i], ZnElement(pp.field_ctx, msgs_raw[i]));
+        cts_exp[i] = encrypt(pp, pks[i], ZnElement(pp.ring_ctx, msgs_raw[i]));
     }
 
     // --- Benchmark: Decryption (Exponential) ---

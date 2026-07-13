@@ -206,7 +206,7 @@ TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_NormalCurve) {
     EXPECT_EQ(pp.membership_mode,                     pp2.membership_mode);
     EXPECT_EQ(pp.statistical_security_parameter,  pp2.statistical_security_parameter);
     EXPECT_NE(pp2.group_ctx, nullptr);
-    EXPECT_NE(pp2.field_ctx, nullptr);
+    EXPECT_NE(pp2.ring_ctx, nullptr);
 }
 
 TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_X25519) {
@@ -225,7 +225,7 @@ TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_X25519) {
     EXPECT_EQ(pp.membership_mode,    pp2.membership_mode);
     // X25519 mode: contexts must remain null after deserialisation
     EXPECT_EQ(pp2.group_ctx, nullptr);
-    EXPECT_EQ(pp2.field_ctx, nullptr);
+    EXPECT_EQ(pp2.ring_ctx, nullptr);
 }
 
 // ── setup() guard: BloomFilter without ssp must assert ───────────────────────

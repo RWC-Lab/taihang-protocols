@@ -59,9 +59,9 @@ PublicParameters setup(int base_ot_curve_id,
     if (log_sum_bound > 0 && log_value_bound > 0) {
         TAIHANG_ASSERT(log_sum_bound >= (log_sender_len + log_value_bound), 
                        "Parameters configuration fault: log_sum_bound must be larger than (log_sender_len + log_value_bound).");
-        pp.field_ctx = std::make_shared<Zn>(BigInt(1ULL << pp.log_sum_bound));
+        pp.ring_ctx = std::make_shared<Zn>(BigInt(1ULL << pp.log_sum_bound));
     } else {
-        pp.field_ctx = nullptr; 
+        pp.ring_ctx = nullptr; 
     }
 
     pp.log_sender_len = log_sender_len;
@@ -120,14 +120,14 @@ SenderOutput pso_sender(net::NetIO& io,
             break;
         }
         case PsoMode::kCardSum: {
-            TAIHANG_ASSERT(pp.field_ctx != nullptr, "Card-Sum failure: field_ctx is null. Set log_sum_bound > 0 during setup().");
+            TAIHANG_ASSERT(pp.ring_ctx != nullptr, "Card-Sum failure: ring_ctx is null. Set log_sum_bound > 0 during setup().");
             TAIHANG_ASSERT(sender_len == vec_v.size(), "Card-Sum execution failure: Associated value size mismatch.");
             // BigInt sum_bound = BigInt::power_of_two(pp.log_sum_bound);
             // Zn field{sum_bound}; 
-            std::vector<ZnElement> vec_r = gen_random_znelement_vector(*pp.field_ctx, sender_len);
+            std::vector<ZnElement> vec_r = gen_random_znelement_vector(pp.ring_ctx, sender_len);
 
             // compute the sum of mask
-            ZnElement mask = pp.field_ctx->get_zero();
+            ZnElement mask = pp.ring_ctx->get_zero();
             for (const auto& r_val : vec_r) {
                 mask += r_val;
             }
@@ -144,7 +144,7 @@ SenderOutput pso_sender(net::NetIO& io,
             alsz_ote::sender<alsz_ote::BytesPolicy>(io, pp.ote_pp, vec_m0, vec_m1, sender_len);
 
             io.recv(output.cardinality);
-            ZnElement masked_sum(pp.field_ctx); // initialize an Zn Element
+            ZnElement masked_sum(pp.ring_ctx); // initialize an Zn Element
             io.recv(masked_sum);
             // recover the actural sum
             output.card_sum = masked_sum - mask;
@@ -211,16 +211,16 @@ ReceiverOutput pso_receiver(net::NetIO& io,
             break;
         }
         case PsoMode::kCardSum: {
-            TAIHANG_ASSERT(pp.field_ctx != nullptr, "Card-Sum failure: field_ctx is null. Set log_sum_bound > 0 during setup().");
+            TAIHANG_ASSERT(pp.ring_ctx != nullptr, "Card-Sum failure: ring_ctx is null. Set log_sum_bound > 0 during setup().");
             std::vector<std::vector<uint8_t>> vec_result = alsz_ote::receiver<alsz_ote::BytesPolicy>(io, pp.ote_pp, vec_indication_bit, sender_len);
 
             for (size_t i = 0; i < vec_indication_bit.size(); ++i) {
                 receiver_output.cardinality += vec_indication_bit[i];
             }
 
-            ZnElement masked_sum = pp.field_ctx->get_zero(); 
+            ZnElement masked_sum = pp.ring_ctx->get_zero(); 
             for (size_t i = 0; i < vec_result.size(); ++i) {
-                ZnElement val(pp.field_ctx);
+                ZnElement val(pp.ring_ctx);
                 val.from_bytes(vec_result[i]);
                 masked_sum += val;
             }

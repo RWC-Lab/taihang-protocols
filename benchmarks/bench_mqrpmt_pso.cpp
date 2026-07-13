@@ -86,7 +86,7 @@ Dataset make_dataset(size_t sender_len, size_t receiver_len, const Zn& field) {
     }
 
     // Populate random associated values for the Card-Sum pipeline evaluations
-    ds.vec_v = gen_random_znelement_vector(field, sender_len);
+    ds.vec_v = gen_random_znelement_vector(&field, sender_len);
     return ds;
 }
 

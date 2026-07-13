@@ -61,7 +61,7 @@ protected:
     static Dataset make_dataset(size_t sender_len,
                                 size_t receiver_len,
                                 size_t intersection_count,
-                                std::shared_ptr<Zn> field_ctx) {
+                                std::shared_ptr<Zn> ring_ctx) {
         Block     seed_block = make_block(0xABCDEF0123456789ULL, 0xFEDCBA9876543210ULL);
         prg::Seed seed       = prg::set_seed(&seed_block, 0);
 
@@ -73,9 +73,9 @@ protected:
         ds.vec_x.resize(sender_len);
         ds.expected_intersection_size = intersection_count;
         
-        if (field_ctx) {
-            ds.vec_v = gen_random_znelement_vector(*field_ctx, sender_len);
-            ds.expected_card_sum = field_ctx->get_zero();
+        if (ring_ctx) {
+            ds.vec_v = gen_random_znelement_vector(ring_ctx, sender_len);
+            ds.expected_card_sum = ring_ctx->get_zero();
         }
 
         for (size_t j = 0; j < receiver_len; ++j) {
@@ -87,7 +87,7 @@ protected:
             if (i < intersection_count) {
                 ds.vec_x[i] = pool[i];           // same value as vec_y[i]
                 ds.ground_truth_intersection.insert(pool[i]);
-                if (field_ctx) {
+                if (ring_ctx) {
                     ds.expected_card_sum += ds.vec_v[i];
                 }
             } else {
@@ -161,7 +161,7 @@ TEST_F(MqRPMTPSOTest, Intersection_BloomFilter) {
 
     auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0, 
                          cwprf_mqrpmt::MembershipMode::BloomFilter, kSSP);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.field_ctx);
+    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
     auto res = run_protocol(pp, ds, pso::PsoMode::kIntersection, kPortIntersectionBloom);
     
     validate_set(res.receiver_out.set_result, ds.ground_truth_intersection, 
@@ -174,7 +174,7 @@ TEST_F(MqRPMTPSOTest, Union_PlainSet) {
 
     auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0, 
                          cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.field_ctx);
+    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
     auto res = run_protocol(pp, ds, pso::PsoMode::kUnion, kPortUnionPlain);
     
     validate_set(res.receiver_out.set_result, ds.ground_truth_union, 
@@ -187,7 +187,7 @@ TEST_F(MqRPMTPSOTest, Cardinality_BloomFilter) {
 
     auto pp = pso::setup(kNormalCurveId, NID_X25519, kLogSenderLen, kLogReceiverLen, 0, 0, 
                          cwprf_mqrpmt::MembershipMode::BloomFilter, kSSP);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.field_ctx);
+    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
     auto res = run_protocol(pp, ds, pso::PsoMode::kCard, kPortCardBloom);
     
     EXPECT_EQ(res.receiver_out.cardinality, ds.expected_intersection_size);
@@ -200,7 +200,7 @@ TEST_F(MqRPMTPSOTest, CardSum_PlainSet) {
     // CardSum requires explicit initialization bounds for scalar algebraic setup
     auto pp = pso::setup(kNormalCurveId, NID_X25519, kLogSenderLen, kLogReceiverLen, kLogSumBound, kLogValueBound, 
                          cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.field_ctx);
+    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
     auto res = run_protocol(pp, ds, pso::PsoMode::kCardSum, kPortCardSumPlain);
     
     EXPECT_EQ(res.receiver_out.cardinality, ds.expected_intersection_size);
@@ -254,7 +254,7 @@ TEST_F(MqRPMTPSOTest, EmptyIntersection) {
 
     auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0,
                          cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, 0, pp.field_ctx);
+    auto ds  = make_dataset(sender_len, receiver_len, 0, pp.ring_ctx);
     auto res = run_protocol(pp, ds, pso::PsoMode::kIntersection, kPortEmptyIntersect);
 
     EXPECT_TRUE(res.receiver_out.set_result.empty());
@@ -268,7 +268,7 @@ TEST_F(MqRPMTPSOTest, FullIntersection) {
 
     auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSmallSender, kLogReceiverLen, kLogSumBound, kLogValueBound,
                          cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, sender_len, pp.field_ctx);
+    auto ds  = make_dataset(sender_len, receiver_len, sender_len, pp.ring_ctx);
     auto res = run_protocol(pp, ds, pso::PsoMode::kCardSum, kPortFullIntersect);
 
     EXPECT_EQ(res.receiver_out.cardinality, sender_len);
@@ -281,7 +281,7 @@ TEST_F(MqRPMTPSOTest, AsymmetricSizes_PlainSet) {
 
     auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0,
                          cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.field_ctx);
+    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
     auto res = run_protocol(pp, ds, pso::PsoMode::kIntersection, kPortAsymmetric);
 
     validate_set(res.receiver_out.set_result, ds.ground_truth_intersection, 

@@ -57,7 +57,7 @@ protected:
 TEST_F(NaorPinkasOTTest, Setup_Parameter_Fields) {
     EXPECT_EQ(pp.curve_id, kCurveId);
     EXPECT_NE(pp.group_ctx, nullptr);
-    EXPECT_NE(pp.field_ctx, nullptr);
+    EXPECT_NE(pp.ring_ctx, nullptr);
     EXPECT_TRUE(pp.g.is_on_curve());
 }
 

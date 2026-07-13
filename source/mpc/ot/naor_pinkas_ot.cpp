@@ -33,7 +33,7 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
     
     // Reconstruct contexts based on the received curve ID
     pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
-    pp.field_ctx = std::make_shared<Zn>(pp.group_ctx->order);
+    pp.ring_ctx = std::make_shared<Zn>(pp.group_ctx->order);
     
     pp.g = ECPoint(pp.group_ctx);
     is >> pp.g;
@@ -49,7 +49,7 @@ PublicParameters setup(int curve_id) {
     
     // Allocate contexts with stable addresses
     pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
-    pp.field_ctx = std::make_shared<Zn>(pp.group_ctx->order); 
+    pp.ring_ctx = std::make_shared<Zn>(pp.group_ctx->order); 
     pp.g = pp.group_ctx->get_generator();
     
     return pp;
@@ -71,13 +71,13 @@ void sender(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
 
     TAIHANG_LOG("Naor-Pinkas OT [step 1]:", "Sender computes public commitments (offline)");
     // Offline phase: generate a random scalar for the sender's secret d
-    ZnElement d = pp.field_ctx->gen_random();
+    ZnElement d = pp.ring_ctx->gen_random();
     ECPoint c = pp.g * d; // C = g^d
 
     // Compute g^r[i] and C^r[i] in parallel
     #pragma omp parallel for num_threads(config::thread_num)
     for (size_t i = 0; i < len; ++i) {
-        vec_r[i] = pp.field_ctx->gen_random();
+        vec_r[i] = pp.ring_ctx->gen_random();
         vec_x[i] = pp.g * vec_r[i];
         vec_z[i] = c * vec_r[i];
     }
@@ -145,7 +145,7 @@ std::vector<Block> receiver(net::NetIO& io, const PublicParameters& pp, const st
     // Generate public keys based on selection bits
     #pragma omp parallel for num_threads(config::thread_num)
     for (size_t i = 0; i < len; ++i) {
-        vec_sk[i] = pp.field_ctx->gen_random();
+        vec_sk[i] = pp.ring_ctx->gen_random();
         vec_pk0[i] = pp.g * vec_sk[i];
         
         if (vec_selection_bit[i] == 1) {

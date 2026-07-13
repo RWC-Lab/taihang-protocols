@@ -43,7 +43,7 @@ struct PublicParameters {
     size_t log_sum_bound = 0;    // binary length of SUM_BOUND
     size_t log_value_bound = 0;  // binary length of VALUE_BOUND
 
-    std::shared_ptr<Zn> field_ctx; 
+    std::shared_ptr<Zn> ring_ctx; 
 
     friend std::ostream& operator<<(std::ostream& os, const PublicParameters& pp);
     friend std::istream& operator>>(std::istream& is, PublicParameters& pp);

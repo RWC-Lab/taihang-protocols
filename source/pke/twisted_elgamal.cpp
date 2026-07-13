@@ -31,7 +31,7 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
 
     // Reconstruct contexts based on the received curve ID
     pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
-    pp.field_ctx = std::make_shared<Zn>(pp.group_ctx->order);
+    pp.ring_ctx = std::make_shared<Zn>(pp.group_ctx->order);
     
     pp.g = ECPoint(pp.group_ctx);
     pp.h = ECPoint(pp.group_ctx);
@@ -122,7 +122,7 @@ PublicParameters setup(int curve_id, size_t msg_len_bits) {
 
     // Allocate contexts with stable addresses
     pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
-    pp.field_ctx = std::make_shared<Zn>(pp.group_ctx->order); 
+    pp.ring_ctx = std::make_shared<Zn>(pp.group_ctx->order); 
     pp.g = pp.group_ctx->get_generator();
     pp.h = hash_to_curve_fast(pp.g.to_string(), *pp.group_ctx);
 
@@ -132,14 +132,14 @@ PublicParameters setup(int curve_id, size_t msg_len_bits) {
 }
 
 std::pair<PublicKey, SecretKey> keygen(const PublicParameters& pp) {
-    ZnElement x = pp.field_ctx->gen_random();
+    ZnElement x = pp.ring_ctx->gen_random();
     // ECPoint h = pp.g * x;
     ECPoint y = pp.g.mul_generator(x);
     return {PublicKey{y}, SecretKey{x}};
 }
 
 Ciphertext encrypt(const PublicParameters& pp, const PublicKey& pk, const ECPoint& m, const std::optional<ZnElement>& r) {
-    ZnElement r_effective = r.has_value() ? *r : pp.field_ctx->gen_random();
+    ZnElement r_effective = r.has_value() ? *r : pp.ring_ctx->gen_random();
     // Returning the object directly using a braced-init-list (the {...} syntax)
     // the compiler performs Return Value Optimization (RVO)
     // return { pp.g * r_effective, (pk.h * r_effective) + m };
@@ -147,7 +147,7 @@ Ciphertext encrypt(const PublicParameters& pp, const PublicKey& pk, const ECPoin
 }
 
 Ciphertext encrypt(const PublicParameters& pp, const PublicKey& pk, const ZnElement& m, const std::optional<ZnElement>& r) {
-    ZnElement r_effective = r.has_value() ? *r : pp.field_ctx->gen_random();
+    ZnElement r_effective = r.has_value() ? *r : pp.ring_ctx->gen_random();
     // Y = pk^k + g^m
     // return { pp.g * r_effective, pk * r_effective + pp.g * m};
     // return { pp.g * r_effective, ec_point_msm({pk.h, pp.g}, {r_effective, m}) }; 
@@ -163,7 +163,7 @@ Ciphertext encrypt(const PublicParameters& pp, const PublicKey& pk, const ZnElem
 
 MrCiphertext encrypt(const PublicParameters& pp, const std::vector<PublicKey>& vec_pk, 
                      const ZnElement& m, const std::optional<ZnElement>& r) {
-    ZnElement r_effective = r.has_value() ? *r : pp.field_ctx->gen_random();
+    ZnElement r_effective = r.has_value() ? *r : pp.ring_ctx->gen_random();
     MrCiphertext ct;
     // Shared Randomness c1 = g^r
    
@@ -205,7 +205,7 @@ ZnElement decrypt_exp(const PublicParameters& pp, const SecretKey& sk, const Cip
     TAIHANG_ASSERT(result.has_value(), "ElGamal: BSGS DLog solver failed to find message.");
     
     // Convert the BigInt result into a ZnElement (the scalar field element)
-    return ZnElement(pp.field_ctx, result.value());
+    return ZnElement(pp.ring_ctx, result.value());
 }
 
 Ciphertext re_enc(const PublicParameters& pp, const PublicKey& pk, const SecretKey& sk, const Ciphertext& ct, const ZnElement& r) {
@@ -214,7 +214,7 @@ Ciphertext re_enc(const PublicParameters& pp, const PublicKey& pk, const SecretK
 }
 
 Ciphertext re_rand(const PublicParameters& pp, const PublicKey& pk, const Ciphertext& ct) {
-    ZnElement r = pp.field_ctx->gen_random();
+    ZnElement r = pp.ring_ctx->gen_random();
     return { ct.c1 + (pk.y * r), ct.c2 + (pp.g * r) };
 }
 

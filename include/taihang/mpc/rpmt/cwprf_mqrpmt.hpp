@@ -45,7 +45,7 @@ enum class MembershipMode {
 struct PublicParameters {
     int curve_id; 
     std::shared_ptr<ECGroup> group_ctx;            // The ECC group context
-    std::shared_ptr<Zn> field_ctx;                 // the SK space
+    std::shared_ptr<Zn> ring_ctx;                 // the SK space
 
     size_t log_server_len = 0;
     size_t log_client_len = 0;

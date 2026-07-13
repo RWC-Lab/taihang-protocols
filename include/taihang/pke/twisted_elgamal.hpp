@@ -27,7 +27,7 @@ struct PublicParameters {
     ECPoint g;                // The generator point
     ECPoint h; 
 
-    std::shared_ptr<Zn> field_ctx;                 // the SK space
+    std::shared_ptr<Zn> ring_ctx;                 // the SK space
     
     size_t msg_len_bits{0};   // 0 for Standard, >0 for Exponential
     BigInt msg_size{0ULL};    // 2^msg_len_bits

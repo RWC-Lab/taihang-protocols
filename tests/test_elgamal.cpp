@@ -65,7 +65,7 @@ TEST_F(ElGamalTest, ExponentialEncryptionDecryption) {
     // It is no longer needed.
 
     // 3. Setup Message
-    ZnElement m = ZnElement(pp.field_ctx, BigInt(12345)); 
+    ZnElement m = ZnElement(pp.ring_ctx, BigInt(12345)); 
     
     // 4. Encrypt
     Ciphertext ct = encrypt(pp, pk, m);
@@ -81,8 +81,8 @@ TEST_F(ElGamalTest, HomomorphicAddSub) {
     // We verify: Enc(m1) + Enc(m2) == Enc(m1 + m2)
     // Works on the exponents (Exponential mode)
     
-    ZnElement m1 = ZnElement(pp.field_ctx, BigInt(100));
-    ZnElement m2 = ZnElement(pp.field_ctx, BigInt(50));
+    ZnElement m1 = ZnElement(pp.ring_ctx, BigInt(100));
+    ZnElement m2 = ZnElement(pp.ring_ctx, BigInt(50));
     
     Ciphertext ct1 = encrypt(pp, pk, m1);
     Ciphertext ct2 = encrypt(pp, pk, m2);
@@ -102,8 +102,8 @@ TEST_F(ElGamalTest, HomomorphicAddSub) {
 
 TEST_F(ElGamalTest, HomomorphicScalarMul) {
     // Enc(m) * k == Enc(m * k)
-    ZnElement m = ZnElement(pp.field_ctx, BigInt(100));
-    ZnElement k = ZnElement(pp.field_ctx, BigInt(3)); 
+    ZnElement m = ZnElement(pp.ring_ctx, BigInt(100));
+    ZnElement k = ZnElement(pp.ring_ctx, BigInt(3)); 
 
     Ciphertext ct = encrypt(pp, pk, m);
     Ciphertext ct_scaled = ct * k;
@@ -126,7 +126,7 @@ TEST_F(ElGamalTest, MultiRecipientEncryption) {
         sks.push_back(pair.second);
     }
 
-    ZnElement m = ZnElement(pp.field_ctx, BigInt(999));
+    ZnElement m = ZnElement(pp.ring_ctx, BigInt(999));
     
     // Encrypt once for all
     MrCiphertext mr_ct = encrypt(pp, pks, m);

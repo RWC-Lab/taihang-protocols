@@ -25,7 +25,7 @@ namespace taihang::mpc::np_ot {
 struct PublicParameters {
     int curve_id;
     std::shared_ptr<ECGroup> group_ctx; // The ECC group context
-    std::shared_ptr<Zn> field_ctx;      // The scalar field context
+    std::shared_ptr<Zn> ring_ctx;      // The scalar field context
     ECPoint g;                                  // The generator point
 
     std::string format() const;

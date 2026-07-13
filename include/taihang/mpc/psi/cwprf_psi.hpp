@@ -165,17 +165,17 @@ enum class MembershipMode {
  * @struct PublicParameters
  * @brief Parameters shared by both Sender and Receiver.
  *
- * @note  When curve_id == NID_X25519, group_ctx and field_ctx are left as
+ * @note  When curve_id == NID_X25519, group_ctx and ring_ctx are left as
  *        nullptr: EC25519Point arithmetic does not require an ECGroup
  *        context, and its scalars are raw 32-byte CSPRNG outputs rather
  *        than Zn field elements. Code paths must check pp.curve_id before
- *        dereferencing group_ctx / field_ctx, mirroring the convention
+ *        dereferencing group_ctx / ring_ctx, mirroring the convention
  *        already established in taihang::mpc::cwprf_mqrpmt.
  */
 struct PublicParameters {
     int curve_id;
     std::shared_ptr<ECGroup> group_ctx;   // nullptr when curve_id == NID_X25519
-    std::shared_ptr<Zn>      field_ctx;   // nullptr when curve_id == NID_X25519
+    std::shared_ptr<Zn>      ring_ctx;   // nullptr when curve_id == NID_X25519
 
     size_t log_sender_len = 0;            // log2(|Y|), Sender's set size
     size_t log_receiver_len = 0;            // log2(|X|), Receiver's set size

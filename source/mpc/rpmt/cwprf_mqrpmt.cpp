@@ -62,11 +62,11 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
     // Reconstruct contexts with stable heap addresses
     if(pp.curve_id != NID_X25519){
         pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
-        pp.field_ctx = std::make_shared<Zn>(pp.group_ctx->order);
+        pp.ring_ctx = std::make_shared<Zn>(pp.group_ctx->order);
     }
     else{
         pp.group_ctx = nullptr;
-        pp.field_ctx = nullptr;
+        pp.ring_ctx = nullptr;
     }    
     return is;
 }
@@ -85,11 +85,11 @@ PublicParameters setup(int curve_id,
     // Allocate contexts with stable addresses
     if(curve_id != NID_X25519){
         pp.group_ctx = std::make_shared<ECGroup>(pp.curve_id);
-        pp.field_ctx = std::make_shared<Zn>(pp.group_ctx->order); 
+        pp.ring_ctx = std::make_shared<Zn>(pp.group_ctx->order); 
     }
     else{
         pp.group_ctx = nullptr;
-        pp.field_ctx = nullptr; 
+        pp.ring_ctx = nullptr; 
     }
     pp.log_server_len = log_server_len;
     pp.log_client_len = log_client_len;
@@ -121,7 +121,7 @@ std::vector<uint8_t> server(net::NetIO& io, const PublicParameters& pp, const st
 
     if(pp.curve_id != NID_X25519){        
         // Pick a secret random exponent key k1 from the Zn scalar field
-        ZnElement k1 = pp.field_ctx->gen_random();
+        ZnElement k1 = pp.ring_ctx->gen_random();
     
         // Step 1: Compute F_k1(H(y_i)) = H(y_i)^k1
         std::vector<ECPoint> vec_fk1_y(server_len, pp.group_ctx);
@@ -282,7 +282,7 @@ void client(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
 
     if(pp.curve_id != NID_X25519){  
         // Pick a secret random exponent key k2 from the Zn scalar field
-        ZnElement k2 = pp.field_ctx -> gen_random();
+        ZnElement k2 = pp.ring_ctx -> gen_random();
 
         // Step 1: Compute F_k2(H(x_i)) = H(x_i)^k2
         std::vector<ECPoint> vec_fk2_x(client_len, pp.group_ctx);
