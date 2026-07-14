@@ -93,7 +93,7 @@ SenderOutput pso_sender(net::NetIO& io,
                         PsoMode mode, 
                         const std::vector<ZnElement>& vec_v) {
 
-    [[maybe_unused]] const char* timer_name = nullptr;
+    [[maybe_unused]] const char* timer_name = get_timer_name(mode, true);   // Sender;
 
     TAIHANG_TIMER(timer_name, "Total pipeline execution time");
     const size_t sender_len = 1ULL << pp.log_sender_len;
@@ -152,7 +152,7 @@ ReceiverOutput pso_receiver(net::NetIO& io,
                             const std::vector<Block>& vec_y, 
                             PsoMode mode) {
 
-    [[maybe_unused]] const char* timer_name = nullptr;
+    [[maybe_unused]] const char* timer_name = get_timer_name(mode, false);   // Receiver;
 
     TAIHANG_TIMER(timer_name, "Total pipeline execution time");
     const size_t sender_len = 1ULL << pp.log_sender_len;

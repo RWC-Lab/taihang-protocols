@@ -47,9 +47,7 @@ PublicParameters setup(int curve_id, size_t base_len) {
 
 
 // sender obtains extend_len number of key pairs
-inline std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetIO& io, 
-                                                                     const PublicParameters& pp, 
-                                                                     size_t extend_len) 
+inline std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetIO& io, const PublicParameters& pp, size_t extend_len) 
 {
     /* 
     ** Phase 1: sender obtains a random blended matrix Q of matrix T and U from receiver
@@ -126,10 +124,7 @@ inline std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetI
 // implement random receive: note this random ot is slightly different from Beaver's ROT
 // cause receiver can choose selection bit itself
 // receiver only obtains extend_len number of 1-out-of-2 keys
-std::vector<Block> random_receiver(net::NetIO& io, 
-                               const PublicParameters& pp, 
-                               const std::vector<uint8_t>& vec_receiver_selection_bit, 
-                               size_t extend_len) 
+std::vector<Block> random_receiver(net::NetIO& io, const PublicParameters& pp, const std::vector<uint8_t>& vec_receiver_selection_bit, size_t extend_len) 
 {
     // prepare random sharing of repetition of r 
     size_t row_num = extend_len; 
@@ -190,11 +185,10 @@ std::vector<Block> random_receiver(net::NetIO& io,
 }
 
 template <typename Policy>
-void sender(net::NetIO& io, 
-          const PublicParameters& pp, 
-          const std::vector<typename Policy::Message>& vec_m0, 
-          const std::vector<typename Policy::Message>& vec_m1, 
-          size_t extend_len) 
+void sender(net::NetIO& io, const PublicParameters& pp, 
+            const std::vector<typename Policy::Message>& vec_m0, 
+            const std::vector<typename Policy::Message>& vec_m1, 
+            size_t extend_len) 
 {
     TAIHANG_TIMER("ALSZ OTE:", "Sender total time");
     
@@ -220,10 +214,9 @@ void sender(net::NetIO& io,
 }
 
 template <typename Policy>
-std::vector<typename Policy::Message> receiver(net::NetIO& io, 
-                                           const PublicParameters& pp, 
-                                           const std::vector<uint8_t>& vec_receiver_selection_bit, 
-                                           size_t extend_len) 
+std::vector<typename Policy::Message> receiver(net::NetIO& io, const PublicParameters& pp, 
+                                               const std::vector<uint8_t>& vec_receiver_selection_bit, 
+                                               size_t extend_len) 
 {
     TAIHANG_TIMER("ALSZ OTE:", "Receiver total time");
 
@@ -252,10 +245,7 @@ std::vector<typename Policy::Message> receiver(net::NetIO& io,
 
 // one message is dummy
 template <typename Policy>
-void onesided_sender(net::NetIO& io, 
-                   const PublicParameters& pp, 
-                   const std::vector<typename Policy::Message>& vec_m, 
-                   size_t extend_len) 
+void onesided_sender(net::NetIO& io, const PublicParameters& pp, const std::vector<typename Policy::Message>& vec_m, size_t extend_len) 
 {
     TAIHANG_TIMER("ALSZ OTE:", "Sender total time");
  
@@ -278,10 +268,9 @@ void onesided_sender(net::NetIO& io,
 }
 
 template <typename Policy>
-std::vector<typename Policy::Message> onesided_receiver(net::NetIO& io, 
-                                                    const PublicParameters& pp, 
-                                                    const std::vector<uint8_t>& vec_receiver_selection_bit, 
-                                                    size_t extend_len) 
+std::vector<typename Policy::Message> onesided_receiver(net::NetIO& io, const PublicParameters& pp, 
+                                                        const std::vector<uint8_t>& vec_receiver_selection_bit, 
+                                                        size_t extend_len) 
 {
     TAIHANG_TIMER("ALSZ OTE:", "Receiver total time");
  
