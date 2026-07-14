@@ -34,15 +34,26 @@ const char* get_timer_name(PsoMode mode, bool is_sender)
 }
 
 std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
-    return os << pp.log_sender_len << " " << pp.log_receiver_len << " "
-              << pp.log_sum_bound << " " << pp.log_value_bound << " "
-              << pp.mqrpmt_pp << " " << pp.ote_pp;
+    os << pp.log_sender_len << " " << pp.log_receiver_len << " "
+       << pp.log_sum_bound << " " << pp.log_value_bound << " "
+       << pp.mqrpmt_pp << " " << pp.ote_pp;
+
+    return os; 
 }
 
 std::istream& operator>>(std::istream& is, PublicParameters& pp) {
-    return is >> pp.log_sender_len >> pp.log_receiver_len 
-              >> pp.log_sum_bound >> pp.log_value_bound
-              >> pp.mqrpmt_pp >> pp.ote_pp;
+    is >> pp.log_sender_len >> pp.log_receiver_len 
+       >> pp.log_sum_bound >> pp.log_value_bound
+       >> pp.mqrpmt_pp >> pp.ote_pp;
+
+    // Dynamically rebuild the field context upon stream recovery
+    if (pp.log_sum_bound > 0 && pp.log_value_bound > 0) {
+        BigInt modulus = BigInt(2).exp(BigInt(pp.log_sum_bound)); // 2^log_sum_bound
+        pp.ring_ctx = std::make_shared<Zn>(modulus);
+    } else {
+        pp.ring_ctx = nullptr;
+    }
+    return is;
 }
 
 PublicParameters setup(int base_ot_curve_id,
@@ -59,7 +70,8 @@ PublicParameters setup(int base_ot_curve_id,
     if (log_sum_bound > 0 && log_value_bound > 0) {
         TAIHANG_ASSERT(log_sum_bound >= (log_sender_len + log_value_bound), 
                        "Parameters configuration fault: log_sum_bound must be larger than (log_sender_len + log_value_bound).");
-        pp.ring_ctx = std::make_shared<Zn>(BigInt(1ULL << pp.log_sum_bound));
+        BigInt modulus = BigInt(2).exp(BigInt(log_sum_bound)); // 2^log_sum_bound
+        pp.ring_ctx = std::make_shared<Zn>(modulus);
     } else {
         pp.ring_ctx = nullptr; 
     }
@@ -68,7 +80,7 @@ PublicParameters setup(int base_ot_curve_id,
     pp.log_receiver_len = log_receiver_len;
     pp.log_sum_bound = log_sum_bound;
     pp.log_value_bound = log_value_bound;
-    
+
     pp.mqrpmt_pp = cwprf_mqrpmt::setup(mqrpmt_curve_id, log_receiver_len, log_sender_len, membership_mode, statistical_security_parameter);
     pp.ote_pp = alsz_ote::setup(base_ot_curve_id);
     return pp;
@@ -82,24 +94,6 @@ SenderOutput pso_sender(net::NetIO& io,
                         const std::vector<ZnElement>& vec_v) {
 
     [[maybe_unused]] const char* timer_name = nullptr;
-    switch (mode) {
-        case PsoMode::kIntersection:{
-            timer_name = "mqRPMT PSI Sender";
-            break;
-        }
-        case PsoMode::kUnion:{
-            timer_name = "mqRPMT PSU Sender";
-            break;
-        }
-        case PsoMode::kCard:{
-            timer_name = "mqRPMT Cardinality Sender";
-            break;
-        }
-        case PsoMode::kCardSum:{
-            timer_name = "mqRPMT Cardinality-Sum Sender";
-            break;
-        }
-    }
 
     TAIHANG_TIMER(timer_name, "Total pipeline execution time");
     const size_t sender_len = 1ULL << pp.log_sender_len;
@@ -122,8 +116,7 @@ SenderOutput pso_sender(net::NetIO& io,
         case PsoMode::kCardSum: {
             TAIHANG_ASSERT(pp.ring_ctx != nullptr, "Card-Sum failure: ring_ctx is null. Set log_sum_bound > 0 during setup().");
             TAIHANG_ASSERT(sender_len == vec_v.size(), "Card-Sum execution failure: Associated value size mismatch.");
-            // BigInt sum_bound = BigInt::power_of_two(pp.log_sum_bound);
-            // Zn field{sum_bound}; 
+    
             std::vector<ZnElement> vec_r = gen_random_znelement_vector(pp.ring_ctx, sender_len);
 
             // compute the sum of mask
@@ -144,9 +137,9 @@ SenderOutput pso_sender(net::NetIO& io,
             alsz_ote::sender<alsz_ote::BytesPolicy>(io, pp.ote_pp, vec_m0, vec_m1, sender_len);
 
             io.recv(output.cardinality);
-            ZnElement masked_sum(pp.ring_ctx); // initialize an Zn Element
+            ZnElement masked_sum =  pp.ring_ctx->get_zero(); // initialize an Zn Element
             io.recv(masked_sum);
-            // recover the actural sum
+            // recover the actual sum
             output.card_sum = masked_sum - mask;
             break;
         }
@@ -159,25 +152,7 @@ ReceiverOutput pso_receiver(net::NetIO& io,
                             const std::vector<Block>& vec_y, 
                             PsoMode mode) {
 
-        [[maybe_unused]] const char* timer_name = nullptr;
-        switch (mode) {
-            case PsoMode::kIntersection:{
-                timer_name = "mqRPMT PSI Sender";
-                break;
-            }
-            case PsoMode::kUnion:{
-                timer_name = "mqRPMT PSU Sender";
-                break;
-            }
-            case PsoMode::kCard:{
-                timer_name = "mqRPMT Cardinality Sender";
-                break;
-            }
-            case PsoMode::kCardSum:{
-                timer_name = "mqRPMT Cardinality-Sum Sender";
-                break;
-            }
-        }
+    [[maybe_unused]] const char* timer_name = nullptr;
 
     TAIHANG_TIMER(timer_name, "Total pipeline execution time");
     const size_t sender_len = 1ULL << pp.log_sender_len;

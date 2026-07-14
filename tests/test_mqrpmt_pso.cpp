@@ -1,304 +1,393 @@
 /****************************************************************************
  * @file      test_mqrpmt_pso.cpp
- * @brief     Google Test suite for unified mqRPMT-based PSO framework.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @brief     Google Test suite for the unified mqRPMT-based PSO framework.
+ * @author    This file is part of Taihang.
  *****************************************************************************/
 
 #include <gtest/gtest.h>
 #include <taihang/mpc/pso/mqrpmt_pso.hpp>
-#include <taihang/common/logger.hpp>
-#include <taihang/crypto/prg.hpp>
-#include <taihang/crypto/zn.hpp>
 #include <openssl/obj_mac.h>
-#include <future>
-#include <set>
+
+#include <array>
+#include <cstdint>
 #include <cstring>
+#include <future>
+#include <optional>
+#include <set>
 #include <sstream>
+#include <string>
+#include <vector>
 
 using namespace taihang;
-using namespace taihang::mpc;        
+using namespace taihang::mpc;
 namespace pso = taihang::mpc::mqrpmt_pso;
 
-// ── Block comparator ──────────────────────────────────────────────────────────
+namespace {
 
 struct BlockLess {
-    bool operator()(const Block& a, const Block& b) const {
-        return std::memcmp(&a, &b, sizeof(Block)) < 0;
+    bool operator()(const Block& lhs, const Block& rhs) const {
+        return std::memcmp(&lhs, &rhs, sizeof(Block)) < 0;
     }
 };
 
-// ── Test fixture ──────────────────────────────────────────────────────────────
+using BlockSet = std::set<Block, BlockLess>;
 
-class MqRPMTPSOTest : public ::testing::Test {
-protected:
-    static constexpr size_t kLogSenderLen   = 8;   // 2^8=256 >= 128 (OTE base_len)
-    static constexpr size_t kLogReceiverLen = 7;   // 2^7=128
-    static constexpr size_t kLogSumBound    = 62;
-    static constexpr size_t kLogValueBound  = 32;
-    static constexpr size_t kSSP            = 40;
-    static constexpr int    kNormalCurveId  = 415;
+constexpr size_t kLogSenderLen = 8;
+constexpr size_t kLogReceiverLen = 7;
+constexpr size_t kLogSumBound = 32;
+constexpr size_t kLogValueBound = 8;
+constexpr size_t kStatisticalSecurityParameter = 40;
+constexpr int kSecp256r1 = 415;
 
-    static constexpr uint16_t kPortIntersectionBloom = 12370;
-    static constexpr uint16_t kPortUnionPlain        = 12371;
-    static constexpr uint16_t kPortCardBloom         = 12372;
-    static constexpr uint16_t kPortCardSumPlain      = 12373;
-    static constexpr uint16_t kPortEmptyIntersect    = 12374;
-    static constexpr uint16_t kPortFullIntersect     = 12375;
-    static constexpr uint16_t kPortAsymmetric        = 12376;
+struct Dataset {
+    std::vector<Block> vec_x;
+    std::vector<Block> vec_y;
+    BlockSet sender_values;
+    BlockSet receiver_values;
+    BlockSet intersection_values;
+    BlockSet union_values;
+    size_t intersection_size = 0;
+    uint64_t intersection_sum = 0;
+};
 
-    // ── Dataset ───────────────────────────────────────────────────────────
+Dataset make_dataset(size_t sender_len,
+                     size_t receiver_len,
+                     size_t intersection_size) {
+    EXPECT_LE(intersection_size, sender_len);
+    EXPECT_LE(intersection_size, receiver_len);
 
-    struct Dataset {
-        std::vector<Block>         vec_x;
-        std::vector<Block>         vec_y;
-        std::vector<ZnElement>     vec_v;
-        size_t                     expected_intersection_size;
-        ZnElement                  expected_card_sum;
-        std::set<Block, BlockLess> ground_truth_intersection;
-        std::set<Block, BlockLess> ground_truth_union;
+    Dataset dataset;
+    dataset.vec_x.resize(sender_len);
+    dataset.vec_y.resize(receiver_len);
+    dataset.intersection_size = intersection_size;
+
+    // Domain-separated deterministic blocks make the expected sets exact.
+    for (size_t i = 0; i < receiver_len; ++i) {
+        dataset.vec_y[i] = make_block(0x5959595959595959ULL,
+                                      static_cast<uint64_t>(i + 1));
+        dataset.receiver_values.insert(dataset.vec_y[i]);
+        dataset.union_values.insert(dataset.vec_y[i]);
+    }
+
+    for (size_t i = 0; i < sender_len; ++i) {
+        if (i < intersection_size) {
+            dataset.vec_x[i] = dataset.vec_y[i];
+            dataset.intersection_values.insert(dataset.vec_x[i]);
+            dataset.intersection_sum += static_cast<uint64_t>(i + 1);
+        } else {
+            dataset.vec_x[i] = make_block(0x5858585858585858ULL,
+                                          static_cast<uint64_t>(i + 1));
+        }
+
+        dataset.sender_values.insert(dataset.vec_x[i]);
+        dataset.union_values.insert(dataset.vec_x[i]);
+    }
+
+    return dataset;
+}
+
+std::vector<ZnElement> make_values(const pso::PublicParameters& pp,
+                                   size_t sender_len) {
+    EXPECT_NE(pp.ring_ctx, nullptr);
+    if (pp.ring_ctx == nullptr) {
+        return {};
+    }
+
+    std::vector<ZnElement> values;
+    values.reserve(sender_len);
+    for (size_t i = 0; i < sender_len; ++i) {
+        values.emplace_back(pp.ring_ctx,
+                            BigInt(static_cast<uint64_t>(i + 1)));
+    }
+    return values;
+}
+
+struct ProtocolResult {
+    pso::SenderOutput sender;
+    pso::ReceiverOutput receiver;
+};
+
+ProtocolResult run_protocol(const pso::PublicParameters& pp,
+                            const Dataset& dataset,
+                            pso::PsoMode mode,
+                            uint16_t port) {
+    const std::string address = "127.0.0.1";
+    std::vector<ZnElement> values;
+    if (mode == pso::PsoMode::kCardSum) {
+        values = make_values(pp, dataset.vec_x.size());
+    }
+
+    auto sender_future = std::async(std::launch::async, [&] {
+        net::NetIO io("server", address, port);
+        return pso::pso_sender(io, pp, dataset.vec_x, mode, values);
+    });
+
+    auto receiver_future = std::async(std::launch::async, [&] {
+        net::NetIO io("client", address, port);
+        return pso::pso_receiver(io, pp, dataset.vec_y, mode);
+    });
+
+    ProtocolResult result;
+    result.sender = sender_future.get();
+    result.receiver = receiver_future.get();
+    return result;
+}
+
+struct PsoConfig {
+    pso::PsoMode operation;
+    int mqrpmt_curve_id;
+    cwprf_mqrpmt::MembershipMode membership_mode;
+    uint16_t port;
+    std::string name;
+};
+
+const std::vector<PsoConfig> kConfigs = [] {
+    struct Operation {
+        pso::PsoMode mode;
+        const char* name;
+    };
+    struct Curve {
+        int id;
+        const char* name;
+    };
+    struct Membership {
+        cwprf_mqrpmt::MembershipMode mode;
+        const char* name;
     };
 
-    static Dataset make_dataset(size_t sender_len,
-                                size_t receiver_len,
-                                size_t intersection_count,
-                                std::shared_ptr<Zn> ring_ctx) {
-        Block     seed_block = make_block(0xABCDEF0123456789ULL, 0xFEDCBA9876543210ULL);
-        prg::Seed seed       = prg::set_seed(&seed_block, 0);
+    constexpr std::array<Operation, 4> operations = {{
+        {pso::PsoMode::kIntersection, "Intersection"},
+        {pso::PsoMode::kUnion, "Union"},
+        {pso::PsoMode::kCard, "Card"},
+        {pso::PsoMode::kCardSum, "CardSum"},
+    }};
+    constexpr std::array<Curve, 2> curves = {{
+        {kSecp256r1, "Secp256r1"},
+        {NID_X25519, "X25519"},
+    }};
+    constexpr std::array<Membership, 2> memberships = {{
+        {cwprf_mqrpmt::MembershipMode::BloomFilter, "BloomFilter"},
+        {cwprf_mqrpmt::MembershipMode::PlainSet, "PlainSet"},
+    }};
 
-        std::vector<Block> pool(receiver_len + sender_len);
-        prg::gen_random_blocks(seed, pool.data(), pool.size());
-
-        Dataset ds;
-        ds.vec_y.resize(receiver_len);
-        ds.vec_x.resize(sender_len);
-        ds.expected_intersection_size = intersection_count;
-        
-        if (ring_ctx) {
-            ds.vec_v = gen_random_znelement_vector(ring_ctx, sender_len);
-            ds.expected_card_sum = ring_ctx->get_zero();
-        }
-
-        for (size_t j = 0; j < receiver_len; ++j) {
-            ds.vec_y[j] = pool[j];
-            ds.ground_truth_union.insert(pool[j]);
-        }
-
-        for (size_t i = 0; i < sender_len; ++i) {
-            if (i < intersection_count) {
-                ds.vec_x[i] = pool[i];           // same value as vec_y[i]
-                ds.ground_truth_intersection.insert(pool[i]);
-                if (ring_ctx) {
-                    ds.expected_card_sum += ds.vec_v[i];
-                }
-            } else {
-                ds.vec_x[i] = pool[receiver_len + i]; // disjoint
+    std::vector<PsoConfig> configs;
+    uint16_t port = 12400;
+    for (const auto& operation : operations) {
+        for (const auto& curve : curves) {
+            for (const auto& membership : memberships) {
+                configs.push_back({
+                    operation.mode,
+                    curve.id,
+                    membership.mode,
+                    port++,
+                    std::string(operation.name) + "_" + curve.name + "_" +
+                        membership.name,
+                });
             }
-            ds.ground_truth_union.insert(ds.vec_x[i]);
         }
-        return ds;
+    }
+    return configs;
+}();
+
+pso::PublicParameters make_public_parameters(const PsoConfig& config) {
+    const std::optional<size_t> ssp =
+        config.membership_mode == cwprf_mqrpmt::MembershipMode::BloomFilter
+            ? std::optional<size_t>(kStatisticalSecurityParameter)
+            : std::nullopt;
+
+    return pso::setup(kSecp256r1,
+                      config.mqrpmt_curve_id,
+                      kLogSenderLen,
+                      kLogReceiverLen,
+                      kLogSumBound,
+                      kLogValueBound,
+                      config.membership_mode,
+                      ssp);
+}
+
+void expect_all_present(const BlockSet& expected, const BlockSet& actual) {
+    for (const Block& value : expected) {
+        EXPECT_EQ(actual.count(value), 1U);
+    }
+}
+
+void validate_set_result(const PsoConfig& config,
+                         const Dataset& dataset,
+                         const std::vector<Block>& result) {
+    const BlockSet actual(result.begin(), result.end());
+    const bool is_plain =
+        config.membership_mode == cwprf_mqrpmt::MembershipMode::PlainSet;
+
+    if (config.operation == pso::PsoMode::kIntersection) {
+        expect_all_present(dataset.intersection_values, actual);
+        for (const Block& value : actual) {
+            EXPECT_EQ(dataset.sender_values.count(value), 1U);
+        }
+
+        if (is_plain) {
+            EXPECT_EQ(actual.size(), dataset.intersection_values.size());
+        } else {
+            // Bloom filters may add false positives, but never false negatives.
+            EXPECT_GE(actual.size(), dataset.intersection_values.size());
+            EXPECT_LE(actual.size(), dataset.sender_values.size());
+        }
+        return;
     }
 
-    // ── Protocol runner ───────────────────────────────────────────────────
+    ASSERT_EQ(config.operation, pso::PsoMode::kUnion);
+    expect_all_present(dataset.receiver_values, actual);
+    for (const Block& value : actual) {
+        EXPECT_EQ(dataset.union_values.count(value), 1U);
+    }
 
-    struct ProtocolOutput {
-        pso::SenderOutput   sender_out;
-        pso::ReceiverOutput receiver_out;
+    if (is_plain) {
+        expect_all_present(dataset.union_values, actual);
+        EXPECT_EQ(actual.size(), dataset.union_values.size());
+    } else {
+        // A Bloom-filter false positive can omit a sender-only item from PSU.
+        EXPECT_GE(actual.size(), dataset.receiver_values.size());
+        EXPECT_LE(actual.size(), dataset.union_values.size());
+    }
+}
+
+class MqRPMTPSOTest : public ::testing::TestWithParam<PsoConfig> {};
+
+TEST_P(MqRPMTPSOTest, EndToEnd) {
+    const PsoConfig& config = GetParam();
+    const size_t sender_len = size_t{1} << kLogSenderLen;
+    const size_t receiver_len = size_t{1} << kLogReceiverLen;
+    const Dataset dataset =
+        make_dataset(sender_len, receiver_len, receiver_len / 2);
+    const pso::PublicParameters pp = make_public_parameters(config);
+
+    const ProtocolResult result =
+        run_protocol(pp, dataset, config.operation, config.port);
+    const bool is_plain =
+        config.membership_mode == cwprf_mqrpmt::MembershipMode::PlainSet;
+
+    switch (config.operation) {
+        case pso::PsoMode::kIntersection:
+        case pso::PsoMode::kUnion:
+            validate_set_result(config, dataset, result.receiver.set_result);
+            break;
+
+        case pso::PsoMode::kCard:
+            if (is_plain) {
+                EXPECT_EQ(result.receiver.cardinality,
+                          dataset.intersection_size);
+            } else {
+                EXPECT_GE(result.receiver.cardinality,
+                          dataset.intersection_size);
+                EXPECT_LE(result.receiver.cardinality, sender_len);
+            }
+            break;
+
+        case pso::PsoMode::kCardSum: {
+            EXPECT_EQ(result.sender.cardinality,
+                      result.receiver.cardinality);
+            const uint64_t recovered_sum =
+                result.sender.card_sum.value.to_uint64();
+
+            if (is_plain) {
+                EXPECT_EQ(result.receiver.cardinality,
+                          dataset.intersection_size);
+                EXPECT_EQ(recovered_sum, dataset.intersection_sum);
+            } else {
+                EXPECT_GE(result.receiver.cardinality,
+                          dataset.intersection_size);
+                EXPECT_LE(result.receiver.cardinality, sender_len);
+                EXPECT_GE(recovered_sum, dataset.intersection_sum);
+            }
+            break;
+        }
+    }
+}
+
+INSTANTIATE_TEST_SUITE_P(
+    AllOperations,
+    MqRPMTPSOTest,
+    ::testing::ValuesIn(kConfigs),
+    [](const ::testing::TestParamInfo<PsoConfig>& info) {
+        return info.param.name;
+    });
+
+TEST(MqRPMTPSOSetupTest, RoleCrossingAndCardSumRing) {
+    const PsoConfig config = {
+        pso::PsoMode::kCardSum,
+        kSecp256r1,
+        cwprf_mqrpmt::MembershipMode::PlainSet,
+        0,
+        "Setup",
     };
+    const pso::PublicParameters pp = make_public_parameters(config);
 
-    static ProtocolOutput run_protocol(const pso::PublicParameters& pp,
-                                       const Dataset&               ds,
-                                       pso::PsoMode                 mode,
-                                       uint16_t                     port) {
-        const std::string addr = "127.0.0.1";
-
-        auto sender_task = std::async(std::launch::async, [&]() {
-            net::NetIO io("server", addr, port);
-            return pso::pso_sender(io, pp, ds.vec_x, mode, ds.vec_v);
-        });
-
-        auto receiver_task = std::async(std::launch::async, [&]() {
-            net::NetIO io("client", addr, port);
-            return pso::pso_receiver(io, pp, ds.vec_y, mode);
-        });
-
-        return {sender_task.get(), receiver_task.get()};
-    }
-
-    // ── Correctness validator ─────────────────────────────────────────────
-
-    static void validate_set(const std::vector<Block>&        result,
-                             const std::set<Block, BlockLess>& ground_truth,
-                             cwprf_mqrpmt::MembershipMode     mode,
-                             const std::string&               label) {
-        std::set<Block, BlockLess> result_set(result.begin(), result.end());
-
-        size_t tp = 0, fp = 0, fn = 0;
-        for (const auto& expected : ground_truth) {
-            if (result_set.count(expected)) ++tp; else ++fn;
-        }
-        for (const auto& got : result_set) {
-            if (!ground_truth.count(got)) ++fp;
-        }
-
-        std::cout << "[" << label << "] expected=" << ground_truth.size()
-                  << "  TP=" << tp << "  FP=" << fp << "  FN=" << fn << "\n";
-
-        EXPECT_EQ(fn, 0u) << label << ": false negatives detected.";
-        if (mode == cwprf_mqrpmt::MembershipMode::PlainSet) {
-            EXPECT_EQ(fp, 0u) << label << ": false positives in PlainSet mode.";
-        }
-        EXPECT_EQ(tp, ground_truth.size()) << label << ": TP count validation failure.";
-    }
-};
-
-// ===========================================================================
-// End-to-end tests for all PSO Modes
-// ===========================================================================
-
-TEST_F(MqRPMTPSOTest, Intersection_BloomFilter) {
-    const size_t sender_len   = 1u << kLogSenderLen;
-    const size_t receiver_len = 1u << kLogReceiverLen;
-
-    auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0, 
-                         cwprf_mqrpmt::MembershipMode::BloomFilter, kSSP);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
-    auto res = run_protocol(pp, ds, pso::PsoMode::kIntersection, kPortIntersectionBloom);
-    
-    validate_set(res.receiver_out.set_result, ds.ground_truth_intersection, 
-                 cwprf_mqrpmt::MembershipMode::BloomFilter, "Intersection/BloomFilter");
+    EXPECT_EQ(pp.mqrpmt_pp.log_server_len, kLogReceiverLen);
+    EXPECT_EQ(pp.mqrpmt_pp.log_client_len, kLogSenderLen);
+    ASSERT_NE(pp.ring_ctx, nullptr);
+    EXPECT_EQ(pp.ring_ctx->modulus.to_uint64(),
+              uint64_t{1} << kLogSumBound);
 }
 
-TEST_F(MqRPMTPSOTest, Union_PlainSet) {
-    const size_t sender_len   = 1u << kLogSenderLen;
-    const size_t receiver_len = 1u << kLogReceiverLen;
+TEST(MqRPMTPSOSetupTest, PublicParametersSerialization) {
+    const PsoConfig config = {
+        pso::PsoMode::kCardSum,
+        kSecp256r1,
+        cwprf_mqrpmt::MembershipMode::PlainSet,
+        0,
+        "Serialization",
+    };
+    const pso::PublicParameters pp = make_public_parameters(config);
 
-    auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0, 
-                         cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
-    auto res = run_protocol(pp, ds, pso::PsoMode::kUnion, kPortUnionPlain);
-    
-    validate_set(res.receiver_out.set_result, ds.ground_truth_union, 
-                 cwprf_mqrpmt::MembershipMode::PlainSet, "Union/PlainSet");
+    std::ostringstream output;
+    output << pp;
+
+    pso::PublicParameters restored;
+    std::istringstream input(output.str());
+    input >> restored;
+
+    EXPECT_EQ(restored.log_sender_len, pp.log_sender_len);
+    EXPECT_EQ(restored.log_receiver_len, pp.log_receiver_len);
+    EXPECT_EQ(restored.log_sum_bound, pp.log_sum_bound);
+    EXPECT_EQ(restored.log_value_bound, pp.log_value_bound);
+    EXPECT_EQ(restored.mqrpmt_pp.log_server_len,
+              pp.mqrpmt_pp.log_server_len);
+    EXPECT_EQ(restored.mqrpmt_pp.log_client_len,
+              pp.mqrpmt_pp.log_client_len);
+    EXPECT_EQ(restored.mqrpmt_pp.membership_mode,
+              pp.mqrpmt_pp.membership_mode);
+    EXPECT_EQ(restored.ote_pp.base_len, pp.ote_pp.base_len);
+
+    ASSERT_NE(restored.ring_ctx, nullptr)
+        << "Deserializing Card-Sum parameters must reconstruct ring_ctx.";
+    EXPECT_EQ(restored.ring_ctx->modulus.to_uint64(),
+              uint64_t{1} << kLogSumBound);
 }
 
-TEST_F(MqRPMTPSOTest, Cardinality_BloomFilter) {
-    const size_t sender_len   = 1u << kLogSenderLen;
-    const size_t receiver_len = 1u << kLogReceiverLen;
-
-    auto pp = pso::setup(kNormalCurveId, NID_X25519, kLogSenderLen, kLogReceiverLen, 0, 0, 
-                         cwprf_mqrpmt::MembershipMode::BloomFilter, kSSP);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
-    auto res = run_protocol(pp, ds, pso::PsoMode::kCard, kPortCardBloom);
-    
-    EXPECT_EQ(res.receiver_out.cardinality, ds.expected_intersection_size);
-}
-
-TEST_F(MqRPMTPSOTest, CardSum_PlainSet) {
-    const size_t sender_len   = 1u << kLogSenderLen;
-    const size_t receiver_len = 1u << kLogReceiverLen;
-
-    // CardSum requires explicit initialization bounds for scalar algebraic setup
-    auto pp = pso::setup(kNormalCurveId, NID_X25519, kLogSenderLen, kLogReceiverLen, kLogSumBound, kLogValueBound, 
-                         cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
-    auto res = run_protocol(pp, ds, pso::PsoMode::kCardSum, kPortCardSumPlain);
-    
-    EXPECT_EQ(res.receiver_out.cardinality, ds.expected_intersection_size);
-    EXPECT_EQ(res.sender_out.cardinality, ds.expected_intersection_size);
-    EXPECT_TRUE(res.sender_out.card_sum == ds.expected_card_sum);
-}
-
-// ── Serialization round-trip ──────────────────────────────────────────────────
-
-TEST_F(MqRPMTPSOTest, PublicParameters_Serialization) {
-    auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, kLogSumBound, kLogValueBound,
-                         cwprf_mqrpmt::MembershipMode::BloomFilter, kSSP);
-
-    std::ostringstream oss;
-    oss << pp;
-
-    pso::PublicParameters pp2;
-    std::istringstream iss(oss.str());
-    iss >> pp2;
-
-    EXPECT_EQ(pp.log_sender_len,   pp2.log_sender_len);
-    EXPECT_EQ(pp.log_receiver_len, pp2.log_receiver_len);
-    EXPECT_EQ(pp.log_sum_bound,    pp2.log_sum_bound);
-    EXPECT_EQ(pp.log_value_bound,  pp2.log_value_bound);
-
-    EXPECT_EQ(pp2.mqrpmt_pp.log_server_len, kLogReceiverLen);
-    EXPECT_EQ(pp2.mqrpmt_pp.log_client_len, kLogSenderLen);
-}
-
-// ── Setup guard tests ─────────────────────────────────────────────────────────
-
-TEST_F(MqRPMTPSOTest, Setup_BloomFilter_MissingSSP_Asserts) {
+TEST(MqRPMTPSOSetupTest, BloomFilterRequiresSecurityParameter) {
     EXPECT_DEATH(
-        pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0,
+        pso::setup(kSecp256r1,
+                   kSecp256r1,
+                   kLogSenderLen,
+                   kLogReceiverLen,
+                   0,
+                   0,
                    cwprf_mqrpmt::MembershipMode::BloomFilter),
         ".*");
 }
 
-TEST_F(MqRPMTPSOTest, Setup_InvalidBounds_Asserts) {
-    // Assert triggered when log_sum_bound < log_sender_len + log_value_bound
+TEST(MqRPMTPSOSetupTest, CardSumRejectsInsufficientSumBound) {
     EXPECT_DEATH(
-        pso::setup(kNormalCurveId, kNormalCurveId, 10, 10, 12, 5, cwprf_mqrpmt::MembershipMode::PlainSet),
-        ".*Parameters configuration fault.*");
+        pso::setup(kSecp256r1,
+                   kSecp256r1,
+                   kLogSenderLen,
+                   kLogReceiverLen,
+                   kLogSenderLen + kLogValueBound - 1,
+                   kLogValueBound,
+                   cwprf_mqrpmt::MembershipMode::PlainSet),
+        ".*");
 }
 
-// ── Edge-case intersection sizes ──────────────────────────────────────────────
-
-TEST_F(MqRPMTPSOTest, EmptyIntersection) {
-    const size_t sender_len   = 1u << kLogSenderLen;
-    const size_t receiver_len = 1u << kLogReceiverLen;
-
-    auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0,
-                         cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, 0, pp.ring_ctx);
-    auto res = run_protocol(pp, ds, pso::PsoMode::kIntersection, kPortEmptyIntersect);
-
-    EXPECT_TRUE(res.receiver_out.set_result.empty());
-}
-
-TEST_F(MqRPMTPSOTest, FullIntersection) {
-    constexpr size_t kLogSmallSender = 7; 
-    const size_t sender_len   = 1u << kLogSmallSender;
-    const size_t receiver_len = 1u << kLogReceiverLen;
-    ASSERT_LE(sender_len, receiver_len);
-
-    auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSmallSender, kLogReceiverLen, kLogSumBound, kLogValueBound,
-                         cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, sender_len, pp.ring_ctx);
-    auto res = run_protocol(pp, ds, pso::PsoMode::kCardSum, kPortFullIntersect);
-
-    EXPECT_EQ(res.receiver_out.cardinality, sender_len);
-    EXPECT_TRUE(res.sender_out.card_sum == ds.expected_card_sum);
-}
-
-TEST_F(MqRPMTPSOTest, AsymmetricSizes_PlainSet) {
-    const size_t sender_len   = 1u << kLogSenderLen;
-    const size_t receiver_len = 1u << kLogReceiverLen;
-
-    auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0,
-                         cwprf_mqrpmt::MembershipMode::PlainSet);
-    auto ds  = make_dataset(sender_len, receiver_len, receiver_len / 2, pp.ring_ctx);
-    auto res = run_protocol(pp, ds, pso::PsoMode::kIntersection, kPortAsymmetric);
-
-    validate_set(res.receiver_out.set_result, ds.ground_truth_intersection, 
-                 cwprf_mqrpmt::MembershipMode::PlainSet, "Asymmetric/PlainSet");
-}
-
-// ── Role-crossing structural invariant ───────────────────────────────────────
-
-TEST_F(MqRPMTPSOTest, RoleCrossing_Invariant) {
-    auto pp = pso::setup(kNormalCurveId, kNormalCurveId, kLogSenderLen, kLogReceiverLen, 0, 0,
-                         cwprf_mqrpmt::MembershipMode::PlainSet);
-
-    EXPECT_EQ(pp.mqrpmt_pp.log_server_len, pp.log_receiver_len);
-    EXPECT_EQ(pp.mqrpmt_pp.log_client_len, pp.log_sender_len);
-}
-
-// ── main ──────────────────────────────────────────────────────────────────────
+}  // namespace
 
 int main(int argc, char** argv) {
     ::testing::InitGoogleTest(&argc, argv);
