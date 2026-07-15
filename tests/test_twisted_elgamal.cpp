@@ -103,7 +103,7 @@ protected:
 
 TEST_F(TwistedElGamalTest, Setup_Standard_Fields) {
     EXPECT_EQ(pp_std.msg_len_bits, 0ULL);
-    EXPECT_EQ(pp_std.msg_size,     BigInt(0ULL));
+    EXPECT_EQ(pp_std.msg_size,     BigInt(uint64_t{0}));
     EXPECT_TRUE(pp_std.g.is_on_curve());
     EXPECT_TRUE(pp_std.h.is_on_curve());
     EXPECT_NE(pp_std.g, pp_std.h);
@@ -113,7 +113,7 @@ TEST_F(TwistedElGamalTest, Setup_Standard_Fields) {
 
 TEST_F(TwistedElGamalTest, Setup_Exponential_Fields) {
     EXPECT_EQ(pp_exp.msg_len_bits, MSG_BITS);
-    EXPECT_EQ(pp_exp.msg_size,     BigInt(1ULL << MSG_BITS));
+    EXPECT_EQ(pp_exp.msg_size,     BigInt(uint64_t{1} << MSG_BITS));
     EXPECT_TRUE(pp_exp.g.is_on_curve());
     EXPECT_TRUE(pp_exp.h.is_on_curve());
     EXPECT_NE(pp_exp.group_ctx, nullptr);
@@ -178,28 +178,28 @@ TEST_F(TwistedElGamalTest, Standard_WrongKeyDecryptionFails) {
 // ============================================================
 
 TEST_F(TwistedElGamalExpTest, Exponential_EncryptDecrypt_Zero) {
-    ZnElement m(pp_exp.ring_ctx, BigInt(0ULL));
+    ZnElement m(pp_exp.ring_ctx, BigInt(uint64_t{0}));
     ZnElement md = decrypt_exp(pp_exp, sk_exp,
                                encrypt(pp_exp, pk_exp, m), *solver);
     EXPECT_EQ(md.value, m.value);
 }
 
 TEST_F(TwistedElGamalExpTest, Exponential_EncryptDecrypt_One) {
-    ZnElement m(pp_exp.ring_ctx, BigInt(1ULL));
+    ZnElement m(pp_exp.ring_ctx, BigInt(uint64_t{1}));
     ZnElement md = decrypt_exp(pp_exp, sk_exp,
                                encrypt(pp_exp, pk_exp, m), *solver);
     EXPECT_EQ(md.value, m.value);
 }
 
 TEST_F(TwistedElGamalExpTest, Exponential_EncryptDecrypt_MaxValue) {
-    ZnElement m(pp_exp.ring_ctx, BigInt((1ULL << MSG_BITS) - 1));
+    ZnElement m(pp_exp.ring_ctx, BigInt((uint64_t{1} << MSG_BITS) - 1));
     ZnElement md = decrypt_exp(pp_exp, sk_exp,
                                encrypt(pp_exp, pk_exp, m), *solver);
     EXPECT_EQ(md.value, m.value);
 }
 
 TEST_F(TwistedElGamalExpTest, Exponential_EncryptDecrypt_Random) {
-    const BigInt range(1ULL << MSG_BITS);
+    const BigInt range(uint64_t{1} << MSG_BITS);
     for (int i = 0; i < 5; ++i) {
         ZnElement m(pp_exp.ring_ctx, gen_random_bigint_less_than(range));
         ZnElement md = decrypt_exp(pp_exp, sk_exp,
@@ -237,7 +237,7 @@ TEST_F(TwistedElGamalTest, HomoAdd_Commutativity) {
 
 TEST_F(TwistedElGamalExpTest, HomoAdd_Exponential) {
     // Quarter range ensures sum fits within MSG_BITS
-    const BigInt range(1ULL << (MSG_BITS - 2));
+    const BigInt range(uint64_t{1} << (MSG_BITS - 2));
     BigInt raw1 = gen_random_bigint_less_than(range);
     BigInt raw2 = gen_random_bigint_less_than(range);
 
@@ -287,13 +287,13 @@ TEST_F(TwistedElGamalTest, HomoMul_DecryptsToScaledMessage) {
 
 TEST_F(TwistedElGamalTest, HomoMul_ScalarZeroGivesInfinity) {
     ECPoint   m    = pp_std.group_ctx->gen_random();
-    ZnElement zero(pp_std.ring_ctx, BigInt(0ULL));
+    ZnElement zero(pp_std.ring_ctx, kBigIntZero);
     EXPECT_TRUE(decrypt(sk, encrypt(pp_std, pk, m) * zero).is_at_infinity());
 }
 
 TEST_F(TwistedElGamalTest, HomoMul_ScalarOneIsIdentity) {
     ECPoint   m   = pp_std.group_ctx->gen_random();
-    ZnElement one(pp_std.ring_ctx, BigInt(1ULL));
+    ZnElement one(pp_std.ring_ctx, kBigIntOne);
     EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, m) * one), m);
 }
 
@@ -362,7 +362,7 @@ protected:
 };
 
 TEST_F(TwistedElGamalMrTest, MrEncrypt_AllRecipientsDecryptCorrectly) {
-    ZnElement    m(pp_exp.ring_ctx, BigInt(12345ULL));
+    ZnElement    m(pp_exp.ring_ctx, BigInt(uint64_t{12345}));
     MrCiphertext ct       = encrypt(pp_exp, vec_pk, m);
     ECPoint      expected = pp_exp.h * m;
 
@@ -373,13 +373,13 @@ TEST_F(TwistedElGamalMrTest, MrEncrypt_AllRecipientsDecryptCorrectly) {
 }
 
 TEST_F(TwistedElGamalMrTest, MrEncrypt_WrongIndexGivesWrongResult) {
-    ZnElement    m(pp_exp.ring_ctx, BigInt(42ULL));
+    ZnElement    m(pp_exp.ring_ctx, BigInt(uint64_t{42}));
     MrCiphertext ct = encrypt(pp_exp, vec_pk, m);
     EXPECT_NE(decrypt(vec_sk[0], ct, 0), decrypt(vec_sk[0], ct, 1));
 }
 
 TEST_F(TwistedElGamalMrTest, MrEncrypt_DeterministicWithFixedR) {
-    ZnElement m(pp_exp.ring_ctx, BigInt(99ULL));
+    ZnElement m(pp_exp.ring_ctx, BigInt(uint64_t{99}));
     ZnElement r = pp_exp.ring_ctx->gen_random();
     EXPECT_EQ(encrypt(pp_exp, vec_pk, m, r), encrypt(pp_exp, vec_pk, m, r));
 }
@@ -406,7 +406,7 @@ TEST_F(TwistedElGamalTest, Serialization_Ciphertext_RoundTrip) {
 }
 
 TEST_F(TwistedElGamalMrTest, Serialization_MrCiphertext_RoundTrip) {
-    ZnElement    m  = ZnElement(pp_exp.ring_ctx, BigInt(777ULL));
+    ZnElement    m  = ZnElement(pp_exp.ring_ctx, BigInt(uint64_t{777}));
     MrCiphertext ct = encrypt(pp_exp, vec_pk, m);
 
     std::ostringstream oss;

@@ -29,7 +29,7 @@ struct PublicParameters {
     std::shared_ptr<Zn> ring_ctx;                 // the SK space
     
     size_t msg_len_bits{0};   // 0 for Standard, >0 for Exponential
-    BigInt msg_size{0ULL};    // 2^msg_len_bits
+    BigInt msg_size{uint64_t{0}};    // 2^msg_len_bits
 
     // // 3. SYNTACTIC SUGAR: Makes algorithm code read naturally!
     // inline const ECGroup& get_group() const { return *group_ptr; }

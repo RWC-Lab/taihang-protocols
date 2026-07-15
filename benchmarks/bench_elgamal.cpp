@@ -129,7 +129,7 @@ int main() {
     // Prepare Exponential Data: REALISTIC RANDOM MESSAGES
     std::vector<Ciphertext> cts_exp(TEST_NUM);
     std::vector<BigInt> msgs_raw(TEST_NUM);
-    BigInt max_m = BigInt(1ULL << BSGS_RANGE_BITS); 
+    BigInt max_m = BigInt(uint64_t{1} << BSGS_RANGE_BITS); 
 
     for(size_t i = 0; i < TEST_NUM; ++i) {
         // Pick a message randomly from the supported range [0, 2^BSGS_RANGE_BITS)

@@ -40,9 +40,9 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
 
     // Safety check for shift
     if (pp.msg_len_bits > 0 && pp.msg_len_bits < 64) {
-        pp.msg_size = BigInt(1ULL << pp.msg_len_bits);
+        pp.msg_size = BigInt(uint64_t{1} << pp.msg_len_bits);
     } else {
-        pp.msg_size = BigInt(0ULL);
+        pp.msg_size = kBigIntZero;
     }
 
     return is;
@@ -127,7 +127,7 @@ PublicParameters setup(int curve_id, size_t msg_len_bits) {
     pp.h = hash_to_curve_fast(pp.g.to_string(), *pp.group_ctx);
 
     pp.msg_len_bits = msg_len_bits;
-    pp.msg_size = (msg_len_bits > 0) ? (BigInt(1ULL << msg_len_bits)) : BigInt(0ULL);
+    pp.msg_size = (msg_len_bits > 0) ? (BigInt(uint64_t{1} << msg_len_bits)) : BigInt(uint64_t{0});
     return pp;
 }
 
