@@ -6,11 +6,13 @@
 
 #include <taihang/mpc/okvs/okvs.hpp>
 #include <taihang/common/config.hpp>
+#include <taihang/crypto/prg.hpp>
 
 #include <algorithm>
 #include <array>
 #include <cstring>
 #include <limits>
+#include <set>
 #include <sstream>
 #include <stdexcept>
 
@@ -38,6 +40,42 @@ uint8_t checked_byte(size_t value, const char* name) {
 uint8_t thread_num() {
     const int configured = std::max(1, config::thread_num);
     return static_cast<uint8_t>(std::min(configured, static_cast<int>(std::numeric_limits<uint8_t>::max())));
+}
+
+struct BlockLess {
+    bool operator()(const Block& lhs, const Block& rhs) const {
+        return std::memcmp(&lhs, &rhs, sizeof(Block)) < 0;
+    }
+};
+
+std::vector<Block> pad_keys(const PublicParameters& pp,
+                            const std::vector<Block>& keys) {
+    if (keys.size() == pp.item_num) {
+        return keys;
+    }
+
+    std::vector<Block> padded = keys;
+    padded.reserve(pp.item_num);
+
+    std::set<Block, BlockLess> used(keys.begin(), keys.end());
+    auto seed = prg::set_seed(&pp.seed, 1);
+    while (padded.size() < pp.item_num) {
+        const Block candidate = prg::gen_random_blocks(seed, 1)[0];
+        if (used.insert(candidate).second) {
+            padded.push_back(candidate);
+        }
+    }
+    return padded;
+}
+
+std::vector<Block> pad_values(const std::vector<Block>& values, size_t target_size) {
+    if (values.size() == target_size) {
+        return values;
+    }
+
+    std::vector<Block> padded = values;
+    padded.resize(target_size, kZeroBlock);
+    return padded;
 }
 
 std::array<uint64_t, 2> block_to_words(const Block& block) {
@@ -97,7 +135,9 @@ std::vector<Block> encode_impl(const PublicParameters& pp,
                                prg::Seed* prng) {
     auto baxos = make_baxos<dense_type>(pp);
     std::vector<Block> encoded(pp.storage_size);
-    baxos.solve(keys, values, encoded, prng, thread_num());
+    auto padded_keys = pad_keys(pp, keys);
+    auto padded_values = pad_values(values, padded_keys.size());
+    baxos.solve(padded_keys, padded_values, encoded, prng, thread_num());
     return encoded;
 }
 
@@ -205,7 +245,7 @@ std::vector<Block> encode(const PublicParameters& pp,
                           const std::vector<Block>& values,
                           prg::Seed* prng) {
     validate_public_parameters(pp);
-    if (keys.size() != pp.item_num || values.size() != pp.item_num) {
+    if (keys.size() > pp.item_num || values.size() != keys.size()) {
         throw std::invalid_argument("OKVS encode input size mismatch.");
     }
 

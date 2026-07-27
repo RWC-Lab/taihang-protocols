@@ -32,12 +32,13 @@ protected:
     static constexpr size_t kLogInputNum = 8;
     static constexpr size_t kInputNum = 1ULL << kLogInputNum;
     static constexpr uint16_t kPort = 12480;
+    static constexpr uint16_t kUnderfilledPort = 12484;
     static constexpr int kCurveId = NID_X9_62_prime256v1;
 
-    static std::vector<Block> gen_input() {
+    static std::vector<Block> gen_input(size_t input_num = kInputNum) {
         Block seed_block = make_block(0x123456789abcdef0ULL, 0x0fedcba987654321ULL);
         auto seed = prg::set_seed(&seed_block, 0);
-        return prg::gen_random_blocks(seed, kInputNum);
+        return prg::gen_random_blocks(seed, input_num);
     }
 
     static void expect_equal_blocks(const std::vector<Block>& lhs, const std::vector<Block>& rhs) {
@@ -88,6 +89,40 @@ TEST_F(VoleOprfTest, Execute_VoleOprf_Roundtrip) {
     server_task.get();
 
     expect_equal_blocks(client_result, server_result);
+}
+
+TEST_F(VoleOprfTest, Receiver_AllowsShorterInputCount) {
+    auto pp = oprf::setup(kCurveId, kLogInputNum);
+    auto vec_x = gen_input(kInputNum / 2);
+
+    std::vector<Block> client_result;
+    std::vector<Block> server_result;
+
+    auto server_task = std::async(std::launch::async, [&]() {
+        net::NetIO io("server", "127.0.0.1", kUnderfilledPort);
+        auto secret_key = oprf::sender(io, pp);
+        server_result = oprf::evaluate(pp, secret_key, vec_x);
+    });
+
+    auto client_task = std::async(std::launch::async, [&]() {
+        net::NetIO io("client", "127.0.0.1", kUnderfilledPort);
+        client_result = oprf::receiver(io, pp, vec_x);
+    });
+
+    client_task.get();
+    server_task.get();
+
+    expect_equal_blocks(client_result, server_result);
+}
+
+TEST_F(VoleOprfTest, Rejects_QueryCountAboveCapacity) {
+    auto pp = oprf::setup(kCurveId, kLogInputNum);
+    auto vec_y = gen_input(kInputNum * 2);
+
+    oprf::SecretKey secret_key;
+    secret_key.encoded_key.resize(pp.okvs_output_size);
+
+    EXPECT_DEATH(oprf::evaluate(pp, secret_key, vec_y), ".*");
 }
 
 TEST_F(VoleOprfTest, Serialization_PublicParameters_RoundTrip) {

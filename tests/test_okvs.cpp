@@ -225,6 +225,29 @@ TEST_F(OkvsTest, Execute_PublicApi_SubsetDecode) {
     expect_equal_blocks(decoded, expected_values);
 }
 
+TEST_F(OkvsTest, Execute_PublicApi_UnderfilledEncode) {
+    auto testcase = make_testcase(kSmallItemNum, kSmallBinSize, kThreadNum);
+    auto pp = okvs::setup(testcase.item_num,
+                          testcase.bin_size,
+                          kSparseWeight,
+                          kStatisticalSecurityParameter,
+                          okvs::DenseType::Gf128,
+                          testcase.seed_block);
+
+    constexpr size_t kActualItemNum = 128;
+    std::vector<Block> keys(testcase.vec_key.begin(),
+                            testcase.vec_key.begin() + kActualItemNum);
+    std::vector<Block> values(testcase.vec_value.begin(),
+                              testcase.vec_value.begin() + kActualItemNum);
+
+    auto encode_randomness = prg::set_seed(&testcase.seed_block, 0);
+    auto encoded = okvs::encode(pp, keys, values, &encode_randomness);
+    ASSERT_EQ(encoded.size(), pp.storage_size);
+
+    auto decoded = okvs::decode(pp, keys, encoded);
+    expect_equal_blocks(decoded, values);
+}
+
 // ============================================================
 // 4. Failure Modes & Serialization
 // ============================================================

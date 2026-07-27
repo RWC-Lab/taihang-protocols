@@ -109,12 +109,12 @@ std::vector<Block> receiver(net::NetIO& io,
                             const PublicParameters& pp,
                             const std::vector<Block>& vec_x) {
     TAIHANG_TIMER("VOLE-based OPRF:", "Receiver total execution time");
-    TAIHANG_ASSERT(vec_x.size() == pp.input_num, "VOLE OPRF receiver input size mismatch.");
+    TAIHANG_ASSERT(vec_x.size() <= pp.input_num, "VOLE OPRF receiver input size exceeds parameter capacity.");
 
     const Block okvs_seed_block = sample_block();
     auto round_okvs_pp = okvs_parameters_with_seed(pp, okvs_seed_block);
 
-    std::vector<Block> zero_values(pp.input_num, kZeroBlock);
+    std::vector<Block> zero_values(vec_x.size(), kZeroBlock);
     std::vector<Block> p = okvs::encode(round_okvs_pp, vec_x, zero_values, nullptr);
 
     std::vector<Block> vec_c;
@@ -165,7 +165,7 @@ SecretKey sender(net::NetIO& io, const PublicParameters& pp) {
 std::vector<Block> evaluate(const PublicParameters& pp,
                             const SecretKey& oprf_key,
                             const std::vector<Block>& vec_y) {
-    TAIHANG_ASSERT(vec_y.size() == pp.input_num, "VOLE OPRF evaluation input size mismatch.");
+    TAIHANG_ASSERT(vec_y.size() <= pp.input_num, "VOLE OPRF evaluation input size exceeds parameter capacity.");
     if (oprf_key.encoded_key.size() != pp.okvs_output_size) {
         throw std::invalid_argument("VOLE OPRF key size mismatch.");
     }
