@@ -44,7 +44,7 @@ uint8_t thread_num() {
 
 struct BlockLess {
     bool operator()(const Block& lhs, const Block& rhs) const {
-        return std::memcmp(&lhs, &rhs, sizeof(Block)) < 0;
+        return is_less_than(lhs, rhs);
     }
 };
 

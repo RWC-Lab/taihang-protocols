@@ -10,7 +10,6 @@
 #include <taihang/crypto/prg.hpp>
 #include <taihang/mpc/okvs/okvs_utility.hpp>
 
-#include <algorithm>
 #include <cmath>
 #include <format>
 #include <sstream>
@@ -24,11 +23,6 @@ okvs::PublicParameters okvs_parameters_with_seed(const PublicParameters& pp, con
     auto okvs_pp = pp.okvs_pp;
     okvs_pp.seed = seed;
     return okvs_pp;
-}
-
-Block sample_block() {
-    auto seed = prg::set_seed(nullptr, 0);
-    return prg::gen_random_blocks(seed, 1)[0];
 }
 
 } // namespace
@@ -111,7 +105,8 @@ std::vector<Block> receiver(net::NetIO& io,
     TAIHANG_TIMER("VOLE-based OPRF:", "Receiver total execution time");
     TAIHANG_ASSERT(vec_x.size() <= pp.input_num, "VOLE OPRF receiver input size exceeds parameter capacity.");
 
-    const Block okvs_seed_block = sample_block();
+    auto okvs_seed = prg::set_seed(nullptr, 0);
+    const Block okvs_seed_block = prg::gen_random_blocks(okvs_seed, 1)[0];
     auto round_okvs_pp = okvs_parameters_with_seed(pp, okvs_seed_block);
 
     std::vector<Block> zero_values(vec_x.size(), kZeroBlock);
@@ -138,7 +133,8 @@ std::vector<Block> receiver(net::NetIO& io,
 SecretKey sender(net::NetIO& io, const PublicParameters& pp) {
     TAIHANG_TIMER("VOLE-based OPRF:", "Sender total execution time");
 
-    const Block delta = sample_block();
+    auto delta_seed = prg::set_seed(nullptr, 0);
+    const Block delta = prg::gen_random_blocks(delta_seed, 1)[0];
 
     std::vector<Block> key;
     vole::party_b(io, pp.vole_pp, pp.okvs_output_size, key, delta);

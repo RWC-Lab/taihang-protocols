@@ -11,7 +11,6 @@
 #include <taihang/mpc/okvs/okvs_utility.hpp>
 
 #include <algorithm>
-#include <array>
 #include <cmath>
 #include <cstring>
 #include <sstream>
@@ -41,19 +40,12 @@ std::vector<uint32_t> gen_random_mod(uint32_t modulus, uint32_t len, prg::Seed s
     return values;
 }
 
-std::array<uint64_t, 2> block_words(const Block& block) {
-    std::array<uint64_t, 2> words{};
-    const auto bytes = to_bytes(block);
-    std::memcpy(words.data(), bytes.data(), bytes.size());
-    return words;
-}
-
 std::vector<uint8_t> block_bits(const Block& block) {
     std::vector<uint8_t> bits(kBlockBitLen);
-    auto words = block_words(block);
+    const auto bytes = to_bytes(block);
     for (size_t i = 0; i < kBlockBitLen; ++i) {
-        const uint64_t word = words[i / 64];
-        bits[i] = static_cast<uint8_t>((word >> (i % 64)) & 1);
+        const auto byte = static_cast<uint8_t>(bytes[i / 8]);
+        bits[i] = static_cast<uint8_t>((byte >> (i % 8)) & 1);
     }
     return bits;
 }
