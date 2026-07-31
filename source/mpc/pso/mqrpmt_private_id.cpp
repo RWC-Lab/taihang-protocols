@@ -6,7 +6,6 @@
 
 #include <taihang/mpc/pso/mqrpmt_private_id.hpp>
 #include <taihang/common/check.hpp>
-#include <taihang/common/config.hpp>
 #include <taihang/common/logger.hpp>
 
 #include <algorithm>
@@ -20,28 +19,6 @@ namespace taihang::mpc::mqrpmt_private_id {
 namespace {
 
 constexpr size_t kDefaultStatisticalSecurityParameter = 40;
-
-std::vector<Block> xor_block_vectors(const std::vector<Block>& lhs,
-                                     const std::vector<Block>& rhs,
-                                     const char* context) {
-    TAIHANG_ASSERT(lhs.size() == rhs.size(), context);
-
-    std::vector<Block> result(lhs.size());
-    #pragma omp parallel for num_threads(config::thread_num)
-    for (size_t i = 0; i < lhs.size(); ++i) {
-        result[i] = lhs[i] ^ rhs[i];
-    }
-    return result;
-}
-
-void shuffle_blocks(std::vector<Block>& values) {
-    if (values.size() <= 1) {
-        return;
-    }
-
-    thread_local std::mt19937_64 rng{std::random_device{}()};
-    std::shuffle(values.begin(), values.end(), rng);
-}
 
 std::optional<size_t> membership_security_parameter(cwprf_mqrpmt::MembershipMode mode,
                                                     std::optional<size_t> statistical_security_parameter) {
@@ -150,9 +127,9 @@ SenderOutput sender(net::NetIO& io,
         vole_oprf::receiver(io, pp.oprf_pp, vec_x);
 
     SenderOutput output;
-    output.sender_id = xor_block_vectors(first_id_part,
-                                         second_id_part,
-                                         "mqRPMT Private-ID sender OPRF output size mismatch.");
+    TAIHANG_ASSERT(first_id_part.size() == second_id_part.size(),
+                   "mqRPMT Private-ID sender OPRF output size mismatch.");
+    output.sender_id = first_id_part ^ second_id_part;
 
     mqrpmt_pso::pso_sender(io,
                            pp.psu_pp,
@@ -184,9 +161,9 @@ ReceiverOutput receiver(net::NetIO& io,
         vole_oprf::evaluate(pp.oprf_pp, second_key, vec_y);
 
     ReceiverOutput output;
-    output.receiver_id = xor_block_vectors(first_id_part,
-                                           second_id_part,
-                                           "mqRPMT Private-ID receiver OPRF output size mismatch.");
+    TAIHANG_ASSERT(first_id_part.size() == second_id_part.size(),
+                   "mqRPMT Private-ID receiver OPRF output size mismatch.");
+    output.receiver_id = first_id_part ^ second_id_part;
 
     mqrpmt_pso::ReceiverOutput psu_output =
         mqrpmt_pso::pso_receiver(io,
@@ -195,7 +172,10 @@ ReceiverOutput receiver(net::NetIO& io,
                                  mqrpmt_pso::PsoMode::kUnion);
 
     output.union_id = std::move(psu_output.set_result);
-    shuffle_blocks(output.union_id);
+    if (output.union_id.size() > 1) {
+        thread_local std::mt19937_64 rng{std::random_device{}()};
+        std::shuffle(output.union_id.begin(), output.union_id.end(), rng);
+    }
     io.send(output.union_id.size());
     io.send(output.union_id);
 
