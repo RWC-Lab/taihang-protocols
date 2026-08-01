@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      bench_mqrpmt_private_id.cpp
  * @brief     Benchmark suite for mqRPMT-based Private-ID.
- * @author    This file is part of Taihang.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <taihang/mpc/pso/mqrpmt_private_id.hpp>
@@ -23,8 +23,6 @@
 using namespace taihang;
 using namespace taihang::mpc;
 namespace private_id = taihang::mpc::mqrpmt_private_id;
-
-namespace {
 
 using Clock = std::chrono::high_resolution_clock;
 using Milliseconds = std::chrono::duration<double, std::milli>;
@@ -53,6 +51,7 @@ Dataset make_dataset(size_t item_len) {
     Dataset dataset;
     dataset.vec_x.resize(item_len);
     dataset.vec_y.resize(item_len);
+    // Set the intersection size to be a half of the max item size.
     dataset.intersection_size = item_len / 2;
     dataset.union_size = item_len * 2 - dataset.intersection_size;
 
@@ -81,6 +80,7 @@ const std::vector<BenchConfig> kConfigs = {
 };
 
 private_id::PublicParameters make_public_parameters(const BenchConfig& config) {
+    // Generate pp once; it must be shared by Sender and Receiver.
     return private_id::setup(kBaseOtCurveId,
                              config.mqrpmt_curve_id,
                              kLogItemLen,
@@ -149,6 +149,7 @@ BenchResult run_once(const BenchConfig& config,
     result.sender_id_size = sender_pair.first.sender_id.size();
     result.receiver_id_size = receiver_pair.first.receiver_id.size();
     result.union_id_size = receiver_pair.first.union_id.size();
+    // Receiver sends the shuffled union_id set back to Sender; 
     result.passed = validate_result(dataset, sender_pair.first, receiver_pair.first);
     return result;
 }
@@ -222,13 +223,12 @@ void print_summary(const std::vector<std::pair<BenchConfig, BenchResult>>& resul
         << "====================================================================================================\n";
 }
 
-} // namespace
-
 int main() {
     const size_t item_len = size_t{1} << kLogItemLen;
 
     thread_configuration(BenchmarkMode::SingleMachine);
 
+    // Generate testcase.
     std::cout << "Generating benchmark dataset...\n";
     const auto dataset_begin = Clock::now();
     const Dataset dataset = make_dataset(item_len);

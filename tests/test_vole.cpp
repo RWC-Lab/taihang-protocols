@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      test_vole.cpp
  * @brief     GTest suite for the VOLE primitive.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <gtest/gtest.h>
@@ -40,6 +40,7 @@ protected:
     static constexpr uint16_t kExpandedPort = 12471;
 
     struct Transcript {
+        // Party A obtains vec_a and vec_c; Party B obtains vec_b and delta.
         std::vector<Block> vec_a;
         std::vector<Block> vec_b;
         std::vector<Block> vec_c;
@@ -54,6 +55,7 @@ protected:
         ASSERT_EQ(transcript.vec_b.size(), item_num);
         ASSERT_EQ(transcript.vec_c.size(), item_num);
 
+        // Test if vec_b == vec_c + vec_a * delta.
         for (size_t i = 0; i < item_num; ++i) {
             const Block expected = transcript.vec_c[i] ^ okvs::gf128_mul(transcript.vec_a[i], delta);
             EXPECT_EQ(transcript.vec_b[i], expected) << "VOLE correlation mismatch at index: " << i;
@@ -68,11 +70,13 @@ protected:
 
         auto party_b_task = std::async(std::launch::async, [&]() {
             net::NetIO io("server", "127.0.0.1", port);
+            // Generate delta and vec_b.
             vole::party_b(io, pp, item_num, transcript.vec_b, delta);
         });
 
         auto party_a_task = std::async(std::launch::async, [&]() {
             net::NetIO io("client", "127.0.0.1", port);
+            // Generate vec_a and vec_c.
             transcript.vec_a = vole::party_a(io, pp, item_num, transcript.vec_c);
         });
 

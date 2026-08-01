@@ -1,7 +1,9 @@
 /****************************************************************************
  * @file      okvs.cpp
  * @brief     Oblivious Key-Value Store primitive.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @details   The underlying Paxos/Baxos OKVS code is modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <taihang/mpc/okvs/okvs.hpp>
@@ -9,7 +11,6 @@
 #include <taihang/crypto/prg.hpp>
 
 #include <algorithm>
-#include <array>
 #include <cstring>
 #include <limits>
 #include <set>
@@ -17,18 +18,6 @@
 #include <stdexcept>
 
 namespace taihang::mpc::okvs {
-
-namespace {
-
-const char* dense_type_name(DenseType dense_type) {
-    switch (dense_type) {
-    case DenseType::Binary:
-        return "Binary";
-    case DenseType::Gf128:
-        return "Gf128";
-    }
-    return "Unknown";
-}
 
 uint8_t checked_byte(size_t value, const char* name) {
     if (value > std::numeric_limits<uint8_t>::max()) {
@@ -76,17 +65,6 @@ std::vector<Block> pad_values(const std::vector<Block>& values, size_t target_si
     std::vector<Block> padded = values;
     padded.resize(target_size, kZeroBlock);
     return padded;
-}
-
-std::array<uint64_t, 2> block_to_words(const Block& block) {
-    std::array<uint64_t, 2> words{};
-    const auto bytes = to_bytes(block);
-    std::memcpy(words.data(), bytes.data(), bytes.size());
-    return words;
-}
-
-Block words_to_block(uint64_t first, uint64_t second) {
-    return make_block(second, first);
 }
 
 template <DenseType dense_type>
@@ -151,9 +129,17 @@ std::vector<Block> decode_impl(const PublicParameters& pp,
     return values;
 }
 
-} // namespace
-
 std::string PublicParameters::format() const {
+    const char* dense_type_label = "Unknown";
+    switch (dense_type) {
+    case DenseType::Binary:
+        dense_type_label = "Binary";
+        break;
+    case DenseType::Gf128:
+        dense_type_label = "Gf128";
+        break;
+    }
+
     std::ostringstream oss;
     oss << "[OKVS PublicParameters]\n";
     oss << "Item number                    :" << item_num << "\n";
@@ -162,7 +148,7 @@ std::string PublicParameters::format() const {
     oss << "Item number per bin            :" << item_num_per_bin << "\n";
     oss << "Sparse weight                  :" << static_cast<int>(sparse_weight) << "\n";
     oss << "Statistical security parameter :" << statistical_security_parameter << "\n";
-    oss << "Dense type                     :" << dense_type_name(dense_type) << "\n";
+    oss << "Dense type                     :" << dense_type_label << "\n";
     oss << "Sparse size per bin            :" << sparse_size << "\n";
     oss << "Dense size per bin             :" << dense_size << "\n";
     oss << "Total size per bin             :" << total_size << "\n";
@@ -171,7 +157,10 @@ std::string PublicParameters::format() const {
 }
 
 std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
-    const auto seed_words = block_to_words(pp.seed);
+    uint64_t seed_words[2]{};
+    const auto seed_bytes = to_bytes(pp.seed);
+    std::memcpy(seed_words, seed_bytes.data(), seed_bytes.size());
+
     os << pp.item_num << " "
        << pp.bin_size << " "
        << static_cast<int>(pp.sparse_weight) << " "
@@ -205,7 +194,7 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
                    static_cast<uint8_t>(sparse_weight),
                    statistical_security_parameter,
                    static_cast<DenseType>(dense_type),
-                   words_to_block(seed_first, seed_second));
+                   make_block(seed_second, seed_first));
     }
     return is;
 }

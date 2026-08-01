@@ -1,7 +1,25 @@
 /****************************************************************************
  * @file      vole.hpp
  * @brief     Vector Oblivious Linear Evaluation over GF(2^128).
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @details   This is an implementation of single-point-VOLE(spVOLE) and
+ *            t-multi-points-VOLE(t_mpVOLE). Here we concatenate t spVOLE to
+ *            get t_mpVOLE. In detail, we implement the protocol in Figure 7
+ *            without consistency check.
+ *
+ *            References:
+ *            [WYKW21]: "Wolverine: Fast, Scalable, and Communication-Efficient
+ *            Zero-Knowledge Proofs for Boolean and Arithmetic Circuits",
+ *            Chenkai Weng, Kang Yang, Jonathan Katz, and Xiao Wang,
+ *            IEEE Symposium on Security and Privacy (Oakland), 2021.
+ *            <https://eprint.iacr.org/2020/925>
+ *
+ *            This file also includes the baseVOLE part from Figure 15 with
+ *            p = p^r = 2^128, and the Expand-Convolute Code:
+ *            [RRT23]: "Expand-Convolute Codes for Pseudorandom Correlation
+ *            Generators from LPN", Srinivasan Raghuraman, Peter Rindal and
+ *            Titouan Tanguy, CRYPTO 2023.
+ *            <https://eprint.iacr.org/2023/882>
+ * @author    Yang Cao
  *****************************************************************************/
 
 #ifndef TAIHANG_PROTOCOLS_VOLE_HPP
@@ -44,9 +62,6 @@ PublicParameters setup(int base_ot_curve_id,
 
 /**
  * @brief Party A obtains vectors a and c.
- *
- * Together with party_b(), the outputs satisfy b_i = c_i + a_i * delta over
- * GF(2^128). The returned vector is a; vec_c is filled in-place.
  */
 std::vector<Block> party_a(net::NetIO& io,
                            const PublicParameters& pp,
@@ -54,7 +69,7 @@ std::vector<Block> party_a(net::NetIO& io,
                            std::vector<Block>& vec_c);
 
 /**
- * @brief Party B obtains vector b using its correlation value delta.
+ * @brief Party B obtains vector b and holds delta.
  */
 void party_b(net::NetIO& io,
              const PublicParameters& pp,

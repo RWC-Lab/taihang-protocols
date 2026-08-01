@@ -1,6 +1,10 @@
 /****************************
  * @file      baxos.cpp
  * @brief     Batched Paxos OKVS implementation.
+ * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ *            (1) simplify the design;
+ *            (2) support multi-thread programming with OpenMP.
+ * @author    Yang Cao
  ****************************/
 
 #include <taihang/mpc/okvs/baxos.hpp>
@@ -82,6 +86,10 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
     {
         omp_set_num_threads(thread_num);
         auto item_num_per_thread = (item_num + thread_num - 1) / thread_num;
+        // thread_1: bin_0, bin_1, ...
+        // thread_2: bin_0, bin_1, ...
+        // item_i1, item_i2, ..., item_ik   item_j1, item_j2, ..., item_jl
+        //      thread_1                         thread_2
         auto bin_size_per_thread = hashtable_bin_size(bin_num, item_num_per_thread, statistical_security_parameter);
         auto bin_size_all_thread = thread_num * bin_size_per_thread;
 
@@ -426,7 +434,7 @@ void Baxos<dense_type, value_type>::impl_decode(const std::vector<Block> &keys, 
     auto values_begin = values.data();
 #pragma omp parallel
     {
-        // Assign the keys std::array and values ​​std::array to different threads
+        // Assign the keys std::array and values std::array to different threads
         const uint64_t thread_id = omp_get_thread_num();
         uint64_t begin = (keys_size * thread_id) / thread_num;
         uint64_t len = keys_size * (thread_id + 1) / thread_num - begin;

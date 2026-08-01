@@ -1,6 +1,10 @@
 /****************************
  * @file      baxos.hpp
  * @brief     Batched Paxos OKVS engine.
+ * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ *            (1) simplify the design;
+ *            (2) support multi-thread programming with OpenMP.
+ * @author    Yang Cao
  ****************************/
 
 #ifndef TAIHANG_MPC_OKVS_BAXOS_HPP

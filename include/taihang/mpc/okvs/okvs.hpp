@@ -1,7 +1,9 @@
 /****************************************************************************
  * @file      okvs.hpp
  * @brief     Oblivious Key-Value Store primitive.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @details   The underlying Paxos/Baxos OKVS code is modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>
+ * @author    Yang Cao
  *****************************************************************************/
 
 #ifndef TAIHANG_PROTOCOLS_OKVS_HPP

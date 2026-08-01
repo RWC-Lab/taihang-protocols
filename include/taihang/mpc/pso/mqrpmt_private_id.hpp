@@ -1,7 +1,8 @@
 /****************************************************************************
  * @file      mqrpmt_private_id.hpp
  * @brief     Private-ID based on distributed VOLE OPRF and mqRPMT PSU.
- * @author    This file is part of Taihang.
+ * @details   Implements Private-ID based on distributed OPRF and PSU.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #ifndef TAIHANG_MPC_PSO_MQRPMT_PRIVATE_ID_HPP
@@ -57,7 +58,6 @@ struct ReceiverOutput {
 
 /**
  * @brief Constructs parameters for Private-ID.
- *
  */
 PublicParameters setup(int base_ot_curve_id,
                        int mqrpmt_curve_id,
@@ -68,14 +68,14 @@ PublicParameters setup(int base_ot_curve_id,
                        size_t okvs_bin_size = 0);
 
 /**
- * @brief Sender executes Private-ID and receives the shuffled union ID set.
+ * @brief Sender executes Private-ID and returns union_id and sender_id.
  */
 SenderOutput sender(net::NetIO& io,
                     const PublicParameters& pp,
                     const std::vector<Block>& vec_x);
 
 /**
- * @brief Receiver executes Private-ID and sends the shuffled union ID set.
+ * @brief Receiver executes Private-ID and returns union_id and receiver_id.
  */
 ReceiverOutput receiver(net::NetIO& io,
                         const PublicParameters& pp,

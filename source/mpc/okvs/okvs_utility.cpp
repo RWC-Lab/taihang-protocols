@@ -1,6 +1,9 @@
 /****************************
  * @file      okvs_utility.cpp
  * @brief     Utility routines for Paxos/Baxos OKVS.
+ * @details   Modified from <https://github.com/Visa-Research/volepsi.git>
+ *            and <https://github.com/ridiculousfish/libdivide.git>.
+ * @author    Yang Cao
  ****************************/
 
 #include <taihang/mpc/okvs/okvs_utility.hpp>

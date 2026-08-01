@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      test_vole_oprf.cpp
  * @brief     GTest suite for the VOLE-based OPRF primitive.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <gtest/gtest.h>
@@ -36,6 +36,7 @@ protected:
     static constexpr int kCurveId = NID_X9_62_prime256v1;
 
     static std::vector<Block> gen_input(size_t input_num = kInputNum) {
+        // Generate the client set used by both sides in the equality test.
         Block seed_block = make_block(0x123456789abcdef0ULL, 0x0fedcba987654321ULL);
         auto seed = prg::set_seed(&seed_block, 0);
         return prg::gen_random_blocks(seed, input_num);
@@ -63,6 +64,7 @@ TEST_F(VoleOprfTest, Setup_Parameter_Fields) {
 }
 
 TEST_F(VoleOprfTest, Execute_VoleOprf_Roundtrip) {
+    // Generate pp once; it must be the same for Sender and Receiver.
     auto pp = oprf::setup(kCurveId, kLogInputNum);
     auto vec_x = gen_input();
     auto vec_y = vec_x;
@@ -72,6 +74,7 @@ TEST_F(VoleOprfTest, Execute_VoleOprf_Roundtrip) {
 
     auto server_task = std::async(std::launch::async, [&]() {
         net::NetIO io("server", "127.0.0.1", kPort);
+        // Sender obtains the OPRF key, evaluates locally, then echoes F_k(Y).
         auto secret_key = oprf::sender(io, pp);
         server_result = oprf::evaluate(pp, secret_key, vec_y);
         io.send(server_result);
@@ -79,6 +82,7 @@ TEST_F(VoleOprfTest, Execute_VoleOprf_Roundtrip) {
 
     auto client_task = std::async(std::launch::async, [&]() {
         net::NetIO io("client", "127.0.0.1", kPort);
+        // Receiver obtains F_k(Y) and checks it against the sender evaluation.
         client_result = oprf::receiver(io, pp, vec_x);
         std::vector<Block> echoed(client_result.size());
         io.recv(echoed);
@@ -100,6 +104,7 @@ TEST_F(VoleOprfTest, Receiver_AllowsShorterInputCount) {
 
     auto server_task = std::async(std::launch::async, [&]() {
         net::NetIO io("server", "127.0.0.1", kUnderfilledPort);
+        // The OPRF parameter capacity is larger than the actual input count.
         auto secret_key = oprf::sender(io, pp);
         server_result = oprf::evaluate(pp, secret_key, vec_x);
     });

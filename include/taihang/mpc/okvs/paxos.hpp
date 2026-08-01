@@ -1,6 +1,11 @@
 /****************************
  * @file      paxos.hpp
  * @brief     Low-level Paxos OKVS engine.
+ * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ *            (1) simplify the design;
+ *            (2) add serialize/deserialize interfaces for variables such as matrices;
+ *            (3) fix two overflow issues when the weight is not 3.
+ * @author    Yang Cao
  ****************************/
 
 #ifndef TAIHANG_MPC_OKVS_PAXOS_HPP
@@ -284,8 +289,8 @@ public:
    Block *h_dense;
 
    /*
-      H=【A B C
-         D E F】
+      H=[A B C
+         D E F]
       C is a triangular matrix.
    */
    std::vector<std::list<idx_type>> FC_1;   // F*C^{-1}

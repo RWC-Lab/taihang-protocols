@@ -1,6 +1,9 @@
 /****************************************************************************
  * @file      okvs_utility.hpp
  * @brief     Utility routines for Paxos/Baxos OKVS.
+ * @details   Modified from <https://github.com/Visa-Research/volepsi.git>
+ *            and <https://github.com/ridiculousfish/libdivide.git>.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #ifndef TAIHANG_MPC_OKVS_OKVS_UTILITY_HPP
@@ -14,6 +17,7 @@
 
 namespace taihang::mpc::okvs {
 
+// BlockArrayValue supports variable value_type by changing the length of var[].
 struct BlockArrayValue {
     Block var[9];
 

@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      test_mqrpmt_private_id.cpp
  * @brief     Google Test suite for mqRPMT-based Private-ID.
- * @author    This file is part of Taihang.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <gtest/gtest.h>
@@ -23,8 +23,6 @@
 using namespace taihang;
 using namespace taihang::mpc;
 namespace private_id = taihang::mpc::mqrpmt_private_id;
-
-namespace {
 
 struct BlockLess {
     bool operator()(const Block& lhs, const Block& rhs) const {
@@ -54,13 +52,16 @@ Dataset make_dataset(size_t sender_len, size_t receiver_len) {
     Dataset dataset;
     dataset.vec_x.resize(sender_len);
     dataset.vec_y.resize(receiver_len);
+    // Set the intersection size to be a half of the max possible intersection size.
     dataset.intersection_size = std::min(sender_len, receiver_len) / 2;
 
+    // Generate receiver's set first.
     for (size_t i = 0; i < receiver_len; ++i) {
         dataset.vec_y[i] = make_block(0x5959595959595959ULL,
                                       static_cast<uint64_t>(i + 1));
     }
 
+    // Adjust sender's set: the first intersection_size items are shared.
     for (size_t i = 0; i < sender_len; ++i) {
         if (i < dataset.intersection_size) {
             dataset.vec_x[i] = dataset.vec_y[i];
@@ -82,6 +83,7 @@ Dataset make_dataset(size_t sender_len, size_t receiver_len) {
 private_id::PublicParameters make_public_parameters(
     cwprf_mqrpmt::MembershipMode membership_mode,
     std::optional<size_t> statistical_security_parameter = kStatisticalSecurityParameter) {
+    // Generate pp once; it must be shared by Sender and Receiver.
     return private_id::setup(kBaseOtCurveId,
                              kMqRPMTCurveId,
                              kLogSenderLen,
@@ -100,6 +102,7 @@ ProtocolResult run_protocol(const private_id::PublicParameters& pp,
                             uint16_t port) {
     const std::string address = "127.0.0.1";
 
+    // Run sender and receiver with the same public parameters and testcase.
     auto sender_future = std::async(std::launch::async, [&] {
         net::NetIO io("server", address, port);
         return private_id::sender(io, pp, dataset.vec_x);
@@ -139,6 +142,7 @@ void expect_shared_ids_match(const Dataset& dataset,
     const BlockMap receiver_id_by_item =
         make_id_map(dataset.vec_y, result.receiver.receiver_id);
 
+    // Receive the same Private-ID value on both sides.
     for (const Block& value : dataset.intersection_values) {
         const auto sender_iter = sender_id_by_item.find(value);
         const auto receiver_iter = receiver_id_by_item.find(value);
@@ -159,6 +163,7 @@ void validate_union_id(const ProtocolResult& result,
     BlockSet expected_union = sender_ids;
     expected_union.insert(receiver_ids.begin(), receiver_ids.end());
 
+    // Receiver sends the shuffled union_id set back to Sender.
     EXPECT_EQ(sender_union, receiver_union);
     expect_contains_all(receiver_ids, receiver_union);
     for (const Block& value : receiver_union) {
@@ -169,6 +174,7 @@ void validate_union_id(const ProtocolResult& result,
         EXPECT_EQ(receiver_union.size(), expected_union.size());
         expect_contains_all(expected_union, receiver_union);
     } else {
+        // Bloom filter mode may include false positives, but not false negatives.
         EXPECT_GE(receiver_union.size(), receiver_ids.size());
         EXPECT_LE(receiver_union.size(), expected_union.size());
     }
@@ -179,8 +185,6 @@ struct PrivateIdConfig {
     bool expect_exact_union;
     uint16_t port;
 };
-
-} // namespace
 
 class MqRPMTPrivateIdTest : public ::testing::TestWithParam<PrivateIdConfig> {
 protected:

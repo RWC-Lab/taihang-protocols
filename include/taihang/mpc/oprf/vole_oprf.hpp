@@ -1,7 +1,8 @@
 /****************************************************************************
  * @file      vole_oprf.hpp
  * @brief     VOLE-based oblivious PRF.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @details   VOLE OPRF = VOLE + OKVS.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #ifndef TAIHANG_PROTOCOLS_VOLE_OPRF_HPP
@@ -28,11 +29,15 @@ struct PublicParameters {
 
     size_t input_num = 0;
     size_t log_input_num = 0;
+    // The key size: sizeof(Block) * okvs_output_size.
     size_t key_size = 0;
+    // The range size: sizeof(Block).
     size_t range_size = sizeof(Block);
     size_t statistical_security_parameter = 40;
 
+    // The bin size in multi-threaded OKVS.
     size_t okvs_bin_size = 0;
+    // The size of the output vector obtained in the OKVS encoding process.
     size_t okvs_output_size = 0;
     okvs::PublicParameters okvs_pp;
     vole::PublicParameters vole_pp;
@@ -49,6 +54,7 @@ struct PublicParameters {
  */
 struct SecretKey {
     Block okvs_seed = kZeroBlock;
+    // The data saved during interaction for local evaluation.
     std::vector<Block> encoded_key;
 };
 

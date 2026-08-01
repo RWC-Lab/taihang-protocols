@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      test_okvs.cpp
  * @brief     GTest suite for the OKVS primitive.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <gtest/gtest.h>
@@ -60,6 +60,7 @@ protected:
         testcase.thread_num = thread_num;
         testcase.seed_block = testcase_seed();
 
+        // Generate a fixed key/value testcase, matching Kunlun's test intent.
         auto seed = prg::set_seed(&testcase.seed_block, 0);
         testcase.vec_value = prg::gen_random_blocks(seed, testcase.item_num);
         testcase.vec_key = prg::gen_random_blocks(seed, testcase.item_num);
@@ -153,6 +154,7 @@ TEST_F(OkvsTest, Execute_Baxos_Gf128_Roundtrip) {
     std::vector<Block> decode_result(testcase.item_num);
 
     auto encode_randomness = prg::set_seed(&testcase.seed_block, 0);
+    // Solve/encode the key-value pairs, then decode them back with the same keys.
     baxos.solve(testcase.vec_key,
                 testcase.vec_value,
                 encode_result,
@@ -234,6 +236,7 @@ TEST_F(OkvsTest, Execute_PublicApi_UnderfilledEncode) {
                           okvs::DenseType::Gf128,
                           testcase.seed_block);
 
+    // Encode fewer real items than the OKVS capacity; padding is internal.
     constexpr size_t kActualItemNum = 128;
     std::vector<Block> keys(testcase.vec_key.begin(),
                             testcase.vec_key.begin() + kActualItemNum);

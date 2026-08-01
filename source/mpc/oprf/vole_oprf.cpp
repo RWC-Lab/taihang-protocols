@@ -1,7 +1,8 @@
 /****************************************************************************
  * @file      vole_oprf.cpp
  * @brief     VOLE-based oblivious PRF.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @details   VOLE OPRF = VOLE + OKVS.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <taihang/mpc/oprf/vole_oprf.hpp>
@@ -16,16 +17,6 @@
 #include <stdexcept>
 
 namespace taihang::mpc::vole_oprf {
-
-namespace {
-
-okvs::PublicParameters okvs_parameters_with_seed(const PublicParameters& pp, const Block& seed) {
-    auto okvs_pp = pp.okvs_pp;
-    okvs_pp.seed = seed;
-    return okvs_pp;
-}
-
-} // namespace
 
 std::string PublicParameters::format() const {
     std::ostringstream oss;
@@ -77,6 +68,7 @@ PublicParameters setup(int base_ot_curve_id,
     PublicParameters pp;
     pp.base_ot_curve_id = base_ot_curve_id;
     pp.log_input_num = log_input_num;
+    // INPUT_NUM = 2^{LOG_INPUT_NUM}.
     pp.input_num = 1ULL << log_input_num;
     pp.statistical_security_parameter = statistical_security_parameter;
 
@@ -105,46 +97,60 @@ std::vector<Block> receiver(net::NetIO& io,
     TAIHANG_TIMER("VOLE-based OPRF:", "Receiver total execution time");
     TAIHANG_ASSERT(vec_x.size() <= pp.input_num, "VOLE OPRF receiver input size exceeds parameter capacity.");
 
+    // The seed used to generate the initial random data.
     auto okvs_seed = prg::set_seed(nullptr, 0);
+    // Fig 4 Step 2: sample r.
     const Block okvs_seed_block = prg::gen_random_blocks(okvs_seed, 1)[0];
-    auto round_okvs_pp = okvs_parameters_with_seed(pp, okvs_seed_block);
+    auto round_okvs_pp = pp.okvs_pp;
+    round_okvs_pp.seed = okvs_seed_block;
 
+    // Fig 4 Step 2: the receiver solves the systems.
     std::vector<Block> zero_values(vec_x.size(), kZeroBlock);
     std::vector<Block> p = okvs::encode(round_okvs_pp, vec_x, zero_values, nullptr);
 
+    // Fig 4 Step 3: VOLE.
     std::vector<Block> vec_c;
     std::vector<Block> vec_a = vole::party_a(io, pp.vole_pp, pp.okvs_output_size, vec_c);
 
+    // Fig 4 Step 4: send r.
     io.send(okvs_seed_block);
 
     for (size_t i = 0; i < p.size(); ++i) {
         p[i] ^= vec_a[i];
     }
 
+    // Fig 4 Step 4: send A = P + A'.
     io.send(p);
 
     TAIHANG_LOG("VOLE-based OPRF [step 1]:",
                 std::format("Receiver ===> masked OKVS correction ===> Sender [{:.2f} MB]",
                             static_cast<double>(p.size() * sizeof(Block)) / (1024 * 1024)));
 
+    // Prepare for Fig 4 Step 6: Decode(C, x).
     return okvs::decode(round_okvs_pp, vec_x, vec_c);
 }
 
 SecretKey sender(net::NetIO& io, const PublicParameters& pp) {
     TAIHANG_TIMER("VOLE-based OPRF:", "Sender total execution time");
 
+    // The seed used to generate the initial random data.
     auto delta_seed = prg::set_seed(nullptr, 0);
+    // Fig 4 Step 1: the sender samples w_s from F.
     const Block delta = prg::gen_random_blocks(delta_seed, 1)[0];
 
+    // Fig 4 Step 3: VOLE.
     std::vector<Block> key;
     vole::party_b(io, pp.vole_pp, pp.okvs_output_size, key, delta);
 
+    // Fig 4 Step 4: the sender receives r.
     Block okvs_seed_block;
     io.recv(okvs_seed_block);
 
+    // Fig 4 Step 4: the sender receives A.
     std::vector<Block> correction(pp.okvs_output_size);
     io.recv(correction);
 
+    // Fig 4 Step 4: the sender computes K = B + A * Delta.
     for (size_t i = 0; i < key.size(); ++i) {
         key[i] ^= okvs::gf128_mul(delta, correction[i]);
     }
@@ -165,7 +171,9 @@ std::vector<Block> evaluate(const PublicParameters& pp,
     if (oprf_key.encoded_key.size() != pp.okvs_output_size) {
         throw std::invalid_argument("VOLE OPRF key size mismatch.");
     }
-    auto round_okvs_pp = okvs_parameters_with_seed(pp, oprf_key.okvs_seed);
+    auto round_okvs_pp = pp.okvs_pp;
+    round_okvs_pp.seed = oprf_key.okvs_seed;
+    // Decode the sender-side OPRF key.
     return okvs::decode(round_okvs_pp, vec_y, oprf_key.encoded_key);
 }
 

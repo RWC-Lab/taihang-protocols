@@ -1,6 +1,11 @@
 /****************************
  * @file      paxos.cpp
  * @brief     Paxos OKVS implementation.
+ * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ *            (1) simplify the design;
+ *            (2) add serialize/deserialize interfaces for variables such as matrices;
+ *            (3) fix two overflow issues when the weight is not 3.
+ * @author    Yang Cao
  ****************************/
 
 #include <taihang/mpc/okvs/paxos.hpp>
@@ -14,8 +19,6 @@
 
 namespace taihang::mpc::okvs {
 
-namespace {
-
 Block block_and(const Block& lhs, const Block& rhs)
 {
 #if defined(TAIHANG_ARCH_X64)
@@ -24,8 +27,6 @@ Block block_and(const Block& lhs, const Block& rhs)
    return vandq_u8(lhs.mm, rhs.mm);
 #endif
 }
-
-} // namespace
 
 template <typename idx_type, DenseType dense_type, typename value_type>
 void OKVS<idx_type, dense_type, value_type>::allocate()
@@ -534,7 +535,7 @@ template <typename idx_type, DenseType dense_type, typename value_type>
 void OKVS<idx_type, dense_type, value_type>::weight_statistic()
 {
    // Initialize the row_begin of h_cols to determine the starting position of each column in the allocated storage space
-   // And assign values ​​to weight_nodes and weight_set
+   // And assign values to weight_nodes and weight_set
    uint64_t begin = 0;
    uint8_t max_weight = 0;
 
@@ -576,7 +577,7 @@ template <typename idx_type, DenseType dense_type, typename value_type>
 void OKVS<idx_type, dense_type, value_type>::init_hcols()
 {
    // Traversing the h_sparse of the row-major order
-   // to assign values ​​to the h_cols of the column-major order
+   // to assign values to the h_cols of the column-major order
 
    std::unique_ptr<uint8_t[]> col_weights_now(new uint8_t[sparse_size]());
    auto begin_pointer = h_sparse[0];

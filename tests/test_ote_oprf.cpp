@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      test_ote_oprf.cpp
  * @brief     GTest suite for the OTE-based OPRF primitive.
- * @author    This file is part of Taihang, developed by Yu Chen.
+ * @author    Yang Cao
  *****************************************************************************/
 
 #include <gtest/gtest.h>
@@ -35,6 +35,7 @@ protected:
     static constexpr uint16_t kPort = 12490;
 
     static std::vector<Block> gen_input() {
+        // Generate a fixed set; the roundtrip test uses vec_y = vec_x.
         Block seed_block = make_block(0x123456789abcdef0ULL, 0x0fedcba987654321ULL);
         auto seed = prg::set_seed(&seed_block, 0);
         return prg::gen_random_blocks(seed, kInputNum);
@@ -67,6 +68,7 @@ TEST_F(OteOprfTest, Setup_Parameter_Fields) {
 }
 
 TEST_F(OteOprfTest, Execute_OteOprf_Roundtrip) {
+    // Generate pp once; it must be the same for Sender and Receiver.
     auto pp = oprf::setup(kCurveId, kLogInputNum);
     auto vec_x = gen_input();
     auto vec_y = vec_x;
@@ -76,6 +78,7 @@ TEST_F(OteOprfTest, Execute_OteOprf_Roundtrip) {
 
     auto server_task = std::async(std::launch::async, [&]() {
         net::NetIO io("server", "127.0.0.1", kPort);
+        // Sender obtains the OPRF key and evaluates F_k(X).
         auto key = oprf::sender(io, pp);
         EXPECT_EQ(key.size(), pp.key_size);
         server_result = oprf::evaluate(pp, key, vec_x);
@@ -83,6 +86,7 @@ TEST_F(OteOprfTest, Execute_OteOprf_Roundtrip) {
 
     auto client_task = std::async(std::launch::async, [&]() {
         net::NetIO io("client", "127.0.0.1", kPort);
+        // Receiver obtains F_k(Y) through the interactive protocol.
         client_result = oprf::receiver(io, pp, vec_y);
     });
 
