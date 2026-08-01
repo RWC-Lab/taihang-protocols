@@ -1,7 +1,11 @@
 /****************************
  * @file      baxos.hpp
  * @brief     Batched Paxos OKVS engine.
- * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ * @details   Implements a binned Paxos OKVS for "Blazing Fast PSI from
+ *            Improved OKVS and Subfield VOLE":
+ *            <https://eprint.iacr.org/2022/320>
+ *            The implementation is modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>:
  *            (1) simplify the design;
  *            (2) support multi-thread programming with OpenMP.
  * @author    Yang Cao
@@ -39,14 +43,27 @@ public:
     prg::Seed seed;
 
     Baxos() = default;
+
+    // A binned version of Paxos. Internally calls Paxos.
     Baxos(const uint64_t item_num, const uint64_t bin_size, const uint8_t sparse_weight = 3, const uint8_t statistical_security_parameter = 40, const prg::Seed *seed = nullptr);
+
+    // Solve/encode the system.
     template <typename idx_type>
     void impl_solve(const std::vector<Block> &keys, const std::vector<value_type> &values, std::vector<value_type> &output, prg::Seed *prng, uint8_t thread_num);
+
+    // Decode the given inputs based on the Paxos data structure.
     template <typename idx_type>
     void impl_decode(const std::vector<Block> &keys, std::vector<value_type> &values, const std::vector<value_type> &output, uint8_t thread_num);
+
     template <typename idx_type>
     void impl_decode_batch(Block *keys, value_type *values, uint64_t batch_len, value_type *output);
+
+    // Solve the system for the given input vectors.
+    // keys are the inputs, values are the desired values, and output is the Paxos data.
+    // prng should be non-null if randomized Paxos is desired.
     void solve(const std::vector<Block> &keys, const std::vector<value_type> &values, std::vector<value_type> &output, prg::Seed *prng = nullptr, uint8_t thread_num = 1);
+
+    // Decode the given input vector and write the result to values.
     void decode(const std::vector<Block> &keys, std::vector<value_type> &values, const std::vector<value_type> &output, uint8_t thread_num = 1);
 };
 

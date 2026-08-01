@@ -1,7 +1,9 @@
 /****************************************************************************
  * @file      okvs_utility.hpp
  * @brief     Utility routines for Paxos/Baxos OKVS.
- * @details   Modified from <https://github.com/Visa-Research/volepsi.git>
+ * @details   Contains GF(2^128) operations and unsigned integer division
+ *            routines. Modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>
  *            and <https://github.com/ridiculousfish/libdivide.git>.
  * @author    Yang Cao
  *****************************************************************************/

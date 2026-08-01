@@ -1,7 +1,11 @@
 /****************************
  * @file      paxos.cpp
  * @brief     Paxos OKVS implementation.
- * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ * @details   Implements the core Paxos OKVS algorithm for "Blazing Fast PSI
+ *            from Improved OKVS and Subfield VOLE":
+ *            <https://eprint.iacr.org/2022/320>
+ *            The implementation is modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>:
  *            (1) simplify the design;
  *            (2) add serialize/deserialize interfaces for variables such as matrices;
  *            (3) fix two overflow issues when the weight is not 3.
@@ -850,6 +854,10 @@ void OKVS<idx_type, dense_type, value_type>::backfill_gf128(Block *values, Block
 
       E_gf128.resize(len, std::vector<Block>(len));
 
+      //      |dense[r0]^1, dense[r0]^2, ... |
+      // E =  |dense[r1]^1, dense[r1]^2, ... |
+      //      |dense[r2]^1, dense[r2]^2, ... |
+      // EE = E - FC^{-1} * B.
       for (auto i = 0; i < g; i++)
       {
          auto common_ratio_e = h_dense[gap_rows[i]];
@@ -891,6 +899,7 @@ void OKVS<idx_type, dense_type, value_type>::backfill_gf128(Block *values, Block
          throw std::runtime_error("OKVS GF(2^128) dense matrix is not invertible.");
       }
 
+      // xx = x' - FC^{-1} * x.
       for (auto i = 0; i < g; i++)
       {
          values_[i] = values[gap_rows[i]];
@@ -900,6 +909,7 @@ void OKVS<idx_type, dense_type, value_type>::backfill_gf128(Block *values, Block
          }
       }
 
+      // p' = (E - FC^{-1} * B)^{-1} * (x' - FC^{-1} * x).
       for (auto i = 0; i < len; i++)
       {
          auto &output_ = output[sparse_size + i];
@@ -953,6 +963,9 @@ template <typename idx_type, DenseType dense_type, typename value_type>
 void OKVS<idx_type, dense_type, value_type>::backfill_binary(value_type *values, value_type *output, prg::Seed *prng)
 {
    //==================   backfill  ==================
+   // We are solving the system H * P = X. Divide the matrix into
+   // H = | A B C; D E F |, where C is a square lower-triangular matrix
+   // and E is a dense g*g matrix with the gap rows.
 
    uint8_t g = gap_rows.size();
 
@@ -1339,6 +1352,7 @@ void OKVS<idx_type, dense_type, value_type>::encode(value_type *values,value_typ
 
    if (prng)
    {
+      // If the Paxos data should be randomized, then provide a PRNG.
       uint32_t valuetype_len = sizeof(value_type)/sizeof(Block);
       auto single_value_len = valuetype_len ? valuetype_len : 1; 
       // Assign random numbers to the unknowns corresponding to those columns whose weight is 0
@@ -1401,6 +1415,7 @@ value_type OKVS<idx_type, dense_type, value_type>::decode_1(const Block *key, co
 template <typename idx_type, DenseType dense_type, typename value_type>
 void OKVS<idx_type, dense_type, value_type>::decode_1(const Block *key, const value_type *output, value_type *value, Block *with_dense)
 {
+   // Decode one input based on the Paxos data structure.
    Block dense;
    Block *dense_pointer;
    // set_dense
@@ -1491,6 +1506,7 @@ std::vector<value_type> OKVS<idx_type, dense_type, value_type>::decode_32(const 
 template <typename idx_type, DenseType dense_type, typename value_type>
 void OKVS<idx_type, dense_type, value_type>::decode_32(const Block *keys, const value_type *output, value_type *values, Block *with_dense)
 {
+   // Decode 32 inputs based on the Paxos data structure.
    std::array<Block, 32> dense;
    Block *dense_pointer;
    // set_dense
@@ -1769,6 +1785,7 @@ void OKVS<idx_type, dense_type, value_type>::decode_32(const Block *keys, const 
 template <typename idx_type, DenseType dense_type, typename value_type>
 void OKVS<idx_type, dense_type, value_type>::decode(const Block *keys, const idx_type key_num, const value_type *output, value_type *values, Block *with_dense)
 {
+   // Decode the given input vector and write the result to values.
    if (sparse_size == 0)
    {
       throw std::runtime_error("OKVS must be initialized before decode.");

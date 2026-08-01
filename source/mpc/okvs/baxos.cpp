@@ -1,7 +1,11 @@
 /****************************
  * @file      baxos.cpp
  * @brief     Batched Paxos OKVS implementation.
- * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ * @details   Implements a binned Paxos OKVS for "Blazing Fast PSI from
+ *            Improved OKVS and Subfield VOLE":
+ *            <https://eprint.iacr.org/2022/320>
+ *            The implementation is modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>:
  *            (1) simplify the design;
  *            (2) support multi-thread programming with OpenMP.
  * @author    Yang Cao
@@ -86,15 +90,15 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
     {
         omp_set_num_threads(thread_num);
         auto item_num_per_thread = (item_num + thread_num - 1) / thread_num;
-        // thread_1: bin_0, bin_1, ...
-        // thread_2: bin_0, bin_1, ...
-        // item_i1, item_i2, ..., item_ik   item_j1, item_j2, ..., item_jl
-        //      thread_1                         thread_2
+        // Maximum number of items any single thread will map to a bin.
         auto bin_size_per_thread = hashtable_bin_size(bin_num, item_num_per_thread, statistical_security_parameter);
+        // The combined max size of the i-th bin held by each thread.
         auto bin_size_all_thread = thread_num * bin_size_per_thread;
 
+        // Keeps track of the size of each bin for each thread.
         std::vector<std::vector<idx_type>> bin_size_thread(thread_num, std::vector<idx_type>(bin_num, 0));
 
+        // Keeps track of input index of each item in each bin/thread.
         std::unique_ptr<idx_type[]> item_to_bin_thread(new idx_type[bin_num * bin_size_all_thread]);
         std::unique_ptr<value_type[]> value_to_bin_thread(new value_type[bin_num * bin_size_all_thread]);
         std::unique_ptr<Block[]> hash_to_bin_thread(new Block[bin_num * bin_size_all_thread]);
@@ -111,6 +115,7 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
                 -----------------------------------------------------------------------------------------------
         */
 
+        // For the given bin and thread, return the list that maps bin value back to input value.
         auto get_item_bin_thread = [&](uint64_t bin_idx, uint64_t thread_idx)
         {
             auto bin_begin = bin_idx * bin_size_all_thread;
@@ -118,6 +123,8 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
 
             return item_to_bin_thread.get() + bin_begin + thread_begin;
         };
+
+        // Get the values mapped to the given bin by the given thread.
         auto get_value_bin_thread = [&](uint64_t bin_idx, uint64_t thread_idx)
         {
             auto bin_begin = bin_idx * bin_size_all_thread;
@@ -125,6 +132,8 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
 
             return value_to_bin_thread.get() + bin_begin + thread_begin;
         };
+
+        // Get the hashes mapped to the given bin by the given thread.
         auto get_hash_bin_thread = [&](uint64_t bin_idx, uint64_t thread_idx)
         {
             auto bin_begin = bin_idx * bin_size_all_thread;
@@ -147,7 +156,8 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
             Block *keys_thread_pointer = keys_data + begin;
             auto &bin_sizes = bin_size_thread[thread_id];
 
-            // Assign the key std::array to different threads, and the thread assigns the key to the entry in the table
+            // Hash all inputs in this thread's range into their bins.
+            // Each thread has its own bins which are merged later.
             std::array<Block, 32> hashes;
             std::array<uint64_t, 32> bin_idxes;
             uint64_t i = 0;
@@ -196,7 +206,8 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
 #pragma omp parallel
         {
 
-            // Use different threads to process each bin.
+            // This thread iterates over its assigned bins and aggregates all items
+            // mapped to the bin by different threads.
             const uint64_t thread_id = omp_get_thread_num();
             for (uint64_t bin_idx = thread_id; bin_idx < bin_num; bin_idx += thread_num)
             {
@@ -240,9 +251,7 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
                 auto hashes_pointer = hash_to_bin_thread.get() + bin_begin;
                 auto output_pointer = output.data() + bin_idx * total_size;
 
-                // Merges an entire row of entries in the table, eliminating empty slots
-                // Since the addresses of the incoming std::arrays in the encoding process need to be continuous,
-                // it is necessary to merge the entries of multiple threads belonging to the same bin
+                // For each thread, copy the hashes and values that it mapped to this bin.
 
                 auto bin_pos = bin_size_thread[0][bin_idx];
                 TAIHANG_ASSERT(hashes_pointer == get_hash_bin_thread(bin_idx, 0),
@@ -278,6 +287,7 @@ void Baxos<dense_type, value_type>::impl_solve(const std::vector<Block> &keys, c
                         paxos.mModVals[ii] = (temp);
                         paxos.mMods[ii] = (gen_divider(temp));
                     }
+                    // Compute the rows and count the column weight.
                     paxos.set_sparse();
                     paxos.weight_statistic();
                     paxos.init_hcols();
@@ -299,6 +309,7 @@ template <DenseType dense_type, typename value_type>
 template <typename idx_type>
 void Baxos<dense_type, value_type>::impl_decode_batch(Block *keys, value_type *values, uint64_t batch_len, value_type *output)
 {
+    // Decode the given inputs based on the Paxos data. The output is written to values.
     // Decode is performed in units of decode_size groups
     auto decode_size = std::min(uint64_t(512), batch_len);
     std::vector<std::vector<Block>> batches(bin_num, std::vector<Block>(decode_size));
@@ -328,6 +339,7 @@ void Baxos<dense_type, value_type>::impl_decode_batch(Block *keys, value_type *v
     std::array<uint64_t, 32> bin_idxes;
     Divider bin_divider = gen_divider(bin_num);
     uint64_t i = 0;
+    // Iterate over the input.
     for (; i + 32 <= batch_len; i += 32, keys += 32)
     {
         paxos.set_dense(keys, 32, buffer.data());
@@ -434,7 +446,7 @@ void Baxos<dense_type, value_type>::impl_decode(const std::vector<Block> &keys, 
     auto values_begin = values.data();
 #pragma omp parallel
     {
-        // Assign the keys std::array and values std::array to different threads
+        // Create the desired number of threads and split up the work.
         const uint64_t thread_id = omp_get_thread_num();
         uint64_t begin = (keys_size * thread_id) / thread_num;
         uint64_t len = keys_size * (thread_id + 1) / thread_num - begin;
@@ -448,10 +460,9 @@ void Baxos<dense_type, value_type>::impl_decode(const std::vector<Block> &keys, 
 template <DenseType dense_type, typename value_type>
 void Baxos<dense_type, value_type>::solve(const std::vector<Block> &keys, const std::vector<value_type> &values, std::vector<value_type> &output, prg::Seed *prng, uint8_t thread_num)
 {
-    // Calculate the number of bits occupied by a single variable that occupies the largest space among member variables
+    // Select the smallest index type which will work.
     auto bit_len = log2_ceil(sparse_size + 1);
 
-    // According to the calculated number of bits, select the appropriate function implementation
     if (bit_len <= 8)
     {
         impl_solve<uint8_t>(keys, values, output, prng, thread_num);
@@ -473,6 +484,7 @@ void Baxos<dense_type, value_type>::solve(const std::vector<Block> &keys, const 
 template <DenseType dense_type, typename value_type>
 void Baxos<dense_type, value_type>::decode(const std::vector<Block> &keys, std::vector<value_type> &values, const std::vector<value_type> &output, uint8_t thread_num)
 {
+    // Select the smallest index type which will work.
     auto bit_len = log2_ceil(sparse_size + 1);
     if (bit_len <= 8)
     {

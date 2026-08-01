@@ -38,6 +38,10 @@ namespace taihang::mpc::vole {
 
 constexpr size_t kDefaultPprfNum = 128;
 
+// VOLE = baseVOLE + tmpVOLE.
+// Party A obtains vec_A and vec_C; Party B obtains vec_B and delta,
+// satisfying vec_B = vec_C + vec_A * delta.
+
 /**
  * @struct PublicParameters
  * @brief Parameters for VOLE generation over GF(2^128).

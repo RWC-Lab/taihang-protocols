@@ -92,6 +92,7 @@ std::vector<Block> ggm_prg(const Block& input) {
 Block gadget_inner_product(const std::vector<Block>& vec_x) {
     TAIHANG_ASSERT(vec_x.size() == kBlockBitLen, "VOLE gadget inner product expects one block bit-width.");
 
+    // <g, vec_x> = gf128_mul(2^0, vec_x[0]) + ... + gf128_mul(2^127, vec_x[127]).
     Block out = kZeroBlock;
     for (size_t i = 0; i < kBlockBitLen; ++i) {
         const Block weight = (i < 64) ? make_block(0, 1ULL << i)
@@ -548,7 +549,7 @@ void extend_vole_party_b(net::NetIO& io,
                          std::vector<Block>& vec_b) {
     // tmpVOLE = t * spVOLE + ExConvCode.
     vec_b.clear();
-    item_num *= 2;
+    item_num *= 2; // For EC Code mR = 2.
 
     const uint64_t sub_len = item_num / t;
     const uint64_t last_len = item_num % t + item_num / t;
@@ -588,6 +589,7 @@ void extend_vole_party_b(net::NetIO& io,
         vec_m1.resize(extend_len, kZeroBlock);
     }
 
+    // Send vec_m0, vec_m1 to A by ALSZ OTE.
     alsz_ote::sender<alsz_ote::BlockPolicy>(io,
                                             pp.ote_pp,
                                             vec_m0,
@@ -617,8 +619,9 @@ std::vector<Block> extend_vole_party_a(net::NetIO& io,
                                        const std::vector<Block>& vec_w) {
     // tmpVOLE = t * spVOLE + ExConvCode.
     vec_c.clear();
-    item_num *= 2;
+    item_num *= 2; // For EC Code mR = 2.
 
+    // Generate and save the t random punctured positions in vec_index.
     const uint64_t sub_len = item_num / t;
     const uint64_t last_len = item_num % t + item_num / t;
     const uint8_t level = static_cast<uint8_t>(std::ceil(std::log2(sub_len)));
@@ -735,7 +738,9 @@ std::vector<Block> party_a(net::NetIO& io,
                            std::vector<Block>& vec_c) {
     TAIHANG_ASSERT(item_num > 0, "VOLE item_num must be positive.");
 
+    // VOLE = baseVOLE + tmpVOLE.
     // Party A obtains vec_A and vec_C.
+    // vec_B = vec_C + vec_A * delta, and w + v = u * delta.
     std::vector<Block> vec_u;
     std::vector<Block> vec_w;
 
@@ -744,6 +749,7 @@ std::vector<Block> party_a(net::NetIO& io,
         return vec_u;
     }
 
+    // Call baseVOLE to get vec_u and vec_w.
     base_vole_party_a(io, pp, pp.pprf_num, vec_u, vec_w);
     return extend_vole_party_a(io, pp, item_num, pp.pprf_num, vec_c, vec_u, vec_w);
 }
@@ -755,6 +761,7 @@ void party_b(net::NetIO& io,
              const Block& delta) {
     TAIHANG_ASSERT(item_num > 0, "VOLE item_num must be positive.");
 
+    // VOLE = baseVOLE + tmpVOLE.
     // Party B obtains vec_B and delta, satisfying vec_B = vec_C + vec_A * delta.
     if (item_num < kSmallVoleThreshold) {
         base_vole_party_b(io, pp, item_num, vec_b, delta);

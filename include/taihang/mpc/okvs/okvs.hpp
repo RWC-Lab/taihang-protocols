@@ -1,7 +1,10 @@
 /****************************************************************************
  * @file      okvs.hpp
  * @brief     Oblivious Key-Value Store primitive.
- * @details   The underlying Paxos/Baxos OKVS code is modified from:
+ * @details   Implements the oblivious key-value store as described in
+ *            "Blazing Fast PSI from Improved OKVS and Subfield VOLE":
+ *            <https://eprint.iacr.org/2022/320>
+ *            References the open-source implementation available at:
  *            <https://github.com/Visa-Research/volepsi.git>
  * @author    Yang Cao
  *****************************************************************************/

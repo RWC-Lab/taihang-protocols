@@ -1,7 +1,10 @@
 /****************************************************************************
  * @file      okvs.cpp
  * @brief     Oblivious Key-Value Store primitive.
- * @details   The underlying Paxos/Baxos OKVS code is modified from:
+ * @details   Implements the oblivious key-value store as described in
+ *            "Blazing Fast PSI from Improved OKVS and Subfield VOLE":
+ *            <https://eprint.iacr.org/2022/320>
+ *            References the open-source implementation available at:
  *            <https://github.com/Visa-Research/volepsi.git>
  * @author    Yang Cao
  *****************************************************************************/
@@ -69,6 +72,7 @@ std::vector<Block> pad_values(const std::vector<Block>& values, size_t target_si
 
 template <DenseType dense_type>
 void fill_derived_parameters(PublicParameters& pp) {
+    // Baxos is a multi-thread clustered OKVS and is generally used instead of OKVS.
     auto okvs_seed = prg::set_seed(&pp.seed, 0);
     Baxos<dense_type, Block> baxos(pp.item_num,
                                    pp.bin_size,
@@ -115,6 +119,7 @@ std::vector<Block> encode_impl(const PublicParameters& pp,
     std::vector<Block> encoded(pp.storage_size);
     auto padded_keys = pad_keys(pp, keys);
     auto padded_values = pad_values(values, padded_keys.size());
+    // Solve/encode the given input/value pair. The Paxos data structure is written to output.
     baxos.solve(padded_keys, padded_values, encoded, prng, thread_num());
     return encoded;
 }
@@ -125,6 +130,7 @@ std::vector<Block> decode_impl(const PublicParameters& pp,
                                const std::vector<Block>& encoded) {
     auto baxos = make_baxos<dense_type>(pp);
     std::vector<Block> values(keys.size());
+    // Decode the given input vector and write the result to values.
     baxos.decode(keys, values, encoded, thread_num());
     return values;
 }

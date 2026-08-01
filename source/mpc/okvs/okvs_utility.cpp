@@ -1,7 +1,9 @@
 /****************************
  * @file      okvs_utility.cpp
  * @brief     Utility routines for Paxos/Baxos OKVS.
- * @details   Modified from <https://github.com/Visa-Research/volepsi.git>
+ * @details   Contains GF(2^128) operations and unsigned integer division
+ *            routines. Modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>
  *            and <https://github.com/ridiculousfish/libdivide.git>.
  * @author    Yang Cao
  ****************************/
@@ -598,38 +600,6 @@ uint64_t col_to_dec(std::vector<uint64_t> &binary)
     }
     return decimal;
 }
-
-// std::vector<int> get_independent_cols(std::vector<std::vector<int>> mat, int col_num) {
-//     int n = mat.size();
-//     int m = mat[0].size();
-
-//     std::vector<int> basis;
-//     unordered_set<int> d_vs_set;
-//     d_vs_set.insert(0);
-//     for (int j = 0; j < m && basis.size() < col_num; j++) {
-//         std::vector<int> temp;
-//         std::vector<int> v(n);
-//         for (int i = 0; i < n; i++)
-//             v[i] = mat[i][j];
-//         auto d_v_init = col_to_dec(v);
-//         bool check = true;
-//         for (auto iter : d_vs_set) {
-//             auto d_v = d_v_init ^ iter;
-//             temp.push_back(d_v);
-//             if (d_vs_set.count(d_v)) {
-//                 check = false;
-//                 break;
-//             }
-//         }
-//         if (check) {
-//             basis.push_back(j);
-//             for (auto iter : temp) {
-//                 d_vs_set.insert(iter);
-//             }
-//         }
-//     }
-//     return basis;
-// }
 
 bool check_invert(std::vector<std::vector<uint8_t>> &mat)
 {

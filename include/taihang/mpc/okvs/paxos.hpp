@@ -1,7 +1,11 @@
 /****************************
  * @file      paxos.hpp
  * @brief     Low-level Paxos OKVS engine.
- * @details   Modified from <https://github.com/Visa-Research/volepsi.git>:
+ * @details   Implements the core Paxos OKVS algorithm for "Blazing Fast PSI
+ *            from Improved OKVS and Subfield VOLE":
+ *            <https://eprint.iacr.org/2022/320>
+ *            The implementation is modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>:
  *            (1) simplify the design;
  *            (2) add serialize/deserialize interfaces for variables such as matrices;
  *            (3) fix two overflow issues when the weight is not 3.
@@ -111,8 +115,7 @@ enum class DenseType {
    Gf128,
 };
 
-// This class represents an oblivious key-value store (okvs).
-// The template parameters allow the user to specify the type of index and the dense type to be used in the store.
+// The core Paxos algorithm. idx_type should be large enough to fit the Paxos size value.
 template <typename idx_type = uint64_t, DenseType dense_type = DenseType::Binary, typename value_type = Block>
 class OKVS
 {
@@ -338,22 +341,23 @@ public:
    // Approximate the matrix into a triangular form
    void triangulate();
 
-   // Encode
+   // Encode the given value set based on the already set input.
+   // The Paxos data structure is written to output.
    std::vector<value_type> encode(const std::vector<value_type> &values, prg::Seed *prng = nullptr);
    void encode(value_type *values, value_type *output, prg::Seed *prng = nullptr);
 
-   // Decode
-   // decode for a key
+   // Decode for a key.
    value_type decode_1(const Block *key, const std::vector<value_type> output);
    value_type decode_1(const Block *key, const value_type *output);
    void decode_1(const Block *key, const value_type *output, value_type *value, Block *with_dense = nullptr);
 
-   // decode for 32 keys
+   // Decode for 32 keys.
    std::vector<value_type> decode_32(const Block *keys, const value_type *output);
    void decode_32(const Block *keys, const value_type *output, value_type *values, Block *with_dense = nullptr);
    std::vector<value_type> decode(const std::vector<Block> &keys, const std::vector<value_type> &output, Block *with_dense = nullptr);
 
-   // decode for keys
+   // Decode the given inputs based on the Paxos data structure.
+   // The output is written to values.
    void decode(const Block *keys, const idx_type key_num, const value_type *output, value_type *values, Block *with_dense = nullptr);
 
    // A fast method for performing modulo 32.
