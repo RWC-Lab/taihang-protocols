@@ -22,7 +22,7 @@ namespace taihang::mpc::vole_oprf {
 
 /**
  * @struct PublicParameters
- * @brief Parameters for the VOLE-based OPRF domain.
+ * @brief Parameters for the VOLE-based OPRF.
  */
 struct PublicParameters {
     int base_ot_curve_id = 0;

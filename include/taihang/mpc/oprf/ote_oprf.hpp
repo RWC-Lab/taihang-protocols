@@ -36,7 +36,7 @@ namespace taihang::mpc::ote_oprf {
 
 /**
  * @struct PublicParameters
- * @brief Parameters for the OTE-based OPRF domain.
+ * @brief Parameters for the OTE-based OPRF.
  */
 struct PublicParameters {
     int base_ot_curve_id = 0;
