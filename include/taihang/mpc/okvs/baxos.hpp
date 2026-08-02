@@ -1,0 +1,75 @@
+/****************************
+ * @file      baxos.hpp
+ * @brief     Batched Paxos OKVS engine.
+ * @details   Implements a binned Paxos OKVS for "Blazing Fast PSI from
+ *            Improved OKVS and Subfield VOLE":
+ *            <https://eprint.iacr.org/2022/320>
+ *            The implementation is modified from:
+ *            <https://github.com/Visa-Research/volepsi.git>:
+ *            (1) simplify the design;
+ *            (2) support multi-thread programming with OpenMP.
+ * @author    Yang Cao
+ ****************************/
+
+#ifndef TAIHANG_MPC_OKVS_BAXOS_HPP
+#define TAIHANG_MPC_OKVS_BAXOS_HPP
+
+#include <taihang/mpc/okvs/paxos.hpp>
+
+#include <array>
+#include <cstring>
+#include <future>
+#include <memory>
+#include <omp.h>
+
+namespace taihang::mpc::okvs {
+
+template <DenseType dense_type = DenseType::Binary, typename value_type = Block>
+class Baxos
+{
+public:
+    uint64_t item_num = 0;
+    uint64_t bin_num = 0;
+    uint64_t item_num_per_bin = 0;
+    uint8_t sparse_weight = 0;
+    uint8_t statistical_security_parameter = 40;
+    bool is_decoding = false;
+
+    uint64_t sparse_size;
+    uint64_t dense_size;
+    uint64_t total_size;
+    uint8_t g_limit;
+
+    prg::Seed seed;
+
+    Baxos() = default;
+
+    // A binned version of Paxos. Internally calls Paxos.
+    Baxos(const uint64_t item_num, const uint64_t bin_size, const uint8_t sparse_weight = 3, const uint8_t statistical_security_parameter = 40, const prg::Seed *seed = nullptr);
+
+    // Solve/encode the system.
+    template <typename idx_type>
+    void impl_solve(const std::vector<Block> &keys, const std::vector<value_type> &values, std::vector<value_type> &output, prg::Seed *prng, uint8_t thread_num);
+
+    // Decode the given inputs based on the Paxos data structure.
+    template <typename idx_type>
+    void impl_decode(const std::vector<Block> &keys, std::vector<value_type> &values, const std::vector<value_type> &output, uint8_t thread_num);
+
+    template <typename idx_type>
+    void impl_decode_batch(Block *keys, value_type *values, uint64_t batch_len, value_type *output);
+
+    // Solve the system for the given input vectors.
+    // keys are the inputs, values are the desired values, and output is the Paxos data.
+    // prng should be non-null if randomized Paxos is desired.
+    void solve(const std::vector<Block> &keys, const std::vector<value_type> &values, std::vector<value_type> &output, prg::Seed *prng = nullptr, uint8_t thread_num = 1);
+
+    // Decode the given input vector and write the result to values.
+    void decode(const std::vector<Block> &keys, std::vector<value_type> &values, const std::vector<value_type> &output, uint8_t thread_num = 1);
+};
+
+extern template class Baxos<DenseType::Binary, Block>;
+extern template class Baxos<DenseType::Gf128, Block>;
+
+} // namespace taihang::mpc::okvs
+
+#endif // TAIHANG_MPC_OKVS_BAXOS_HPP
