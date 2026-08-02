@@ -13,9 +13,8 @@
  *            <https://github.com/peihanmiao/OPRF-PSI>
  *
  *            With modifications:
- *            1. Support multi-thread programming with OpenMP.
- *            2. Substitute the unordered_map with bloom filter to do
- *            membership test.
+ *              Support multi-thread programming with OpenMP.
+
  * @author    Yang Cao
  *****************************************************************************/
 

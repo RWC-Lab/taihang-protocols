@@ -1,6 +1,6 @@
 /****************************************************************************
  * @file      mqrpmt_private_id.hpp
- * @brief     Private-ID based on distributed VOLE OPRF and mqRPMT PSU.
+ * @brief     Private-ID based on distributed VOLE-based OPRF and mqRPMT-based PSU.
  * @details   Implements Private-ID based on distributed OPRF and PSU.
  * @author    Yang Cao
  *****************************************************************************/

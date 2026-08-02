@@ -12,7 +12,8 @@
 #ifndef TAIHANG_PROTOCOLS_OKVS_HPP
 #define TAIHANG_PROTOCOLS_OKVS_HPP
 
-#include <taihang/mpc/okvs/baxos.hpp>
+#include <taihang/crypto/block.hpp>
+#include <taihang/crypto/prg.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -23,8 +24,52 @@
 namespace taihang::mpc::okvs {
 
 /**
+ * @enum DenseType
+ * @brief Dense-column arithmetic used by Paxos/Baxos OKVS.
+ */
+enum class DenseType {
+    Binary,
+    Gf128,
+};
+
+// BlockArrayValue supports variable value_type by changing the length of var[].
+struct BlockArrayValue {
+    Block var[9];
+
+    BlockArrayValue();
+    BlockArrayValue operator^(const BlockArrayValue& other) const;
+    BlockArrayValue& operator^=(const BlockArrayValue& other);
+    bool operator!=(const BlockArrayValue& other) const;
+};
+
+struct Divider {
+    uint64_t magic;
+    uint8_t more;
+};
+
+uint64_t divide_u64_do(uint64_t numer, const Divider* denom);
+int32_t count_leading_zeros64(uint64_t val);
+Divider gen_divider(uint64_t d);
+__attribute__((target("avx2"))) void reduce_mod32(uint64_t* vals, Divider* div, const uint64_t& modVal);
+
+template <typename T1, typename T2>
+inline T1 gf128_mul(const T1, const T2) { return T1(); }
+
+__attribute__((target("pclmul,sse2"))) Block gf128_mul(Block x, Block y);
+BlockArrayValue gf128_mul(BlockArrayValue x, Block y);
+Block gf128_inv(Block x);
+
+bool prev_combination(std::vector<uint8_t>& comb, uint64_t n);
+bool check_invert_gf128(std::vector<std::vector<Block>>& mat);
+uint64_t col_to_dec(std::vector<uint64_t>& binary);
+bool check_invert(std::vector<std::vector<uint8_t>>& mat);
+uint64_t log2_floor(uint64_t x);
+uint64_t log2_ceil(uint64_t x);
+uint64_t hashtable_bin_size(uint64_t bin_num, uint64_t item_num, uint8_t lambda);
+
+/**
  * @struct PublicParameters
- * @brief Parameters defining an OKVS encoding domain.
+ * @brief Parameters defining an OKVS encoding.
  */
 struct PublicParameters {
     size_t item_num = 0;

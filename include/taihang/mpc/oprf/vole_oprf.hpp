@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      vole_oprf.hpp
  * @brief     VOLE-based oblivious PRF.
- * @details   VOLE OPRF = VOLE + OKVS.
+ * @details   VOLE-based OPRF = VOLE + OKVS.
  * @author    Yang Cao
  *****************************************************************************/
 

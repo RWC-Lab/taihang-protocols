@@ -13,9 +13,7 @@
  *            <https://github.com/peihanmiao/OPRF-PSI>
  *
  *            With modifications:
- *            1. Support multi-thread programming with OpenMP.
- *            2. Substitute the unordered_map with bloom filter to do
- *            membership test.
+ *              Support multi-thread programming with OpenMP.
  * @author    Yang Cao
  *****************************************************************************/
 
@@ -189,9 +187,9 @@ PublicParameters setup(int base_ot_curve_id,
                        size_t statistical_security_parameter,
                        const Block& common_seed) {
     TAIHANG_ASSERT(log_input_num >= kMinLogInputNum,
-                   "OTE OPRF requires at least 8 inputs.");
+                   "OTE-based OPRF requires at least 8 inputs.");
     TAIHANG_ASSERT(log_input_num <= kMaxLogInputNum,
-                   "OTE OPRF uses 32-bit location encoding and requires log_input_num <= 32.");
+                   "OTE-based OPRF uses 32-bit location encoding and requires log_input_num <= 32.");
 
     PublicParameters pp;
     pp.base_ot_curve_id = base_ot_curve_id;
@@ -211,7 +209,7 @@ PublicParameters setup(int base_ot_curve_id,
 
 std::vector<uint8_t> sender(net::NetIO& io, const PublicParameters& pp) {
     TAIHANG_TIMER("OTE-based OPRF:", "Sender total execution time");
-    TAIHANG_ASSERT(pp.matrix_width > 0, "OTE OPRF setup error: matrix_width must be positive.");
+    TAIHANG_ASSERT(pp.matrix_width > 0, "OTE-based OPRF setup error: matrix_width must be positive.");
 
     // The sender obtains a matrix with dimension m*w as the OPRF key.
 
@@ -266,7 +264,7 @@ std::vector<std::vector<uint8_t>> receiver(net::NetIO& io,
                                            const PublicParameters& pp,
                                            const std::vector<Block>& vec_x) {
     TAIHANG_TIMER("OTE-based OPRF:", "Receiver total execution time");
-    TAIHANG_ASSERT(vec_x.size() == pp.input_num, "OTE OPRF receiver input size mismatch.");
+    TAIHANG_ASSERT(vec_x.size() == pp.input_num, "OTE-based OPRF receiver input size mismatch.");
 
     // The receiver obtains OPRF values with its input set.
 
@@ -396,9 +394,9 @@ std::vector<std::vector<uint8_t>> evaluate(const PublicParameters& pp,
                                            const std::vector<uint8_t>& key,
                                            const std::vector<Block>& vec_y) {
     TAIHANG_TIMER("OTE-based OPRF:", "Evaluate total execution time");
-    TAIHANG_ASSERT(vec_y.size() == pp.input_num, "OTE OPRF evaluation input size mismatch.");
+    TAIHANG_ASSERT(vec_y.size() == pp.input_num, "OTE-based OPRF evaluation input size mismatch.");
     if (key.size() != pp.key_size) {
-        throw std::invalid_argument("OTE OPRF key size mismatch.");
+        throw std::invalid_argument("OTE-based OPRF key size mismatch.");
     }
 
     const size_t log_height_byte = (pp.log_matrix_height + 7) >> 3;

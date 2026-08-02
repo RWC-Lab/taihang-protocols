@@ -7,7 +7,7 @@
 #include <gtest/gtest.h>
 #include <taihang/common/config.hpp>
 #include <taihang/crypto/prg.hpp>
-#include <taihang/mpc/okvs/okvs_utility.hpp>
+#include <taihang/mpc/okvs/okvs.hpp>
 #include <taihang/mpc/vole/vole.hpp>
 
 #include <openssl/obj_mac.h>

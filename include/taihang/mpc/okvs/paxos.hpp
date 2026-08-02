@@ -16,7 +16,7 @@
 #define TAIHANG_MPC_OKVS_PAXOS_HPP
 
 #include <taihang/common/check.hpp>
-#include <taihang/mpc/okvs/okvs_utility.hpp>
+#include <taihang/mpc/okvs/okvs.hpp>
 #include <taihang/crypto/prg.hpp>
 
 #include <algorithm>
@@ -104,15 +104,6 @@ public:
          return mView + row_begin[row_num];
       }
    }
-};
-
-/**
- * @enum DenseType
- * @brief Dense-column arithmetic used by Paxos/Baxos OKVS.
- */
-enum class DenseType {
-   Binary,
-   Gf128,
 };
 
 // The core Paxos algorithm. idx_type should be large enough to fit the Paxos size value.

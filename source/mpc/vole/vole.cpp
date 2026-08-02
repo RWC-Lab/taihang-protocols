@@ -26,7 +26,7 @@
 #include <taihang/common/check.hpp>
 #include <taihang/crypto/aes.hpp>
 #include <taihang/crypto/prg.hpp>
-#include <taihang/mpc/okvs/okvs_utility.hpp>
+#include <taihang/mpc/okvs/okvs.hpp>
 
 #include <algorithm>
 #include <cmath>

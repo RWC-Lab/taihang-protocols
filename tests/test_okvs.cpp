@@ -7,6 +7,7 @@
 #include <gtest/gtest.h>
 #include <taihang/common/config.hpp>
 #include <taihang/crypto/prg.hpp>
+#include <taihang/mpc/okvs/baxos.hpp>
 #include <taihang/mpc/okvs/okvs.hpp>
 
 #include <sstream>

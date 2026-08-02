@@ -1,7 +1,7 @@
 /****************************************************************************
  * @file      vole_oprf.cpp
  * @brief     VOLE-based oblivious PRF.
- * @details   VOLE OPRF = VOLE + OKVS.
+ * @details   VOLE-based OPRF = VOLE + OKVS.
  * @author    Yang Cao
  *****************************************************************************/
 
@@ -9,7 +9,7 @@
 #include <taihang/common/check.hpp>
 #include <taihang/common/logger.hpp>
 #include <taihang/crypto/prg.hpp>
-#include <taihang/mpc/okvs/okvs_utility.hpp>
+#include <taihang/mpc/okvs/okvs.hpp>
 
 #include <cmath>
 #include <format>
@@ -95,7 +95,7 @@ std::vector<Block> receiver(net::NetIO& io,
                             const PublicParameters& pp,
                             const std::vector<Block>& vec_x) {
     TAIHANG_TIMER("VOLE-based OPRF:", "Receiver total execution time");
-    TAIHANG_ASSERT(vec_x.size() <= pp.input_num, "VOLE OPRF receiver input size exceeds parameter capacity.");
+    TAIHANG_ASSERT(vec_x.size() <= pp.input_num, "VOLE-based OPRF receiver input size exceeds parameter capacity.");
 
     // The seed used to generate the initial random data.
     auto okvs_seed = prg::set_seed(nullptr, 0);
@@ -167,9 +167,9 @@ SecretKey sender(net::NetIO& io, const PublicParameters& pp) {
 std::vector<Block> evaluate(const PublicParameters& pp,
                             const SecretKey& oprf_key,
                             const std::vector<Block>& vec_y) {
-    TAIHANG_ASSERT(vec_y.size() <= pp.input_num, "VOLE OPRF evaluation input size exceeds parameter capacity.");
+    TAIHANG_ASSERT(vec_y.size() <= pp.input_num, "VOLE-based OPRF evaluation input size exceeds parameter capacity.");
     if (oprf_key.encoded_key.size() != pp.okvs_output_size) {
-        throw std::invalid_argument("VOLE OPRF key size mismatch.");
+        throw std::invalid_argument("VOLE-based OPRF key size mismatch.");
     }
     auto round_okvs_pp = pp.okvs_pp;
     round_okvs_pp.seed = oprf_key.okvs_seed;
