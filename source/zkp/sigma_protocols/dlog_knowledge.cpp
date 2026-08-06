@@ -1,17 +1,17 @@
 /****************************************************************************
- * @file      dlog_equality.cpp
- * @brief     Non-interactive discrete-log equality proof implementation.
+ * @file      dlog_knowledge.cpp
+ * @brief     Non-interactive Schnorr proof implementation.
  * @author    This file is part of Taihang-Protocols, developed by Yu Chen.
  *****************************************************************************/
 
-#include <taihang/zkp/sigma_protocols/dlog_equality.hpp>
+#include <taihang/zkp/sigma_protocols/dlog_knowledge.hpp>
 
 #include <ios>
 #include <istream>
 #include <ostream>
 #include <sstream>
 
-namespace taihang::zkp::nizk::dlog_equality {
+namespace taihang::zkp::nizk::dlog_knowledge {
 
 PublicParameters setup(int curve_id) {
     PublicParameters pp;
@@ -22,15 +22,15 @@ PublicParameters setup(int curve_id) {
 }
 
 bool Proof::operator==(const Proof& other) const {
-    return c1 == other.c1 && c2 == other.c2 && z == other.z;
+    return c == other.c && z == other.z;
 }
 
 std::ostream& operator<<(std::ostream& os, const Proof& proof) {
-    return os << proof.c1 << proof.c2 << proof.z;
+    return os << proof.c << proof.z;
 }
 
 std::istream& operator>>(std::istream& is, Proof& proof) {
-    is >> proof.c1 >> proof.c2 >> proof.z;
+    is >> proof.c >> proof.z;
     return is;
 }
 
@@ -38,29 +38,26 @@ Proof prove(const PublicParameters& pp,
             const Statement& statement,
             const Witness& witness,
             std::string_view context) {
-
     const ZnElement a = pp.ring_ctx->gen_random();
-    ECPoint c1 = statement.g1 * a;
-    ECPoint c2 = statement.g2 * a;
+    ECPoint c = statement.g * a;
+
     std::ostringstream transcript;
     transcript.write(context.data(), static_cast<std::streamsize>(context.size()));
-    transcript << statement.g1 << statement.h1 << statement.g2 << statement.h2 << c1 << c2;
-    const ZnElement e = hash_to_zn(transcript.str(), *pp.ring_ctx); // challenge
+    transcript << statement.g << statement.h << c;
+    const ZnElement e = hash_to_zn(transcript.str(), *pp.ring_ctx);
     const ZnElement z = a + e * witness.w;
-    return {std::move(c1), std::move(c2), z};
+    return {std::move(c), z};
 }
 
 bool verify(const PublicParameters& pp,
             const Statement& statement,
             const Proof& proof,
             std::string_view context) {
-
     std::ostringstream transcript;
     transcript.write(context.data(), static_cast<std::streamsize>(context.size()));
-    transcript << statement.g1 << statement.h1 << statement.g2 << statement.h2 << proof.c1 << proof.c2;
-    const ZnElement e = hash_to_zn(transcript.str(), *pp.ring_ctx); // challenge
-    return statement.g1 * proof.z == proof.c1 + statement.h1 * e &&
-           statement.g2 * proof.z == proof.c2 + statement.h2 * e;
+    transcript << statement.g << statement.h << proof.c;
+    const ZnElement e = hash_to_zn(transcript.str(), *pp.ring_ctx);
+    return statement.g * proof.z == proof.c + statement.h * e;
 }
 
-} // namespace taihang::zkp::nizk::dlog_equality
+} // namespace taihang::zkp::nizk::dlog_knowledge

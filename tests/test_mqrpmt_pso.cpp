@@ -345,6 +345,7 @@ TEST(MqRPMTPSOSetupTest, PublicParametersSerialization) {
     std::istringstream input(output.str());
     input >> restored;
 
+    ASSERT_TRUE(input);
     EXPECT_EQ(restored.log_sender_len, pp.log_sender_len);
     EXPECT_EQ(restored.log_receiver_len, pp.log_receiver_len);
     EXPECT_EQ(restored.log_sum_bound, pp.log_sum_bound);

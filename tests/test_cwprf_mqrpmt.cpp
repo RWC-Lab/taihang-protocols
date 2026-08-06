@@ -200,6 +200,7 @@ TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_NormalCurve) {
     std::istringstream iss(oss.str());
     iss >> pp2;
 
+    ASSERT_TRUE(iss);
     EXPECT_EQ(pp.curve_id,                       pp2.curve_id);
     EXPECT_EQ(pp.log_server_len,                  pp2.log_server_len);
     EXPECT_EQ(pp.log_client_len,                  pp2.log_client_len);
@@ -219,6 +220,7 @@ TEST_F(CwPRFMqRPMTTest, PublicParameters_Serialization_X25519) {
     std::istringstream iss(oss.str());
     iss >> pp2;
 
+    ASSERT_TRUE(iss);
     EXPECT_EQ(pp.curve_id,      pp2.curve_id);
     EXPECT_EQ(pp.log_server_len, pp2.log_server_len);
     EXPECT_EQ(pp.log_client_len, pp2.log_client_len);

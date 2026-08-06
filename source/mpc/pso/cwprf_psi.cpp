@@ -86,7 +86,11 @@ std::istream& operator>>(std::istream& is, PublicParameters& pp) {
     if (pp.membership_mode == MembershipMode::Truncate){
         is >> pp.statistical_security_parameter
            >> pp.truncate_byte_len;
-    }  
+    }
+    else {
+        pp.statistical_security_parameter = 0;
+        pp.truncate_byte_len = 0;
+    }
 
     // Reconstruct contexts with stable heap addresses.
     // X25519 uses no ECGroup/Zn context at all (mirrors cwprf_mqrpmt).

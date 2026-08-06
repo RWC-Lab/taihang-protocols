@@ -239,6 +239,7 @@ TEST(MqRPMTPrivateIdSetupTest, Serialization_PublicParameters_RoundTrip) {
     std::istringstream input(output.str());
     input >> restored;
 
+    ASSERT_TRUE(input);
     EXPECT_EQ(restored.log_sender_len, pp.log_sender_len);
     EXPECT_EQ(restored.log_receiver_len, pp.log_receiver_len);
     EXPECT_EQ(restored.statistical_security_parameter, pp.statistical_security_parameter);

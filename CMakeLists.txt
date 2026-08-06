@@ -79,7 +79,9 @@ foreach(test_source ${TEST_FILES})
         GTest::gtest_main
     )
     
-    gtest_discover_tests(${test_name})
+    # Parameterized test values may have no useful stream representation and
+    # otherwise become raw object-byte dumps in CTest's test names.
+    gtest_discover_tests(${test_name} NO_PRETTY_VALUES)
 endforeach()
 
 # --- 6. Benchmarks ---
