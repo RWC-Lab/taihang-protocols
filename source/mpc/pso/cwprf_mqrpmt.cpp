@@ -4,7 +4,7 @@
  * @author    This file is part of Taihang, developed by Yu Chen.
  *****************************************************************************/
 
-#include <taihang/mpc/rpmt/cwprf_mqrpmt.hpp>
+#include <taihang/mpc/pso/cwprf_mqrpmt.hpp>
 #include <taihang/common/logger.hpp>
 #include <algorithm> // std::shuffle
 #include <format>

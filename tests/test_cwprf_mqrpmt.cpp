@@ -11,7 +11,7 @@
  *****************************************************************************/
 
 #include <gtest/gtest.h>
-#include <taihang/mpc/rpmt/cwprf_mqrpmt.hpp>
+#include <taihang/mpc/pso/cwprf_mqrpmt.hpp>
 #include <taihang/common/logger.hpp>
 #include <taihang/crypto/prg.hpp>
 #include <openssl/obj_mac.h>   // NID_X25519

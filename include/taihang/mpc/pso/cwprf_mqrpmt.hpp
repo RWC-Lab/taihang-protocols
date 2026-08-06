@@ -4,8 +4,8 @@
  * @author    This file is part of Taihang, developed by Yu Chen.
  *****************************************************************************/
 
-#ifndef TAIHANG_PROTOCOLS_CWPRF_MQRPMT_HPP
-#define TAIHANG_PROTOCOLS_CWPRF_MQRPMT_HPP
+#ifndef TAIHANG_PROTOCOLS_MPC_PSO_CWPRF_MQRPMT_HPP
+#define TAIHANG_PROTOCOLS_MPC_PSO_CWPRF_MQRPMT_HPP
 
 #include <taihang/common/config.hpp>
 #include <taihang/common/check.hpp>
@@ -94,4 +94,4 @@ void client(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
 
 } // namespace taihang::mpc::cwprf_mqrpmt
 
-#endif // TAIHANG_PROTOCOLS_CWPRF_MQRPMT_HPP
+#endif // TAIHANG_PROTOCOLS_MPC_PSO_CWPRF_MQRPMT_HPP

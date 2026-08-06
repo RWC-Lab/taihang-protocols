@@ -9,7 +9,7 @@
 #ifndef TAIHANG_MPC_PSO_MQRPMT_PSO_HPP
 #define TAIHANG_MPC_PSO_MQRPMT_PSO_HPP
 
-#include <taihang/mpc/rpmt/cwprf_mqrpmt.hpp>
+#include <taihang/mpc/pso/cwprf_mqrpmt.hpp>
 #include <taihang/mpc/ot/alsz_ote.hpp>
 #include <taihang/crypto/bigint.hpp>
 #include <vector>

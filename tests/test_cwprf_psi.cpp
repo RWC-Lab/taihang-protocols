@@ -26,7 +26,7 @@
  * @author    This file is part of Taihang, developed by Yu Chen.
  *****************************************************************************/
 
-#include <taihang/mpc/psi/cwprf_psi.hpp>
+#include <taihang/mpc/pso/cwprf_psi.hpp>
 #include <taihang/common/logger.hpp>
 #include <format>
 #include <chrono>

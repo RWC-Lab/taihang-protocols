@@ -115,8 +115,8 @@
  * @author    This file is part of Taihang, developed by Yu Chen.
  *****************************************************************************/
 
-#ifndef TAIHANG_PROTOCOLS_CWPRF_PSI_HPP
-#define TAIHANG_PROTOCOLS_CWPRF_PSI_HPP
+#ifndef TAIHANG_PROTOCOLS_MPC_PSO_CWPRF_PSI_HPP
+#define TAIHANG_PROTOCOLS_MPC_PSO_CWPRF_PSI_HPP
 
 #include <taihang/common/config.hpp>
 #include <taihang/common/check.hpp>
@@ -264,4 +264,4 @@ std::vector<Block> receiver(net::NetIO& io, const PublicParameters& pp, const st
 
 } // namespace taihang::mpc::cwprf_psi
 
-#endif // TAIHANG_PROTOCOLS_CWPRF_PSI_HPP
+#endif // TAIHANG_PROTOCOLS_MPC_PSO_CWPRF_PSI_HPP

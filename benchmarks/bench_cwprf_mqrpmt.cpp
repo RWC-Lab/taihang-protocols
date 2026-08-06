@@ -18,7 +18,7 @@
  * Author: Yu Chen
  ****************************************************************************/
 
-#include <taihang/mpc/rpmt/cwprf_mqrpmt.hpp>
+#include <taihang/mpc/pso/cwprf_mqrpmt.hpp>
 #include <taihang/common/config.hpp>
 #include <taihang/common/logger.hpp>
 #include <taihang/common/bench_setting.hpp>

@@ -5,8 +5,8 @@
  * @author    Yang Cao
  *****************************************************************************/
 
-#ifndef TAIHANG_MPC_PSO_MQRPMT_PRIVATE_ID_HPP
-#define TAIHANG_MPC_PSO_MQRPMT_PRIVATE_ID_HPP
+#ifndef TAIHANG_PROTOCOLS_MPC_PSO_MQRPMT_PRIVATE_ID_HPP
+#define TAIHANG_PROTOCOLS_MPC_PSO_MQRPMT_PRIVATE_ID_HPP
 
 #include <taihang/mpc/oprf/vole_oprf.hpp>
 #include <taihang/mpc/pso/mqrpmt_pso.hpp>
@@ -83,4 +83,4 @@ ReceiverOutput receiver(net::NetIO& io,
 
 } // namespace taihang::mpc::mqrpmt_private_id
 
-#endif // TAIHANG_MPC_PSO_MQRPMT_PRIVATE_ID_HPP
+#endif // TAIHANG_PROTOCOLS_MPC_PSO_MQRPMT_PRIVATE_ID_HPP
