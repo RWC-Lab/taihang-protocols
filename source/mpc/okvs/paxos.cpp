@@ -687,7 +687,7 @@ void OKVS<idx_type, dense_type, value_type>::get_FC_1()
          {
             auto col_permuted = *F_i.begin();
             auto row_permuted = col_permuted;
-            auto temp = col_permuted;
+            [[maybe_unused]] auto temp = col_permuted;
             auto row_in_c = triangular_c_rows[delta - row_permuted - 1];
             FC_1[i].push_back(row_in_c);
 

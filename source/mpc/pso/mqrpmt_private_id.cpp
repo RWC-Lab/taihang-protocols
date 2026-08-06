@@ -99,7 +99,7 @@ SenderOutput sender(net::NetIO& io,
                     const std::vector<Block>& vec_x) {
     TAIHANG_TIMER("mqRPMT Private-ID Sender:", "Total pipeline execution time");
 
-    const size_t sender_len = size_t{1} << pp.log_sender_len;
+    [[maybe_unused]] const size_t sender_len = size_t{1} << pp.log_sender_len;
     TAIHANG_ASSERT(vec_x.size() == sender_len, "mqRPMT Private-ID sender input size mismatch.");
 
     // Phase 1: compute sender's ID using distributed OPRF (run OPRF twice).
@@ -138,7 +138,7 @@ ReceiverOutput receiver(net::NetIO& io,
                         const std::vector<Block>& vec_y) {
     TAIHANG_TIMER("mqRPMT Private-ID Receiver:", "Total pipeline execution time");
 
-    const size_t receiver_len = size_t{1} << pp.log_receiver_len;
+    [[maybe_unused]] const size_t receiver_len = size_t{1} << pp.log_receiver_len;
     TAIHANG_ASSERT(vec_y.size() == receiver_len, "mqRPMT Private-ID receiver input size mismatch.");
 
     // Phase 1: compute receiver's ID using distributed OPRF (run OPRF twice).

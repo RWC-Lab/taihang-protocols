@@ -16,6 +16,7 @@
 #include <taihang/crypto/prg.hpp>
 
 #include <algorithm>
+#include <bit>
 #include <cmath>
 #include <cstring>
 #include <immintrin.h>
@@ -52,11 +53,6 @@ bool BlockArrayValue::operator!=(const BlockArrayValue& other) const {
     return false;
 }
 
-static inline uint32_t divide_mullhi_u32(uint32_t x, uint32_t y) {
-    uint64_t xl = x, yl = y;
-    uint64_t rl = xl * yl;
-    return (uint32_t)(rl >> 32);
-}
 static inline uint64_t divide_mullhi_u64(uint64_t x, uint64_t y)
 {
 #if defined(_MSC_VER) && defined(LIBDIVIDE_X86_64)
@@ -72,7 +68,7 @@ static inline uint64_t divide_mullhi_u64(uint64_t x, uint64_t y)
     uint32_t x1 = (uint32_t)(x >> 32);
     uint32_t y0 = (uint32_t)(y & mask);
     uint32_t y1 = (uint32_t)(y >> 32);
-    uint32_t x0y0_hi = divide_mullhi_u32(x0, y0);
+    uint32_t x0y0_hi = static_cast<uint32_t>((static_cast<uint64_t>(x0) * y0) >> 32);
     uint64_t x0y1 = x0 * (uint64_t)y1;
     uint64_t x1y0 = x1 * (uint64_t)y0;
     uint64_t x1y1 = x1 * (uint64_t)y1;
@@ -160,52 +156,9 @@ __m256i divide_u64_do_vec256(__m256i numers, const Divider *denom)
         }
     }
 }
-static inline int32_t divide_count_leading_zeros32(uint32_t val) {
-#if defined(__AVR__)
-    // Fast way to count leading zeros
-    return __builtin_clzl(val);
-#elif defined(__GNUC__) || __has_builtin(__builtin_clz)
-    // Fast way to count leading zeros
-    return __builtin_clz(val);
-#elif defined(_MSC_VER)
-    unsigned long result;
-    if (_BitScanReverse(&result, val)) {
-        return 31 - result;
-    }
-    return 0;
-#else
-    if (val == 0) return 32;
-    int32_t result = 8;
-    uint32_t hi = 0xFFU << 24;
-    while ((val & hi) == 0) {
-        hi >>= 8;
-        result += 8;
-    }
-    while (val & hi) {
-        result -= 1;
-        hi <<= 1;
-    }
-    return result;
-#endif
-}
 int32_t count_leading_zeros64(uint64_t val)
 {
-    // return __builtin_clzll(val);
-#if defined(__GNUC__) || __has_builtin(__builtin_clzll)
-    // Fast way to count leading zeros
-    return __builtin_clzll(val);
-#elif defined(_MSC_VER) && defined(_WIN64)
-    unsigned long result;
-    if (_BitScanReverse64(&result, val)) {
-        return 63 - result;
-    }
-    return 0;
-#else
-    uint32_t hi = val >> 32;
-    uint32_t lo = val & 0xFFFFFFFF;
-    if (hi != 0) return divide_count_leading_zeros32(hi);
-    return 32 + divide_count_leading_zeros32(lo);
-#endif
+    return static_cast<int32_t>(std::countl_zero(val));
 }
 
 #if defined(__x86_64__) || defined(_M_X64)
