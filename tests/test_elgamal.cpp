@@ -31,7 +31,7 @@ TEST_F(ElGamalTest, StandardEncryptionDecryption) {
     ECPoint m = pp.group_ctx->gen_random();
     
     Ciphertext ct = encrypt(pp, pk, m);
-    ECPoint m_dec = decrypt(sk, ct);
+    ECPoint m_dec = decrypt(pp, sk, ct);
 
     ASSERT_EQ(m, m_dec) << "Decrypted point does not match original message.";
 }
@@ -47,7 +47,7 @@ TEST_F(ElGamalTest, ReRandomization) {
     ASSERT_FALSE(ct1 == ct2);
 
     // Decryption should still work
-    ECPoint m_dec = decrypt(sk, ct2);
+    ECPoint m_dec = decrypt(pp, sk, ct2);
     ASSERT_EQ(m, m_dec);
 }
 
@@ -89,13 +89,13 @@ TEST_F(ElGamalTest, HomomorphicAddSub) {
 
     // Addition
     Ciphertext ct_sum = ct1 + ct2;
-    ECPoint pt_sum = decrypt(sk, ct_sum); // Decrypt to point g^(m1+m2)
+    ECPoint pt_sum = decrypt(pp, sk, ct_sum); // Decrypt to point g^(m1+m2)
     ECPoint expected_sum = pp.g * (m1 + m2);
     ASSERT_EQ(pt_sum, expected_sum);
 
     // Subtraction
     Ciphertext ct_diff = ct1 - ct2;
-    ECPoint pt_diff = decrypt(sk, ct_diff);
+    ECPoint pt_diff = decrypt(pp, sk, ct_diff);
     ECPoint expected_diff = pp.g * (m1 - m2);
     ASSERT_EQ(pt_diff, expected_diff);
 }
@@ -108,7 +108,7 @@ TEST_F(ElGamalTest, HomomorphicScalarMul) {
     Ciphertext ct = encrypt(pp, pk, m);
     Ciphertext ct_scaled = ct * k;
 
-    ECPoint pt_scaled = decrypt(sk, ct_scaled);
+    ECPoint pt_scaled = decrypt(pp, sk, ct_scaled);
     ECPoint expected = pp.g * (m * k);
     ASSERT_EQ(pt_scaled, expected);
 }
@@ -135,7 +135,7 @@ TEST_F(ElGamalTest, MultiRecipientEncryption) {
     ECPoint expected_pt = pp.g * m; // g^m
 
     for(size_t i=0; i<num_recipients; ++i) {
-        ECPoint dec = decrypt(sks[i], mr_ct, i);
+        ECPoint dec = decrypt(pp, sks[i], mr_ct, i);
         ASSERT_EQ(dec, expected_pt) << "Recipient " << i << " failed to decrypt";
     }
 }

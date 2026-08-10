@@ -118,15 +118,24 @@ Ciphertext encrypt(const PublicParameters& pp, const PublicKey& pk, const ZnElem
 // Multi-Recipient Encryption
 MrCiphertext encrypt(const PublicParameters& pp, const std::vector<PublicKey>& vec_pk, 
                      const ZnElement& m, const std::optional<ZnElement>& r = std::nullopt);
-ECPoint decrypt(const SecretKey& sk, const MrCiphertext& ct, size_t index);
 
 // Decryption
-ECPoint decrypt_raw(const SecretKey& sk, const Ciphertext& ct);
-inline ECPoint decrypt(const SecretKey& sk, const Ciphertext& ct) { return decrypt_raw(sk, ct); }
-ZnElement decrypt_exp(const PublicParameters& pp, const SecretKey& sk, const Ciphertext& ct, const dlog::BSGSSolver& solver);
+ECPoint decrypt_raw(const PublicParameters& pp,
+                    const SecretKey& sk,
+                    const Ciphertext& ct);
+inline ECPoint decrypt(const PublicParameters& pp,
+                       const SecretKey& sk,
+                       const Ciphertext& ct) {
+    return decrypt_raw(pp, sk, ct);
+}
+ZnElement decrypt_exp(const PublicParameters& pp,
+                      const SecretKey& sk,
+                      const Ciphertext& ct,
+                      const dlog::BSGSSolver& solver);
 
 // Decrypt specific index from MR-Ciphertext
-ECPoint decrypt(const SecretKey& sk, const MrCiphertext& ct, size_t index);
+ECPoint decrypt(const PublicParameters& pp, const SecretKey& sk,
+                const MrCiphertext& ct, size_t index);
 
 // Transformation & Homomorphic Ops
 Ciphertext re_enc(const PublicParameters& pp, const PublicKey& pk, const SecretKey& sk, 

@@ -79,7 +79,7 @@ int main() {
 
     // --- Benchmark: Decryption (Standard) ---
     double time_dec = measure_ms([&](size_t i) {
-        decrypt(sks[i], cts_std[i]);
+        decrypt(pp, sks[i], cts_std[i]);
     }, TEST_NUM);
     std::cout << std::left << std::setw(30) << "Decryption (Point):" 
               << time_dec << " ms/op\n";

@@ -145,16 +145,16 @@ TEST_F(TwistedElGamalTest, KeyGen_TwoKeyPairsAreDifferent) {
 
 TEST_F(TwistedElGamalTest, Standard_EncryptDecrypt_RandomPoint) {
     ECPoint m = pp_std.group_ctx->gen_random();
-    EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, m)), m);
+    EXPECT_EQ(decrypt(pp_std, sk, encrypt(pp_std, pk, m)), m);
 }
 
 TEST_F(TwistedElGamalTest, Standard_EncryptDecrypt_Generator) {
-    EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, pp_std.g)), pp_std.g);
+    EXPECT_EQ(decrypt(pp_std, sk, encrypt(pp_std, pk, pp_std.g)), pp_std.g);
 }
 
 TEST_F(TwistedElGamalTest, Standard_EncryptDecrypt_Infinity) {
     ECPoint inf = pp_std.group_ctx->get_infinity();
-    EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, inf)), inf);
+    EXPECT_EQ(decrypt(pp_std, sk, encrypt(pp_std, pk, inf)), inf);
 }
 
 TEST_F(TwistedElGamalTest, Standard_DeterministicWithFixedRandomness) {
@@ -170,7 +170,7 @@ TEST_F(TwistedElGamalTest, Standard_FreshEncryptionsAreProbabilistic) {
 
 TEST_F(TwistedElGamalTest, Standard_WrongKeyDecryptionFails) {
     ECPoint m = pp_std.group_ctx->gen_random();
-    EXPECT_NE(decrypt(sk2, encrypt(pp_std, pk, m)), m);
+    EXPECT_NE(decrypt(pp_std, sk2, encrypt(pp_std, pk, m)), m);
 }
 
 // ============================================================
@@ -215,7 +215,7 @@ TEST_F(TwistedElGamalExpTest, Exponential_EncryptDecrypt_Random) {
 TEST_F(TwistedElGamalTest, HomoAdd_DecryptsToSumOfMessages) {
     ECPoint m1 = pp_std.group_ctx->gen_random();
     ECPoint m2 = pp_std.group_ctx->gen_random();
-    EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, m1) + encrypt(pp_std, pk, m2)),
+    EXPECT_EQ(decrypt(pp_std, sk, encrypt(pp_std, pk, m1) + encrypt(pp_std, pk, m2)),
               m1 + m2);
 }
 
@@ -232,7 +232,8 @@ TEST_F(TwistedElGamalTest, HomoAdd_Commutativity) {
     ECPoint m2 = pp_std.group_ctx->gen_random();
     Ciphertext ct1 = encrypt(pp_std, pk, m1);
     Ciphertext ct2 = encrypt(pp_std, pk, m2);
-    EXPECT_EQ(decrypt(sk, ct1 + ct2), decrypt(sk, ct2 + ct1));
+    EXPECT_EQ(decrypt(pp_std, sk, ct1 + ct2),
+              decrypt(pp_std, sk, ct2 + ct1));
 }
 
 TEST_F(TwistedElGamalExpTest, HomoAdd_Exponential) {
@@ -257,14 +258,14 @@ TEST_F(TwistedElGamalExpTest, HomoAdd_Exponential) {
 TEST_F(TwistedElGamalTest, HomoSub_DecryptsToMessageDifference) {
     ECPoint m1 = pp_std.group_ctx->gen_random();
     ECPoint m2 = pp_std.group_ctx->gen_random();
-    EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, m1) - encrypt(pp_std, pk, m2)),
+    EXPECT_EQ(decrypt(pp_std, sk, encrypt(pp_std, pk, m1) - encrypt(pp_std, pk, m2)),
               m1 - m2);
 }
 
 TEST_F(TwistedElGamalTest, HomoSub_SelfCancelToInfinity) {
     ECPoint m = pp_std.group_ctx->gen_random();
     Ciphertext ct = encrypt(pp_std, pk, m);
-    EXPECT_TRUE(decrypt(sk, ct - ct).is_at_infinity());
+    EXPECT_TRUE(decrypt(pp_std, sk, ct - ct).is_at_infinity());
 }
 
 TEST_F(TwistedElGamalTest, HomoSub_OperatorMatchesMethod) {
@@ -282,19 +283,19 @@ TEST_F(TwistedElGamalTest, HomoSub_OperatorMatchesMethod) {
 TEST_F(TwistedElGamalTest, HomoMul_DecryptsToScaledMessage) {
     ECPoint   m = pp_std.group_ctx->gen_random();
     ZnElement k = pp_std.ring_ctx->gen_random();
-    EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, m) * k), m * k);
+    EXPECT_EQ(decrypt(pp_std, sk, encrypt(pp_std, pk, m) * k), m * k);
 }
 
 TEST_F(TwistedElGamalTest, HomoMul_ScalarZeroGivesInfinity) {
     ECPoint   m    = pp_std.group_ctx->gen_random();
     ZnElement zero(pp_std.ring_ctx, kBigIntZero);
-    EXPECT_TRUE(decrypt(sk, encrypt(pp_std, pk, m) * zero).is_at_infinity());
+    EXPECT_TRUE(decrypt(pp_std, sk, encrypt(pp_std, pk, m) * zero).is_at_infinity());
 }
 
 TEST_F(TwistedElGamalTest, HomoMul_ScalarOneIsIdentity) {
     ECPoint   m   = pp_std.group_ctx->gen_random();
     ZnElement one(pp_std.ring_ctx, kBigIntOne);
-    EXPECT_EQ(decrypt(sk, encrypt(pp_std, pk, m) * one), m);
+    EXPECT_EQ(decrypt(pp_std, sk, encrypt(pp_std, pk, m) * one), m);
 }
 
 TEST_F(TwistedElGamalTest, HomoMul_OperatorMatchesMethod) {
@@ -313,7 +314,7 @@ TEST_F(TwistedElGamalTest, ReRand_PreservesPlaintext) {
     Ciphertext ct      = encrypt(pp_std, pk, m);
     Ciphertext ct_rand = re_rand(pp_std, pk, ct);
     EXPECT_NE(ct, ct_rand);
-    EXPECT_EQ(decrypt(sk, ct_rand), m);
+    EXPECT_EQ(decrypt(pp_std, sk, ct_rand), m);
 }
 
 TEST_F(TwistedElGamalTest, ReRand_TwiceProducesDifferentCiphertexts) {
@@ -330,14 +331,14 @@ TEST_F(TwistedElGamalTest, ReEnc_NewKeyDecryptsCorrectly) {
     ECPoint   m = pp_std.group_ctx->gen_random();
     ZnElement r = pp_std.ring_ctx->gen_random();
     Ciphertext ct_new = re_enc(pp_std, pk2, sk, encrypt(pp_std, pk, m), r);
-    EXPECT_EQ(decrypt(sk2, ct_new), m);
+    EXPECT_EQ(decrypt(pp_std, sk2, ct_new), m);
 }
 
 TEST_F(TwistedElGamalTest, ReEnc_OldKeyCannotDecrypt) {
     ECPoint   m = pp_std.group_ctx->gen_random();
     ZnElement r = pp_std.ring_ctx->gen_random();
     Ciphertext ct_new = re_enc(pp_std, pk2, sk, encrypt(pp_std, pk, m), r);
-    EXPECT_NE(decrypt(sk, ct_new), m);
+    EXPECT_NE(decrypt(pp_std, sk, ct_new), m);
 }
 
 // ============================================================
@@ -368,14 +369,15 @@ TEST_F(TwistedElGamalMrTest, MrEncrypt_AllRecipientsDecryptCorrectly) {
 
     ASSERT_EQ(ct.vec_c1.size(), N);
     for (size_t i = 0; i < N; ++i) {
-        EXPECT_EQ(decrypt(vec_sk[i], ct, i), expected) << "recipient=" << i;
+        EXPECT_EQ(decrypt(pp_exp, vec_sk[i], ct, i), expected) << "recipient=" << i;
     }
 }
 
 TEST_F(TwistedElGamalMrTest, MrEncrypt_WrongIndexGivesWrongResult) {
     ZnElement    m(pp_exp.ring_ctx, BigInt(uint64_t{42}));
     MrCiphertext ct = encrypt(pp_exp, vec_pk, m);
-    EXPECT_NE(decrypt(vec_sk[0], ct, 0), decrypt(vec_sk[0], ct, 1));
+    EXPECT_NE(decrypt(pp_exp, vec_sk[0], ct, 0),
+              decrypt(pp_exp, vec_sk[0], ct, 1));
 }
 
 TEST_F(TwistedElGamalMrTest, MrEncrypt_DeterministicWithFixedR) {
@@ -402,7 +404,7 @@ TEST_F(TwistedElGamalTest, Serialization_Ciphertext_RoundTrip) {
     iss >> ct2;
 
     EXPECT_EQ(ct, ct2);
-    EXPECT_EQ(decrypt(sk, ct2), m);
+    EXPECT_EQ(decrypt(pp_std, sk, ct2), m);
 }
 
 TEST(TwistedElGamalSerializationTest, PublicParametersRoundTrip) {
@@ -451,7 +453,7 @@ TEST_F(TwistedElGamalTest, HomoCombined_ScaleAfterAdd) {
     ZnElement k  = pp_std.ring_ctx->gen_random();
     Ciphertext ct1 = encrypt(pp_std, pk, m1);
     Ciphertext ct2 = encrypt(pp_std, pk, m2);
-    EXPECT_EQ(decrypt(sk, (ct1 + ct2) * k), (m1 + m2) * k);
+    EXPECT_EQ(decrypt(pp_std, sk, (ct1 + ct2) * k), (m1 + m2) * k);
 }
 
 TEST_F(TwistedElGamalTest, HomoCombined_AddThenSubCancel) {
@@ -459,5 +461,5 @@ TEST_F(TwistedElGamalTest, HomoCombined_AddThenSubCancel) {
     ECPoint m2 = pp_std.group_ctx->gen_random();
     Ciphertext ct1 = encrypt(pp_std, pk, m1);
     Ciphertext ct2 = encrypt(pp_std, pk, m2);
-    EXPECT_EQ(decrypt(sk, (ct1 + ct2) - ct2), m1);
+    EXPECT_EQ(decrypt(pp_std, sk, (ct1 + ct2) - ct2), m1);
 }

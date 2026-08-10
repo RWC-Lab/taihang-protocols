@@ -21,7 +21,7 @@ std::string PublicParameters::format() const {
 
 std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
     // We serialize the ID and bits. The ECGroup is reconstructed on load.
-    os << pp.curve_id << ' ' << pp.msg_len_bits << ' ' << pp.g;
+    os << pp.curve_id << ' ' << pp.msg_len_bits << pp.g;
     return os;
 }
 
@@ -165,7 +165,8 @@ MrCiphertext encrypt(const PublicParameters& pp, const std::vector<PublicKey>& v
 }
 
 // Decrypt specific index from MR-Ciphertext: m = c2_i - x*c1
-ECPoint decrypt(const SecretKey& sk, const MrCiphertext& ct, size_t index) {
+ECPoint decrypt(const PublicParameters& pp, const SecretKey& sk,
+                const MrCiphertext& ct, size_t index) {
     TAIHANG_ASSERT(index < ct.vec_c2.size(), "Multi-recipient decrypt: index out of bounds");
     return ct.vec_c2[index] - (ct.c1 * sk.x);
 }
@@ -183,12 +184,17 @@ std::istream& operator>>(std::istream& is, MrCiphertext& ct) {
     return is;
 }
 
-ECPoint decrypt_raw(const SecretKey& sk, const Ciphertext& ct) {
+ECPoint decrypt_raw(const PublicParameters& pp,
+                    const SecretKey& sk,
+                    const Ciphertext& ct) {
     return ct.c2 - (ct.c1 * sk.x);
 }
 
-ZnElement decrypt_exp(const PublicParameters& pp, const SecretKey& sk, const Ciphertext& ct, const dlog::BSGSSolver& solver) {
-    ECPoint m = decrypt_raw(sk, ct);
+ZnElement decrypt_exp(const PublicParameters& pp,
+                      const SecretKey& sk,
+                      const Ciphertext& ct,
+                      const dlog::BSGSSolver& solver) {
+    ECPoint m = decrypt_raw(pp, sk, ct);
     auto result = solver.solve(m);
     // Ensure the solver actually found a result
     TAIHANG_ASSERT(result.has_value(), "ElGamal: BSGS DLog solver failed to find message.");
@@ -198,7 +204,7 @@ ZnElement decrypt_exp(const PublicParameters& pp, const SecretKey& sk, const Cip
 }
 
 Ciphertext re_enc(const PublicParameters& pp, const PublicKey& pk, const SecretKey& sk, const Ciphertext& ct, const ZnElement& r) {
-    ECPoint m = decrypt_raw(sk, ct);
+    ECPoint m = decrypt_raw(pp, sk, ct);
     return { pp.g * r, (pk.y * r) + m };
 }
 
