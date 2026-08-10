@@ -161,3 +161,21 @@ TEST_F(ElGamalTest, Serialization) {
 
     ASSERT_EQ(ct, ct_loaded);
 }
+
+TEST(ElGamalSerializationTest, PublicParametersRoundTrip) {
+    const PublicParameters original = setup(NID_X9_62_prime256v1, 20);
+
+    std::stringstream stream;
+    stream << original;
+
+    PublicParameters restored;
+    stream >> restored;
+
+    ASSERT_TRUE(stream);
+    EXPECT_EQ(restored.curve_id, original.curve_id);
+    EXPECT_EQ(restored.msg_len_bits, original.msg_len_bits);
+    EXPECT_EQ(restored.msg_size, original.msg_size);
+    EXPECT_EQ(restored.g, original.g);
+    ASSERT_NE(restored.group_ctx, nullptr);
+    ASSERT_NE(restored.ring_ctx, nullptr);
+}

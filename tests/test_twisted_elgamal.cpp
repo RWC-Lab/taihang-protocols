@@ -405,6 +405,26 @@ TEST_F(TwistedElGamalTest, Serialization_Ciphertext_RoundTrip) {
     EXPECT_EQ(decrypt(sk, ct2), m);
 }
 
+TEST(TwistedElGamalSerializationTest, PublicParametersRoundTrip) {
+    const PublicParameters original = setup(NID_X9_62_prime256v1, 20);
+
+    std::ostringstream oss;
+    oss << original;
+
+    PublicParameters restored;
+    std::istringstream iss(oss.str());
+    iss >> restored;
+
+    ASSERT_TRUE(iss);
+    EXPECT_EQ(restored.curve_id, original.curve_id);
+    EXPECT_EQ(restored.msg_len_bits, original.msg_len_bits);
+    EXPECT_EQ(restored.msg_size, original.msg_size);
+    EXPECT_EQ(restored.g, original.g);
+    EXPECT_EQ(restored.h, original.h);
+    ASSERT_NE(restored.group_ctx, nullptr);
+    ASSERT_NE(restored.ring_ctx, nullptr);
+}
+
 TEST_F(TwistedElGamalMrTest, Serialization_MrCiphertext_RoundTrip) {
     ZnElement    m  = ZnElement(pp_exp.ring_ctx, BigInt(uint64_t{777}));
     MrCiphertext ct = encrypt(pp_exp, vec_pk, m);

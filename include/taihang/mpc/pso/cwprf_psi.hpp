@@ -72,11 +72,13 @@
  *   F_k1k2(x_i) to the Receiver in an array indexed identically to vec_x:
  *
  *     Truncate    – Classical cwPRF-PSI optimization (see references
- *                   below). Only the first `truncate_byte_len` bytes of
- *                   each PRF output are exchanged and compared. This is
+ *                   below). Only `truncate_byte_len` pseudorandom payload
+ *                   bytes after any EC point-format prefix are exchanged and
+ *                   compared. This is
  *                   the bandwidth-optimal index-preserving choice and
- *                   matches Kunlun's original behaviour exactly: it
- *                   achieves a Bloom-Filter-like compression ratio while
+ *                   preserves Kunlun's bandwidth-saving goal while excluding
+ *                   the non-random encoding prefix. It achieves a
+ *                   Bloom-Filter-like compression ratio while
  *                   still preserving the array ordering PSI requires for
  *                   element attribution.
  *     PlainSet    – Sends the full-length, UN-truncated set of doubly-
@@ -108,8 +110,8 @@
  *   computationally indistinguishable from a uniform bit-string, by the
  *   randomness-extraction properties of Diffie-Hellman elements
  *   (see [EUROCRYPT 2009 - Optimal Randomness Extraction from a
- *   Diffie-Hellman Element]). Hence truncating the serialized point
- *   directly — rather than first hashing it through a CRHF — is sound for
+ *   Diffie-Hellman Element]). Hence truncating the point payload directly —
+ *   rather than first hashing it through a CRHF — is sound for
  *   both curve backends supported here.
  *
  * @author    This file is part of Taihang, developed by Yu Chen.
@@ -145,9 +147,9 @@ namespace taihang::mpc::cwprf_psi {
  *        reason: a Bloom Filter discards index information, which PSI's
  *        element-attribution requirement cannot tolerate.
  *
- *  Truncate – Only the first `truncate_byte_len` bytes of each doubly-
- *             masked value are sent and compared (Kunlun-style
- *             optimization). Bandwidth-optimal among the index-preserving
+ *  Truncate – Only `truncate_byte_len` payload bytes after any EC point-format
+ *             prefix of each doubly-masked value are sent and compared
+ *             (Kunlun-style optimization). Bandwidth-optimal among the index-preserving
  *             options; small, tunable false-positive rate governed by
  *             statistical_security_parameter and the two set sizes (see
  *             file-level documentation above).

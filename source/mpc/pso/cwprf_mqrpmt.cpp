@@ -380,8 +380,9 @@ void client(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
 
             #pragma omp parallel for num_threads(config::thread_num)
             for (size_t i = 0; i < server_len; ++i) {
-                auto bytes = vec_fk2k1_y[i].to_bytes();
-                filter.insert(bytes.data(), bytes.size());
+                // auto bytes = vec_fk2k1_y[i].to_bytes();
+                // filter.insert(bytes.data(), bytes.size());
+                filter.insert(vec_fk2k1_y[i].px, EC25519Point::POINT_BYTE_LEN);
             }
 
             // Serialize and ship the Bloom Filter structure across the wire

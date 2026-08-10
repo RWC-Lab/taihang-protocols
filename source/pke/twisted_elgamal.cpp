@@ -22,7 +22,7 @@ std::string PublicParameters::format() const {
 
 std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
     // We serialize the ID and bits. The ECGroup is reconstructed on load.
-    os << pp.curve_id << pp.msg_len_bits << pp.g;
+    os << pp.curve_id << ' ' << pp.msg_len_bits << ' ' << pp.g << pp.h;
     return os;
 }
 

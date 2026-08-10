@@ -106,6 +106,7 @@ TEST_F(NaorPinkasOTTest, Serialization_PublicParameters_RoundTrip) {
     std::istringstream iss(oss.str());
     iss >> pp_reconstructed;
 
+    ASSERT_TRUE(iss);
     EXPECT_EQ(pp.curve_id, pp_reconstructed.curve_id);
     EXPECT_EQ(pp.g, pp_reconstructed.g);
 }

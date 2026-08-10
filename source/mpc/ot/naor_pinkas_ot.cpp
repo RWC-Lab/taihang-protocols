@@ -24,7 +24,7 @@ std::string PublicParameters::format() const {
 };
 
 std::ostream& operator<<(std::ostream& os, const PublicParameters& pp) {
-    os << pp.curve_id << pp.g;
+    os << pp.curve_id << ' ' << pp.g;
     return os;
 }
 

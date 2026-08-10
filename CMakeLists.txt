@@ -5,6 +5,17 @@ project(taihang_protocols LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# The test suite contains death tests for TAIHANG_ASSERT contracts. Keep the
+# ordinary `cmake .. && make && ctest` workflow assertion-enabled, consistent
+# with the default used by the Taihang core project. Callers can still request
+# another configuration explicitly with -DCMAKE_BUILD_TYPE=<type>.
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type" FORCE)
+    set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+        Debug Release RelWithDebInfo MinSizeRel)
+    message(STATUS "No build type specified - defaulting to Debug")
+endif()
+
 if(NOT MSVC)
     add_compile_options(-O3 -fPIC -Wall -Wno-deprecated-declarations)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")

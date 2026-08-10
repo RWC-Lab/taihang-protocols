@@ -38,6 +38,13 @@
 
 namespace taihang::mpc::cwprf_psi {
 
+namespace {
+
+constexpr size_t kWeierstrassPointPrefixLen = 1;
+constexpr size_t kX25519PointPrefixLen = 0;
+
+} // namespace
+
 // ===========================================================================
 // PublicParameters helpers
 // ===========================================================================
@@ -154,21 +161,23 @@ PublicParameters setup(int    curve_id,
 // ===========================================================================
 
 /**
- * @brief Truncates a serialized point's byte representation to the first
- *        `len` bytes and returns it as a binary std::string suitable for
- *        use as an unordered_set key.
+ * @brief Truncates a serialized point's payload to `len` bytes and returns it
+ *        as a binary std::string suitable for use as an unordered_set key.
  *
  * @details This is the byte-level core of MembershipMode::Truncate: only
- *          the leading `len` bytes of the (already pseudorandom, by the
- *          DH-extraction argument cited in cwprf_psi.hpp) point encoding
- *          are retained, both to save bandwidth and because the leading
- *          bytes alone already provide lambda + log(n1) + log(n2) bits of
- *          collision resistance for this protocol's correctness needs.
+ *          We skip the fixed point-format prefix for short-Weierstrass
+ *          encodings (0x02/0x03 for compressed points, 0x04 for uncompressed
+ *          points). That prefix is not pseudorandom and must not count toward
+ *          the statistical-security budget. X25519's raw 32-byte encoding has
+ *          no prefix, so its offset is zero.
  */
-inline std::string truncate_to_string(const std::vector<uint8_t>& full_bytes, size_t len) {
-    TAIHANG_ASSERT(full_bytes.size() >= len,
+inline std::string truncate_to_string(const std::vector<uint8_t>& full_bytes,
+                                      size_t len,
+                                      size_t prefix_len) {
+    TAIHANG_ASSERT(prefix_len <= full_bytes.size() &&
+                   len <= full_bytes.size() - prefix_len,
         "cwprf_psi: truncate_byte_len exceeds the point's serialized length.");
-    return std::string(reinterpret_cast<const char*>(full_bytes.data()), len);
+    return std::string(reinterpret_cast<const char*>(full_bytes.data() + prefix_len), len);
 }
 
 // ===========================================================================
@@ -222,7 +231,9 @@ void sender(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
         if (pp.membership_mode == MembershipMode::Truncate) {
             std::vector<std::string> vec_truncated_fk1k2_x(receiver_len);
             for (size_t i = 0; i < receiver_len; ++i) {
-                vec_truncated_fk1k2_x[i] = truncate_to_string(vec_fk1k2_x[i].to_bytes(), pp.truncate_byte_len);
+                vec_truncated_fk1k2_x[i] = truncate_to_string(
+                    vec_fk1k2_x[i].to_bytes(), pp.truncate_byte_len,
+                    kWeierstrassPointPrefixLen);
             }
             io.send(vec_truncated_fk1k2_x);
 
@@ -273,7 +284,9 @@ void sender(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
         if (pp.membership_mode == MembershipMode::Truncate) {
             std::vector<std::string> vec_truncated_fk1k2_x(receiver_len);
             for (size_t i = 0; i < receiver_len; ++i) {
-                vec_truncated_fk1k2_x[i] = truncate_to_string(vec_fk1k2_x[i].to_bytes(), pp.truncate_byte_len);
+                vec_truncated_fk1k2_x[i] = truncate_to_string(
+                    vec_fk1k2_x[i].to_bytes(), pp.truncate_byte_len,
+                    kX25519PointPrefixLen);
             }
             io.send(vec_truncated_fk1k2_x);
 
@@ -352,7 +365,9 @@ std::vector<Block> receiver(net::NetIO& io, const PublicParameters& pp, const st
             std::unordered_set<std::string> set_truncated_fk2k1_y;
             set_truncated_fk2k1_y.reserve(sender_len);
             for (size_t j = 0; j < sender_len; ++j) {
-                set_truncated_fk2k1_y.insert(truncate_to_string(vec_fk2k1_y[j].to_bytes(), pp.truncate_byte_len));
+                set_truncated_fk2k1_y.insert(truncate_to_string(
+                    vec_fk2k1_y[j].to_bytes(), pp.truncate_byte_len,
+                    kWeierstrassPointPrefixLen));
             }
 
             for (size_t i = 0; i < receiver_len; ++i) {
@@ -421,7 +436,9 @@ std::vector<Block> receiver(net::NetIO& io, const PublicParameters& pp, const st
             std::unordered_set<std::string> set_truncated_fk2k1_y;
             set_truncated_fk2k1_y.reserve(sender_len);
             for (size_t j = 0; j < sender_len; ++j) {
-                set_truncated_fk2k1_y.insert(truncate_to_string(vec_fk2k1_y[j].to_bytes(), pp.truncate_byte_len));
+                set_truncated_fk2k1_y.insert(truncate_to_string(
+                    vec_fk2k1_y[j].to_bytes(), pp.truncate_byte_len,
+                    kX25519PointPrefixLen));
             }
             
             for (size_t i = 0; i < receiver_len; ++i) {

@@ -86,7 +86,7 @@ std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetIO& io,
 
 std::vector<Block> random_receiver(net::NetIO& io, 
                                    const PublicParameters& pp, 
-                                   std::vector<uint8_t>& vec_receiver_selection_bit, 
+                                   const std::vector<uint8_t>& vec_receiver_selection_bit, 
                                    size_t extend_len);
 
 template <typename Policy>

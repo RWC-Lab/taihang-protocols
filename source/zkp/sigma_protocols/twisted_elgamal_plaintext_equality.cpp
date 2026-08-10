@@ -16,6 +16,8 @@
 namespace taihang::zkp::nizk::twisted_elgamal_plaintext_equality {
 
 PublicParameters setup(const pke::twisted_elgamal::PublicParameters& encryption_pp) {
+    // Reuse the encryption setup so all recipient keys, ciphertext points,
+    // proof bases, and scalar responses share compatible contexts.
     return {encryption_pp.curve_id,
             encryption_pp.group_ctx,
             encryption_pp.ring_ctx,
@@ -28,6 +30,8 @@ bool Proof::operator==(const Proof& other) const {
 }
 
 std::ostream& operator<<(std::ostream& os, const Proof& proof) {
+    // The vector length is serialized before its fixed-width point elements;
+    // this makes a proof self-delimiting during deserialization.
     const std::uint64_t count = static_cast<std::uint64_t>(proof.vec_c1.size());
     os.write(reinterpret_cast<const char*>(&count), sizeof(count));
     for (const auto& point : proof.vec_c1) os << point;
@@ -56,12 +60,19 @@ Proof prove(const PublicParameters& pp,
             const Statement& statement,
             const Witness& witness,
             std::string_view context) {
+    // First Sigma-protocol round: one random scalar a is shared across all
+    // recipients, while b masks the common plaintext component.
     const ZnElement a = pp.ring_ctx->gen_random();
     const ZnElement b = pp.ring_ctx->gen_random();
     std::vector<ECPoint> vec_c1;
     vec_c1.reserve(statement.vec_pk.size());
-    for (const auto& pk : statement.vec_pk) vec_c1.push_back(pk * a);
-    ECPoint c2 = ec_point_msm({pp.g, pp.h}, {a, b});
+    for (const auto& pk : statement.vec_pk) {
+        vec_c1.push_back(pk * a); // vec_c1[i] = vec_pk[i] * a
+    }
+    ECPoint c2 = ec_point_msm({pp.g, pp.h}, {a, b}); // c2 = g * a + h * b
+
+    // Fiat-Shamir challenge over the complete multi-recipient statement and
+    // all first-round commitments.
     std::ostringstream transcript;
     transcript.write(context.data(), static_cast<std::streamsize>(context.size()));
     for (const auto& pk : statement.vec_pk) transcript << pk;
@@ -70,6 +81,9 @@ Proof prove(const PublicParameters& pp,
     for (const auto& point : vec_c1) transcript << point;
     transcript << c2;
     const ZnElement e = hash_to_zn(transcript.str(), *pp.ring_ctx);
+
+    // The same responses are used in every recipient equation, proving that
+    // all ciphertext components share one randomness r and one plaintext v.
     return {std::move(vec_c1), std::move(c2), a + e * witness.r, b + e * witness.v};
 }
 
@@ -77,6 +91,8 @@ bool verify(const PublicParameters& pp,
             const Statement& statement,
             const Proof& proof,
             std::string_view context) {
+    // Recover the Fiat-Shamir challenge from the public statement and proof
+    // commitments before checking any response equations.
     std::ostringstream transcript;
     transcript.write(context.data(), static_cast<std::streamsize>(context.size()));
     for (const auto& pk : statement.vec_pk) transcript << pk;
@@ -87,14 +103,18 @@ bool verify(const PublicParameters& pp,
     const ZnElement e = hash_to_zn(transcript.str(), *pp.ring_ctx);
     if (statement.vec_pk.size() != statement.ct.vec_c1.size() ||
         statement.vec_pk.size() != proof.vec_c1.size()) {
+        // There must be exactly one public key, ciphertext component, and
+        // commitment for every recipient.
         return false;
     }
     for (std::size_t i = 0; i < statement.vec_pk.size(); ++i) {
+        // Check vec_pk[i] * z = vec_c1[i] + ct.vec_c1[i] * e.
         if (statement.vec_pk[i] * proof.z !=
             proof.vec_c1[i] + statement.ct.vec_c1[i] * e) {
             return false;
         }
     }
+    // Check g * z + h * t = c2 + ct.c2 * e for the common component.
     const ECPoint left = ec_point_msm({pp.g, pp.h}, {proof.z, proof.t});
     const ECPoint right = proof.c2 + statement.ct.c2 * e;
     return left == right;
