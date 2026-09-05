@@ -27,6 +27,31 @@ endif()
 
 # --- 2. Dependencies ---
 
+include(CheckCXXCompilerFlag)
+
+# The SIMD source uses target attributes to keep AVX instructions out of the
+# generic fallback path.  These checks only describe compiler support; the
+# runtime CPUID/XGETBV check still selects a safe backend on each machine.
+set(TAIHANG_X25519_AVX2_ENABLED 0)
+set(TAIHANG_X25519_IFMA512_ENABLED 0)
+if(NOT MSVC AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND
+   CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
+    check_cxx_compiler_flag("-mavx2" TAIHANG_COMPILER_SUPPORTS_AVX2)
+    check_cxx_compiler_flag("-mavx512f" TAIHANG_COMPILER_SUPPORTS_AVX512F)
+    check_cxx_compiler_flag("-mavx512ifma" TAIHANG_COMPILER_SUPPORTS_AVX512IFMA)
+
+    if(TAIHANG_COMPILER_SUPPORTS_AVX2)
+        set(TAIHANG_X25519_AVX2_ENABLED 1)
+    endif()
+    if(TAIHANG_COMPILER_SUPPORTS_AVX512F AND
+       TAIHANG_COMPILER_SUPPORTS_AVX512IFMA)
+        set(TAIHANG_X25519_IFMA512_ENABLED 1)
+    endif()
+endif()
+
+message(STATUS "Taihang-Protocols: X25519 AVX2 compiler support: ${TAIHANG_X25519_AVX2_ENABLED}")
+message(STATUS "Taihang-Protocols: X25519 AVX-512 IFMA compiler support: ${TAIHANG_X25519_IFMA512_ENABLED}")
+
 if(APPLE)
     list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew/opt/openssl" "/usr/local/opt/openssl")
 endif()
@@ -58,6 +83,11 @@ endif()
 file(GLOB_RECURSE PROTOCOL_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
 
 add_library(taihang_protocols STATIC ${PROTOCOL_SOURCES})
+
+target_compile_definitions(taihang_protocols PRIVATE
+    TAIHANG_X25519_AVX2_ENABLED=${TAIHANG_X25519_AVX2_ENABLED}
+    TAIHANG_X25519_IFMA512_ENABLED=${TAIHANG_X25519_IFMA512_ENABLED}
+)
 
 target_include_directories(taihang_protocols PUBLIC 
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
