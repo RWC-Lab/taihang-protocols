@@ -19,7 +19,9 @@ endif()
 if(NOT MSVC)
     add_compile_options(-O3 -fPIC -Wall -Wno-deprecated-declarations)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "x86_64|amd64|AMD64")
-        add_compile_options(-maes -msse4.1 -mpclmul -mavx -mavx2 -mrdseed)
+        # Core owns SIMD feature detection and target-specific X25519 objects.
+        # Protocol objects must remain runnable on x86-64 machines without AVX2.
+        add_compile_options(-maes -msse4.2 -mpclmul)
     elseif(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64|aarch64|ARM64")
         add_compile_options(-march=armv8-a+crypto+simd)
     endif()
@@ -55,7 +57,8 @@ endif()
 
 # --- 4. Library Definition ---
 
-file(GLOB_RECURSE PROTOCOL_SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
+file(GLOB_RECURSE PROTOCOL_SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp")
 
 add_library(taihang_protocols STATIC ${PROTOCOL_SOURCES})
 
@@ -76,7 +79,8 @@ target_link_libraries(taihang_protocols PUBLIC
 enable_testing()
 include(GoogleTest)
 
-file(GLOB TEST_FILES "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_*.cpp")
+file(GLOB TEST_FILES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_*.cpp")
 
 foreach(test_source ${TEST_FILES})
     get_filename_component(test_name ${test_source} NAME_WE)
@@ -97,7 +101,8 @@ endforeach()
 
 # --- 6. Benchmarks ---
 
-file(GLOB BENCH_FILES "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/bench_*.cpp")
+file(GLOB BENCH_FILES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/benchmarks/bench_*.cpp")
 
 foreach(bench_source ${BENCH_FILES})
     get_filename_component(bench_name ${bench_source} NAME_WE)

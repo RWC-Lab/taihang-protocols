@@ -5,6 +5,7 @@
  *****************************************************************************/
 
 #include <taihang/mpc/pso/cwprf_mqrpmt.hpp>
+#include <taihang/system/x25519_simd.hpp>
 #include <taihang/common/logger.hpp>
 #include <algorithm> // std::shuffle
 #include <format>
@@ -17,6 +18,8 @@
 #include <openssl/rand.h>
 
 namespace taihang::mpc::cwprf_mqrpmt {
+
+namespace x25519_simd = taihang::system::x25519_simd;
 
 // -------------------------------------------------------------------------
 // PublicParameters helpers
@@ -201,8 +204,9 @@ std::vector<uint8_t> server(net::NetIO& io, const PublicParameters& pp, const st
         std::vector<EC25519Point> vec_fk1_y(server_len);
         #pragma omp parallel for num_threads(config::thread_num)
         for (size_t i = 0; i < server_len; ++i) {
-            vec_fk1_y[i] = hash_to_curve25519(vec_y[i]) * k1;
+            vec_fk1_y[i] = hash_to_curve25519(vec_y[i]);
         }
+        x25519_simd::scalar_mul_batch(vec_fk1_y, k1);
 
         TAIHANG_LOG("cwPRF mqRPMT [step 1]:", std::format("Server ===> F_k1(H(y_i)) ===> Client [{:.2f} MB]", 
                             static_cast<double>(server_len * EC25519Point::POINT_BYTE_LEN) / (1024 * 1024)));
@@ -211,15 +215,11 @@ std::vector<uint8_t> server(net::NetIO& io, const PublicParameters& pp, const st
 
         TAIHANG_LOG("cwPRF mqRPMT [step 2]:", "Server receives F_k2(H(x_i)) from Client...");
         // Receive F_k2(x_i) from client
-        std::vector<EC25519Point> vec_fk2_x(client_len);
-        io.recv(vec_fk2_x);
+        std::vector<EC25519Point> vec_fk1k2_x(client_len);
+        io.recv(vec_fk1k2_x);
 
         // Step 2: Compute commutative composite layer F_k1k2(x_i) = (F_k2(x_i))^k1
-        std::vector<EC25519Point> vec_fk1k2_x(client_len);
-        #pragma omp parallel for num_threads(config::thread_num)
-        for (size_t i = 0; i < client_len; ++i) {
-            vec_fk1k2_x[i] = vec_fk2_x[i] * k1;
-        }
+        x25519_simd::scalar_mul_batch(vec_fk1k2_x, k1);
 
         // Step 2: membership test (mode-dependent)
         if (pp.membership_mode == MembershipMode::BloomFilter) {
@@ -352,13 +352,14 @@ void client(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
         std::vector<EC25519Point> vec_fk2_x(client_len);
         #pragma omp parallel for num_threads(config::thread_num)
         for (size_t i = 0; i < client_len; ++i) {
-            vec_fk2_x[i] = hash_to_curve25519(vec_x[i]) * k2;
+            vec_fk2_x[i] = hash_to_curve25519(vec_x[i]);
         }
+        x25519_simd::scalar_mul_batch(vec_fk2_x, k2);
 
         TAIHANG_LOG("cwPRF mqRPMT [step 1]:", "Client receives F_k1(H(y_i)) from Server...");
         // Receive incoming server layers F_k1(y_i)
-        std::vector<EC25519Point> vec_fk1_y(server_len);
-        io.recv(vec_fk1_y);
+        std::vector<EC25519Point> vec_fk2k1_y(server_len);
+        io.recv(vec_fk2k1_y);
 
         TAIHANG_LOG("cwPRF mqRPMT [step 2]:", std::format("Client ===> F_k2(H(x_i)) ===> Server [{:.2f} MB]", 
                                         static_cast<double>(client_len * EC25519Point::POINT_BYTE_LEN) / (1024 * 1024)));
@@ -366,11 +367,7 @@ void client(net::NetIO& io, const PublicParameters& pp, const std::vector<Block>
         io.send(vec_fk2_x);
 
         // Step 2: Compute commutative PRF values F_k2k1(y_i) = (F_k1(y_i))^k2
-        std::vector<EC25519Point> vec_fk2k1_y(server_len);
-        #pragma omp parallel for num_threads(config::thread_num)
-        for (size_t i = 0; i < server_len; ++i) {
-            vec_fk2k1_y[i] = vec_fk1_y[i] * k2;
-        }
+        x25519_simd::scalar_mul_batch(vec_fk2k1_y, k2);
 
         // send membership structure (mode-dependent)
         if (pp.membership_mode == MembershipMode::BloomFilter) {
