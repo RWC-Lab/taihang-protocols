@@ -5,7 +5,7 @@
  *****************************************************************************/
 
 #include <taihang/mpc/pso/cwprf_mqrpmt.hpp>
-#include <taihang/system/x25519_simd.hpp>
+#include <taihang/crypto/x25519_simd.hpp>
 #include <taihang/common/logger.hpp>
 #include <algorithm> // std::shuffle
 #include <format>
@@ -19,7 +19,7 @@
 
 namespace taihang::mpc::cwprf_mqrpmt {
 
-namespace x25519_simd = taihang::system::x25519_simd;
+namespace x25519_simd = taihang::crypto::x25519_simd;
 
 // -------------------------------------------------------------------------
 // PublicParameters helpers
