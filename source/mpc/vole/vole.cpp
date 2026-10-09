@@ -644,7 +644,7 @@ std::vector<Block> extend_vole_party_a(net::NetIO& io,
         base_field_a[i * sub_len + vec_index[i]] = vec_u[i];
     }
 
-    // Obtain the right selection bit vector by traveling vec_index reversely
+    // Obtain the correct selection-bit vector by traversing vec_index in reverse.
     // and XORing 111...111.
     std::vector<uint8_t> selection_bits;
     trans_to_bit_vec(vec_index[t - 1], selection_bits, level_last);

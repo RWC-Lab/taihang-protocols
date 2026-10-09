@@ -51,9 +51,9 @@ inline std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetI
 {
     /* 
     ** Phase 1: sender obtains a random blended matrix Q of matrix T and U from receiver
-    ** T and U are tall and skinny matrix, to use base OT oblivious transfer T and U, 
-    ** the sender first oblivous get 1-out-of-2 keys per column from receiver via base OT 
-    ** receiver then send encryptions of the original column and shared column under k0 and k1 respectively
+    ** T and U are tall, skinny matrices. To use base OT on their columns,
+    ** the sender first obliviously obtains one of two keys per column from the receiver.
+    ** The receiver then sends encryptions of the original and shared columns under k0 and k1, respectively.
     */
 
     // prepare to receive a secret shared matrix Q from receiver
@@ -67,7 +67,7 @@ inline std::pair<std::vector<Block>, std::vector<Block>> random_sender(net::NetI
     prg::Seed seed = prg::set_seed(nullptr, 0); 
     std::vector<uint8_t> vec_sender_selection_bit = prg::gen_random_bits(seed, column_num); 
 
-    // first receive 1-out-2 keys (acturally seeds) from the receiver 
+    // First receive one-out-of-two keys (actually seeds) from the receiver.
     auto vec_q_seed = taihang::mpc::np_ot::receiver(io, pp.base_ot_pp, vec_sender_selection_bit, column_num);
 
     TAIHANG_LOG("ALSZ OTE [step 1]:", std::format("Sender obliviously gets {} keys from Receiver via base OT", pp.base_len));
@@ -149,7 +149,7 @@ std::vector<Block> random_receiver(net::NetIO& io, const PublicParameters& pp, c
     std::vector<Block> matrix_p((row_num / 128) * column_num);
     
     for(size_t j = 0; j < column_num; j++) {
-        // generate two random matrixs from seeds
+        // Generate two random matrices from seeds.
         prg::reset_seed(seed, &vec_t_seed[j], 0); 
         auto t_column = prg::gen_random_blocks(seed, row_num / 128); // t = G(t_seed)
         std::memcpy(matrix_t.data() + (row_num / 128) * j, t_column.data(), row_num / 8); // form matrix T

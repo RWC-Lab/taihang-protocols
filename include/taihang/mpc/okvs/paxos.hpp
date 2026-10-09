@@ -364,13 +364,13 @@ public:
 
    // The backfill algorithm for a binary OKVS.
    void backfill_binary(value_type *values, value_type *output, prg::Seed *prng);
-   // The backfill algorithm for a OKVS whose dense_type is gf_128.
+   // The backfill algorithm for an OKVS whose dense_type is gf_128.
    template<typename T>
    void backfill_gf128(T *values, T *output, prg::Seed *prng);
 
    void backfill_gf128(Block *values, Block *output, prg::Seed *prng);
    
-   // The backfill algorithm for a OKVS whose dense_type is gf_128 and value_type is BlockArrayValue(Block[]).
+   // The backfill algorithm for an OKVS whose dense_type is gf_128 and value_type is BlockArrayValue(Block[]).
    void backfill_BlockArrayValue128(value_type *values, value_type *output, prg::Seed *prng);
 };
 

@@ -226,7 +226,7 @@ std::vector<uint8_t> sender(net::NetIO& io, const PublicParameters& pp) {
     std::vector<std::vector<uint8_t>> matrix_c(pp.matrix_width, std::vector<uint8_t>(matrix_height_byte));
     for (size_t left_index = 0; left_index < pp.matrix_width; left_index += split_bucket_size) {
         const size_t right_index = std::min(left_index + split_bucket_size, pp.matrix_width);
-        // bucket_size = split_bucket_size at most time, except for the last splited part.
+        // bucket_size equals split_bucket_size most of the time, except for the final split.
         const size_t bucket_size = right_index - left_index;
 
         std::vector<uint8_t> matrix_b(bucket_size * matrix_height_byte);

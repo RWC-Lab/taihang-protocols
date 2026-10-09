@@ -137,7 +137,7 @@ SenderOutput pso_sender(net::NetIO& io,
             alsz_ote::sender<alsz_ote::BytesPolicy>(io, pp.ote_pp, vec_m0, vec_m1, sender_len);
 
             io.recv(output.cardinality);
-            ZnElement masked_sum =  pp.ring_ctx->get_zero(); // initialize an Zn Element
+            ZnElement masked_sum =  pp.ring_ctx->get_zero(); // Initialize a Zn element.
             io.recv(masked_sum);
             // recover the actual sum
             output.card_sum = masked_sum - mask;

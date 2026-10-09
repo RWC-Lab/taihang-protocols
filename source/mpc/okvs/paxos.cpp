@@ -203,7 +203,7 @@ void OKVS<idx_type, dense_type, value_type>::set_sparse_32(const Block *dense, i
          min[6] = weight_0_idx[6] ^ weight_1_idx[6];
          min[7] = weight_0_idx[7] ^ weight_1_idx[7];
 
-         // max = min & mask = mask = 0 <=> weight_1 > weight_0 ? 0 : weight_0 ^ weihgt 1;
+         // max = min & mask = mask = 0 <=> weight_1 > weight_0 ? 0 : weight_0 ^ weight_1;
          max[0] = block_and(min[0], mask[0]);
          max[1] = block_and(min[1], mask[1]);
          max[2] = block_and(min[2], mask[2]);
@@ -224,7 +224,7 @@ void OKVS<idx_type, dense_type, value_type>::set_sparse_32(const Block *dense, i
          max[6] = max[6] ^ weight_1_idx[6];
          max[7] = max[7] ^ weight_1_idx[7];
 
-         // min = weight_0 ^ weight_1 ^ max = min(weight_0,weihgt_1)
+         // min = weight_0 ^ weight_1 ^ max = min(weight_0, weight_1)
          min[0] = min[0] ^ max[0];
          min[1] = min[1] ^ max[1];
          min[2] = min[2] ^ max[2];

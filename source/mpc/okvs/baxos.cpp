@@ -313,7 +313,7 @@ void Baxos<dense_type, value_type>::impl_decode_batch(Block *keys, value_type *v
     // Decode is performed in units of decode_size groups
     auto decode_size = std::min(uint64_t(512), batch_len);
     std::vector<std::vector<Block>> batches(bin_num, std::vector<Block>(decode_size));
-    std::vector<std::vector<uint64_t>> keys_idxes(bin_num, std::vector<uint64_t>(decode_size));
+    std::vector<std::vector<uint64_t>> key_indices(bin_num, std::vector<uint64_t>(decode_size));
     std::vector<uint64_t> batch_sizes(bin_num);
 
     // Initialize small-sized single-threaded OKVS
@@ -366,20 +366,20 @@ void Baxos<dense_type, value_type>::impl_decode_batch(Block *keys, value_type *v
             auto bin_idx = bin_idxes[k];
             auto batch_size = batch_sizes[bin_idx]++;
             batches[bin_idx][batch_size] = buffer[k];
-            keys_idxes[bin_idx][batch_size] = i + k;
+            key_indices[bin_idx][batch_size] = i + k;
             // If after processing the current key,
             // the decode_size size group (the unit of decoding) is just filled,
             // then start decoding immediately
             if (batch_size + 1 == decode_size)
             {
                 auto output_pointer = output + bin_idx * total_size;
-                auto idxes = keys_idxes[bin_idx];
+                auto indices = key_indices[bin_idx];
                 paxos.h_dense = batches[bin_idx].data();
                 paxos.decode(nullptr, decode_size, output_pointer, value_buffer.data(), batches[bin_idx].data());
 
                 for (uint64_t ii = 0; ii < decode_size; ii++)
                 {
-                    values[idxes[ii]] = value_buffer[ii];
+                    values[indices[ii]] = value_buffer[ii];
                 }
                 batch_sizes[bin_idx] = 0;
             }
@@ -395,7 +395,7 @@ void Baxos<dense_type, value_type>::impl_decode_batch(Block *keys, value_type *v
 
         auto batch_size = batch_sizes[bin_idx]++;
         batch_bin[batch_size] = buffer[0];
-        keys_idxes[bin_idx][batch_size] = i;
+        key_indices[bin_idx][batch_size] = i;
 
         // Similarly, once the number of processing reaches decode_size, start decoding immediately
         if (batch_size + 1 == decode_size)
@@ -405,7 +405,7 @@ void Baxos<dense_type, value_type>::impl_decode_batch(Block *keys, value_type *v
             paxos.decode(nullptr, decode_size, output_pointer, value_buffer.data(), batch_bin.data());
             for (uint64_t ii = 0; ii < decode_size; ii++)
             {
-                values[keys_idxes[bin_idx][ii]] = value_buffer[ii];
+                values[key_indices[bin_idx][ii]] = value_buffer[ii];
             }
             batch_sizes[bin_idx] = 0;
         }
@@ -424,7 +424,7 @@ void Baxos<dense_type, value_type>::impl_decode_batch(Block *keys, value_type *v
             paxos.decode(nullptr, batch_size, output_pointer, value_buffer.data(), batches[bin_idx].data());
             for (uint64_t ii = 0; ii < batch_size; ii++)
             {
-                values[keys_idxes[bin_idx][ii]] = value_buffer[ii];
+                values[key_indices[bin_idx][ii]] = value_buffer[ii];
             }
         }
     }
